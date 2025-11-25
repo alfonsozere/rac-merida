@@ -1,0 +1,73 @@
+<div class="login-container">
+  <!-- Sección izquierda: imagen + título -->
+  <div class="login-left">
+    <img src="assets/img/logo-institucional.png" alt="Logo institucional" class="login-image">
+    <h2 class="login-title">Sistema RAC_MÉRIDA</h2>
+    <p class="text-muted fs-6">Gestión educativa transparente y validada</p>
+  </div>
+
+  <!-- Sección derecha: formulario -->
+  <div class="card login-card shadow-lg border-0">
+    <div class="card-body p-4">
+      <h2 class="card-title text-center mb-3 fs-3 fw-bold">¡Bienvenido!</h2>
+      <p class="card-subtitle text-center text-muted mb-3 fs-6">🔐 Inicia sesión en tu cuenta</p>
+
+      <!-- Mensaje -->
+      <div *ngIf="message" class="alert alert-{{messageType}} text-center rounded-3 shadow-sm fade-in" role="alert">
+        {{ message }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Usuario -->
+        <div class="mb-4">
+          <label for="usuario" class="form-label form-label-institucional">Usuario</label>
+          <input id="usuario" type="text" formControlName="usuario"
+            class="form-control input-institucional"
+            placeholder="Tu nombre de usuario o correo"
+            [class.is-invalid]="loginForm.get('usuario')?.invalid && loginForm.get('usuario')?.touched">
+          <div *ngIf="loginForm.get('usuario')?.invalid && loginForm.get('usuario')?.touched"
+               class="invalid-feedback invalid-feedback-institucional">
+            El usuario es requerido.
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="mb-4">
+          <label for="contrasena" class="form-label form-label-institucional">Contraseña</label>
+          <input id="contrasena" type="password" formControlName="contrasena"
+            class="form-control input-institucional"
+            placeholder="Tu contraseña secreta"
+            [class.is-invalid]="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
+          <div *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched"
+               class="invalid-feedback invalid-feedback-institucional">
+            La contraseña es requerida.
+          </div>
+        </div>
+
+        <hr class="my-2">
+
+        <!-- Botón -->
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit"
+                  [disabled]="loginForm.invalid || isLoading"
+                  class="btn btn-institucional rounded-3 shadow-sm">
+            <span *ngIf="!isLoading">Iniciar Sesión</span>
+            <span *ngIf="isLoading" class="d-flex align-items-center justify-content-center">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Cargando...
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Enlace de registro -->
+      <div class="text-center mt-4">
+        <p class="text-muted mb-0">¿No tienes una cuenta?
+          <a routerLink="/registro" class="text-decoration-none fw-semibold text-muted">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

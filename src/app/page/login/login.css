@@ -1,0 +1,238 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.min-vh-75 {
+  min-height: 78vh !important;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 64px);
+  padding: 40px;
+  background-color: #f0f2f5;
+  box-sizing: border-box;
+  gap: 40px; /* espacio entre izquierda y derecha */
+}
+
+/* --- SECCIÓN IZQUIERDA --- */
+.login-left {
+  flex: 1;
+  text-align: center;
+}
+
+.login-image {
+  max-width: 300px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.login-title {
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* --- TARJETA DE LOGIN (DERECHA) --- */
+.login-card {
+  flex: 1;
+  max-width: 420px;
+  width: 100%;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: fadeInLogin 0.6s ease-out;
+}
+
+@keyframes fadeInLogin {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- TÍTULOS --- */
+.card-title {
+  font-size: 1.6em;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.card-subtitle {
+  font-size: 1em;
+  color: #6c757d;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* --- MENSAJES --- */
+.alert {
+  font-size: 0.95em;
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+/* --- FORMULARIO --- */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 6px;
+}
+
+.form-control {
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.95em;
+  border: 1px solid #ced4da;
+  box-shadow: none;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #2c3e50;
+  outline: none;
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  font-size: 0.85em;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
+/* --- BOTÓN DE LOGIN --- */
+.btn-primary,
+.btn-institucional {
+  background-color: #2c3e50;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  padding: 10px;
+  font-size: 1em;
+  transition: background-color 0.2s ease-in-out;
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-institucional:hover {
+  background-color: #1a2b3c;
+}
+
+.btn-primary:disabled,
+.btn-institucional:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* --- ENLACE DE REGISTRO --- */
+.login-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+.login-footer a {
+  color: #2c3e50;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.login-footer a:hover {
+  color: #1a2b3c;
+  text-decoration: underline;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .login-left,
+  .login-card {
+    flex: none;
+    max-width: 100%;
+  }
+
+  .login-image {
+    max-width: 200px;
+  }
+}
+
+/* --- MODO OSCURO: LOGIN --- */
+.modo-oscuro .login-container {
+  background-color: #121212;
+}
+
+.modo-oscuro .login-card {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.modo-oscuro .card-title {
+  color: #f4f4f4;
+}
+
+.modo-oscuro .card-subtitle {
+  color: #b0b0b0;
+}
+
+.modo-oscuro .form-label {
+  color: #f4f4f4;
+}
+
+.modo-oscuro .form-control {
+  background-color: #2a2a2a;
+  color: #f4f4f4;
+  border: 1px solid #444;
+}
+
+.modo-oscuro .form-control:focus {
+  border-color: #9dc3ff;
+}
+
+.modo-oscuro .invalid-feedback {
+  color: #ff6b6b;
+}
+
+.modo-oscuro .btn-primary,
+.modo-oscuro .btn-institucional {
+  background-color: #3a3a3a;
+  color: #f4f4f4;
+}
+
+.modo-oscuro .btn-primary:hover,
+.modo-oscuro .btn-institucional:hover {
+  background-color: #505050;
+}
+
+.modo-oscuro .btn-primary:disabled,
+.modo-oscuro .btn-institucional:disabled {
+  background-color: #555;
+}
+
+.modo-oscuro .login-footer {
+  color: #b0b0b0;
+}
+
+.modo-oscuro .login-footer a {
+  color: #9dc3ff;
+}
+
+.modo-oscuro .login-footer a:hover {
+  color: #c0d8ff;
+}
