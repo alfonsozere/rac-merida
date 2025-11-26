@@ -8,7 +8,7 @@ import { BackendMessageResponse } from '../../core/models/usuario.model';
 import { catchError, finalize } from 'rxjs/operators';
 import { of, EMPTY } from 'rxjs';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router'; // RouterLink es una directiva, Router es un servicio
-import { Auth } from '../../core/auth';
+import { Auth } from '../../core/services/auth';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LoginPayload, LoginResponse } from '../../core/models/login.model';
 

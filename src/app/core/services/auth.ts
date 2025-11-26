@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Usuario } from './models/usuario.model';
+import { Usuario } from '../models/usuario.model';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs'; // <-- ¡NUEVA IMPORTACIÓN!
 

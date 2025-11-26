@@ -4,34 +4,34 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
-import { RolPublico } from './models/rol-publico.model';
-import { BackendMessageResponse, RegistroResponse, RegistroUsuarioPayload, Usuario } from './models/usuario.model';
-import { Empleado } from './models/empleado.model';
-import { Plantel } from './models/plantel.model';
-import { CargosObreros } from './models/cargos-obreros.model';
-import { GradosObreros } from './models/grados-obreros.model';
-import { DocentesEspecificos } from './models/docentes-especificos.model';
-import { CargoDocentes } from './models/cargo-docentes.model';
-import { CargoAdministrativos } from './models/cargo-administrativos.model';
-import { TiposPersonal } from './models/tipos-personal.model';
-import { Sexo } from './models/sexo.model';
-import { Circuito } from './models/circuito.model';
-import { Comunas } from './models/comunas.model';
-import { ConsejoComunales } from './models/consejo-comunales.model';
-import { Denominaciones } from './models/denominaciones.model';
-import { Dependencias } from './models/dependencias.model';
-import { Modalidades } from './models/modalidades.model';
-import { Niveles } from './models/niveles.model';
-import { SituacionLaboral } from './models/situacion-laboral.model';
-import { Turnos } from './models/turnos.model';
-import { Ubch } from './models/ubch.model';
-import { Territorio } from './models/territorio.model';
-import { Parroquia } from './models/parroquia.model';
-import { Municipio } from './models/municipio.model';
-import { Estado } from './models/estado.model';
-import { LoginPayload, LoginResponse } from './models/login.model';
+import { RolPublico } from '../models/rol-publico.model';
+import { BackendMessageResponse, RegistroResponse, RegistroUsuarioPayload, Usuario } from '../models/usuario.model';
+import { Empleado } from '../models/empleado.model';
+import { Plantel } from '../models/plantel.model';
+import { CargosObreros } from '../models/cargos-obreros.model';
+import { GradosObreros } from '../models/grados-obreros.model';
+import { DocentesEspecificos } from '../models/docentes-especificos.model';
+import { CargoDocentes } from '../models/cargo-docentes.model';
+import { CargoAdministrativos } from '../models/cargo-administrativos.model';
+import { TiposPersonal } from '../models/tipos-personal.model';
+import { Sexo } from '../models/sexo.model';
+import { Circuito } from '../models/circuito.model';
+import { Comunas } from '../models/comunas.model';
+import { ConsejoComunales } from '../models/consejo-comunales.model';
+import { Denominaciones } from '../models/denominaciones.model';
+import { Dependencias } from '../models/dependencias.model';
+import { Modalidades } from '../models/modalidades.model';
+import { Niveles } from '../models/niveles.model';
+import { SituacionLaboral } from '../models/situacion-laboral.model';
+import { Turnos } from '../models/turnos.model';
+import { Ubch } from '../models/ubch.model';
+import { Territorio } from '../models/territorio.model';
+import { Parroquia } from '../models/parroquia.model';
+import { Municipio } from '../models/municipio.model';
+import { Estado } from '../models/estado.model';
+import { LoginPayload, LoginResponse } from '../models/login.model';
 
 
 @Injectable({
@@ -211,3 +211,4 @@ export class Api {
     return throwError(() => error);
   }
 }
+
