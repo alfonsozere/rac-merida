@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../core/auth';
-import { ROLES } from '../../../core/constants/constantes';
+import { ROLES } from '../../core/constants/constantes';
 import { Subscription } from 'rxjs';
 
 interface UserData {

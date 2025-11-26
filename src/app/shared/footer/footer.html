@@ -1,1 +1,19 @@
-<p>footer works!</p>
+<footer class="app-footer">
+  <div class="footer-wrapper">
+    <!-- Sección izquierda: copyright + desarrollador -->
+    <div class="footer-left">
+      <span class="copyright-text">
+        &copy; {{ currentYear() }} CDCE Mérida. Todos los derechos reservados.
+      </span>
+      <span class="developer-info-text">
+        Desarrollado por: Luis Alfonso Pérez Serrano - 04121667405
+      </span>
+    </div>
+
+    <!-- Sección derecha: fecha y hora -->
+    <div class="footer-right">
+      <span class="current-date-text">{{ currentDate }}</span>
+      <span class="current-time-text">{{ currentTime }}</span>
+    </div>
+  </div>
+</footer>

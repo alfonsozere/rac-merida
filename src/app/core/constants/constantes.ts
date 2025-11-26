@@ -1,0 +1,15 @@
+export enum ROLES {
+  SUPER_ADMIN = 1,
+  ADMIN_STATE = 2,
+  ADMIN_MUNICIPAL = 3,
+  ADMIN_SQUAD = 4,
+  STANDARD = 5,
+  PENDING = 6,
+  ADMIN_CIRCUITAL = 7,
+}
+
+export enum TIPO_PERSONAL {
+  DOCENTE = 1,
+  ADMINISTRATIVO = 3,
+  OBRERO = 4
+}

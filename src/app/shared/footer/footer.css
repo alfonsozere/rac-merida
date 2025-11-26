@@ -1,0 +1,37 @@
+.app-footer {
+    background-color: white;
+  background-image: url('/assets/images/logo-footer.png'); /* Ruta relativa desde src/assets */
+  background-size: cover;       /* Ajusta la imagen para cubrir todo el área */
+  background-repeat: no-repeat; /* Evita que se repita */
+  background-position: center;  /* Centra la imagen */
+  color: #000000;
+  padding: 10px 20px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 14px;
+}
+
+.footer-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.current-date-text,
+.current-time-text {
+  font-weight: bold;
+}
