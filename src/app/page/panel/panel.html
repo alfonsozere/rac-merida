@@ -1,1 +1,55 @@
-<p>panel works!</p>
+<div class="page-wrapper">
+  <div class="page-container">
+    <h2 class="page-title">Panel de Control del Sistema</h2>
+
+    <!-- Mensaje institucional -->
+    <div *ngIf="message" class="alert alert-{{messageType}} text-center rounded-3 shadow-sm mb-4 alert-message" role="alert">
+      {{ message }}
+    </div>
+
+    <!-- Tarjetas principales -->
+    <ng-container *ngIf="!hasActiveChildRoute">
+      <div class="card-grid">
+        <div *ngFor="let card of cards">
+          <div
+            class="card-option"
+            [ngClass]="{
+              'opacity-75 bg-light-subtle': isCardDisabled(card),
+              'cursor-not-allowed': isCardDisabled(card),
+              'border-bottom border-4 border-primary': card.className === 'admin-card',
+              'border-bottom border-4 border-success': card.className === 'user-card',
+              'border-bottom border-4 border-warning': card.className === 'general-info-card'
+            }"
+            (click)="navigateTo(card.route, card)"
+            [attr.aria-disabled]="isCardDisabled(card) ? 'true' : 'false'"
+            [style.cursor]="isCardDisabled(card) ? 'not-allowed' : 'pointer'"
+          >
+            <div class="card-body card-content d-flex flex-column align-items-center justify-content-center w-100">
+              <i class="bi control-icon bi-{{ card.icon }}" [ngClass]="{
+                'text-primary': card.className === 'admin-card' && !isCardDisabled(card),
+                'text-success': card.className === 'user-card' && !isCardDisabled(card),
+                'text-warning': card.className === 'general-info-card' && !isCardDisabled(card),
+                'text-muted': isCardDisabled(card)
+              }"></i>
+
+              <h4 class="control-card-title">{{ card.title }}</h4>
+              <p class="control-card-description">{{ card.description }}</p>
+              <p class="control-card-description fw-bold">{{ card.description2 }}</p>
+            </div>
+
+            <!-- Overlay de acceso denegado -->
+            <div *ngIf="isCardDisabled(card)" class="overlay-restricted position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+              <i class="bi bi-lock-fill overlay-icon mb-2"></i>
+              <span class="overlay-text fw-bold fs-6">Acceso Restringido</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Outlet neutro -->
+  <div class="router-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</div>

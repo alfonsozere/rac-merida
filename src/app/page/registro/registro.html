@@ -1,1 +1,230 @@
-<p>registro works!</p>
+<div class="d-flex align-items-center justify-content-center min-vh-100 bg-light p-3">
+  <div class="card shadow-lg rounded-3 border-0 w-100" style="max-width: 800px;">
+    <div class="card-body p-4">
+      <h2 class="card-title text-center mb-3 fs-3 fw-bold form-label-institucional">
+        Registro de Nuevo Usuario
+      </h2>
+      <p class="card-subtitle text-center text-muted mb-4 fs-6">
+        Crea tu cuenta RAC-CDCE
+      </p>
+
+      <div *ngIf="isLoading" class="progress mb-4" style="height: 5px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;"></div>
+      </div>
+
+      <div *ngIf="message" class="alert alert-{{messageType}} text-center rounded-3 shadow-sm fade-in mb-4" role="alert">
+        {{ message }}
+      </div>
+
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+        <div class="mb-4 p-3 border rounded-3 bg-light-subtle">
+          <h3 class="mb-3 fs-5 fw-bold text-primary border-bottom pb-2">Datos Personales</h3>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="nombre" class="form-label form-label-institucional">Nombre</label>
+              <input type="text" id="nombre" formControlName="nombre" placeholder="Tu nombre"
+                     class="form-control input-institucional"
+                     [class.is-invalid]="registroForm.get('nombre')?.invalid && registroForm.get('nombre')?.touched">
+              <div *ngIf="registroForm.get('nombre')?.hasError('required') && registroForm.get('nombre')?.touched"
+                   class="invalid-feedback">El nombre es requerido.</div>
+              <div *ngIf="registroForm.get('nombre')?.hasError('minlength') && registroForm.get('nombre')?.touched"
+                   class="invalid-feedback">Mínimo 2 caracteres.</div>
+              <div *ngIf="registroForm.get('nombre')?.hasError('maxlength') && registroForm.get('nombre')?.touched"
+                   class="invalid-feedback">Máximo 50 caracteres.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="apellido" class="form-label form-label-institucional">Apellido</label>
+              <input type="text" id="apellido" formControlName="apellido" placeholder="Tu apellido"
+                     class="form-control input-institucional"
+                     [class.is-invalid]="registroForm.get('apellido')?.invalid && registroForm.get('apellido')?.touched">
+              <div *ngIf="registroForm.get('apellido')?.hasError('required') && registroForm.get('apellido')?.touched"
+                   class="invalid-feedback">El apellido es requerido.</div>
+              <div *ngIf="registroForm.get('apellido')?.hasError('minlength') && registroForm.get('apellido')?.touched"
+                   class="invalid-feedback">Mínimo 2 caracteres.</div>
+              <div *ngIf="registroForm.get('apellido')?.hasError('maxlength') && registroForm.get('apellido')?.touched"
+                   class="invalid-feedback">Máximo 50 caracteres.</div>
+            </div>
+
+            <div class="col-md-3">
+              <label for="tipo_cedula" class="form-label form-label-institucional">Tipo</label>
+              <input type="text" id="tipo_cedula" formControlName="tipo_cedula" readonly
+                     class="form-control input-institucional">
+            </div>
+
+            <div class="col-md-9">
+              <label for="cedula" class="form-label form-label-institucional">Cédula</label>
+              <input type="text" id="cedula" formControlName="cedula" placeholder="Tu número de cédula"
+                     class="form-control input-institucional"
+                     [class.is-invalid]="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched">
+              <div *ngIf="registroForm.get('cedula')?.hasError('required') && registroForm.get('cedula')?.touched"
+                   class="invalid-feedback">Cédula es requerida.</div>
+              <div *ngIf="registroForm.get('cedula')?.hasError('pattern') && registroForm.get('cedula')?.touched"
+                   class="invalid-feedback">Debe ser numérica (7 u 8 dígitos).</div>
+            </div>
+
+            <div class="col-12">
+              <label for="telefono" class="form-label form-label-institucional">Teléfono</label>
+              <input type="text" id="telefono" formControlName="telefono" placeholder="Ej: 04123456789"
+                     class="form-control input-institucional"
+                     [class.is-invalid]="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched">
+              <div *ngIf="registroForm.get('telefono')?.hasError('required') && registroForm.get('telefono')?.touched"
+                   class="invalid-feedback">Teléfono es requerido.</div>
+              <div *ngIf="registroForm.get('telefono')?.hasError('pattern') && registroForm.get('telefono')?.touched"
+                   class="invalid-feedback">Debe ser numérico (7 a 11 dígitos).</div>
+            </div>
+          </div>
+        </div>
+
+                <!-- Sección de Datos de Cuenta -->
+        <div class="mb-4 p-3 border rounded-3 bg-light-subtle">
+          <h3 class="mb-3 fs-5 fw-bold text-primary border-bottom pb-2">Datos de Cuenta</h3>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="correo" class="form-label form-label-institucional">Correo Electrónico</label>
+              <input type="email" id="correo" formControlName="correo" placeholder="tu@ejemplo.com"
+                     class="form-control input-institucional"
+                     [class.is-invalid]="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
+              <div *ngIf="registroForm.get('correo')?.hasError('required') && registroForm.get('correo')?.touched"
+                   class="invalid-feedback">Correo es requerido.</div>
+              <div *ngIf="registroForm.get('correo')?.hasError('pattern') && registroForm.get('correo')?.touched"
+                   class="invalid-feedback">Formato de correo inválido.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="usuario" class="form-label form-label-institucional">Nombre de Usuario</label>
+              <input type="text" id="usuario" formControlName="usuario" placeholder="usuario123"
+                     class="form-control input-institucional"
+                     [class.is-invalid]="registroForm.get('usuario')?.invalid && registroForm.get('usuario')?.touched">
+              <div *ngIf="registroForm.get('usuario')?.hasError('required') && registroForm.get('usuario')?.touched"
+                   class="invalid-feedback">Usuario es requerido.</div>
+              <div *ngIf="registroForm.get('usuario')?.hasError('pattern') && registroForm.get('usuario')?.touched"
+                   class="invalid-feedback">Debe ser alfanumérico (3–20 caracteres, puede incluir _.-).</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="contrasena" class="form-label form-label-institucional">Contraseña</label>
+              <div class="input-group">
+                <input [type]="showPassword ? 'text' : 'password'" id="contrasena" formControlName="contrasena"
+                       placeholder="Mínimo 8, máximo 12 caracteres"
+                       class="form-control input-institucional"
+                       [class.is-invalid]="registroForm.get('contrasena')?.invalid && registroForm.get('contrasena')?.touched">
+                <span class="input-group-text rounded-2" (click)="togglePasswordVisibility('password')">
+                  <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                </span>
+              </div>
+              <div *ngIf="registroForm.get('contrasena')?.hasError('pattern') &&
+                          (registroForm.get('contrasena')?.touched || registroForm.get('contrasena')?.dirty)"
+                   class="alert alert-info alert-sm mt-2 p-2 rounded-2 fs-7 text-center">
+                La contraseña debe tener entre 8 y 12 caracteres, incluyendo al menos una mayúscula, una minúscula, un número y un carácter especial.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="confirmarContrasena" class="form-label form-label-institucional">Confirmar Contraseña</label>
+              <div class="input-group">
+                <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmarContrasena"
+                       formControlName="confirmarContrasena" placeholder="Repite la contraseña"
+                       class="form-control input-institucional"
+                       [class.is-invalid]="registroForm.get('confirmarContrasena')?.invalid && registroForm.get('confirmarContrasena')?.touched">
+                <span class="input-group-text rounded-2" (click)="togglePasswordVisibility('confirm')">
+                  <i class="bi" [ngClass]="showConfirmPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                </span>
+              </div>
+              <div *ngIf="registroForm.get('confirmarContrasena')?.hasError('required') && registroForm.get('confirmarContrasena')?.touched"
+                   class="invalid-feedback">Confirmación es requerida.</div>
+              <div *ngIf="registroForm.get('confirmarContrasena')?.hasError('mismatch') && registroForm.get('confirmarContrasena')?.touched"
+                   class="invalid-feedback">¡Las contraseñas no coinciden!</div>
+            </div>
+          </div>
+        </div>
+
+                <!-- Sección de Sugerencia de Rol y Ubicación -->
+        <div class="mb-4 p-3 border rounded-3 bg-light-subtle">
+          <h3 class="mb-3 fs-5 fw-bold text-primary border-bottom pb-2">Sugerencia de Rol y Ubicación</h3>
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="cod_rol_sugerido" class="form-label form-label-institucional">Rol Sugerido</label>
+              <select id="cod_rol_sugerido" formControlName="cod_rol_sugerido"
+                      class="form-select input-institucional"
+                      [class.is-invalid]="registroForm.get('cod_rol_sugerido')?.invalid && registroForm.get('cod_rol_sugerido')?.touched">
+                <option [ngValue]="null" disabled selected>Selecciona un rol</option>
+                <option *ngFor="let rol of rolesPublicos" [value]="rol.id">{{ rol.descripcion }}</option>
+              </select>
+              <div *ngIf="registroForm.get('cod_rol_sugerido')?.hasError('required') && registroForm.get('cod_rol_sugerido')?.touched"
+                   class="invalid-feedback">Rol sugerido es requerido.</div>
+            </div>
+
+            <div class="col-md-6 fade-in" *ngIf="showEstadoField">
+              <label for="id_estado_sugerido" class="form-label form-label-institucional">Estado Sugerido</label>
+              <select id="id_estado_sugerido" formControlName="id_estado_sugerido"
+                      class="form-select input-institucional"
+                      [class.is-invalid]="registroForm.get('id_estado_sugerido')?.invalid && registroForm.get('id_estado_sugerido')?.touched">
+                <option [ngValue]="null" disabled selected>Selecciona un estado</option>
+                <option *ngFor="let estado of estados" [value]="estado.id">{{ estado.nombre }}</option>
+              </select>
+              <div *ngIf="registroForm.get('id_estado_sugerido')?.invalid && registroForm.get('id_estado_sugerido')?.touched"
+                   class="invalid-feedback">Estado es requerido.</div>
+            </div>
+
+            <div class="col-md-6 fade-in" *ngIf="showMunicipioField">
+              <label for="id_municipio_sugerido" class="form-label form-label-institucional">Municipio Sugerido</label>
+              <select id="id_municipio_sugerido" formControlName="id_municipio_sugerido"
+                      class="form-select input-institucional"
+                      [class.is-invalid]="registroForm.get('id_municipio_sugerido')?.invalid && registroForm.get('id_municipio_sugerido')?.touched">
+                <option [ngValue]="null" disabled selected>Selecciona un municipio</option>
+                <option *ngFor="let municipio of municipios" [value]="municipio.id">{{ municipio.nombre }}</option>
+              </select>
+              <div *ngIf="registroForm.get('id_municipio_sugerido')?.invalid && registroForm.get('id_municipio_sugerido')?.touched"
+                   class="invalid-feedback">Municipio es requerido.</div>
+            </div>
+
+            <div class="col-md-6 fade-in" *ngIf="showCircuitoField">
+              <label for="id_circuito_sugerido" class="form-label form-label-institucional">Circuito Sugerido</label>
+              <select id="id_circuito_sugerido" formControlName="id_circuito_sugerido"
+                      class="form-select input-institucional"
+                      [class.is-invalid]="registroForm.get('id_circuito_sugerido')?.invalid && registroForm.get('id_circuito_sugerido')?.touched">
+                <option [ngValue]="null" disabled selected>Selecciona un circuito</option>
+                <option *ngFor="let circuito of circuitos" [value]="circuito.id">{{ circuito.nombre }}</option>
+              </select>
+              <div *ngIf="registroForm.get('id_circuito_sugerido')?.invalid && registroForm.get('id_circuito_sugerido')?.touched"
+                   class="invalid-feedback">Circuito es requerido.</div>
+            </div>
+
+            <div class="col-md-6 fade-in" *ngIf="showPlantelField">
+              <label for="codigo_plantel_sugerido" class="form-label form-label-institucional">Plantel Sugerido</label>
+              <select id="codigo_plantel_sugerido" formControlName="codigo_plantel_sugerido"
+                      class="form-select input-institucional"
+                      [class.is-invalid]="registroForm.get('codigo_plantel_sugerido')?.invalid && registroForm.get('codigo_plantel_sugerido')?.touched">
+                <option [ngValue]="null" disabled selected>Selecciona un plantel</option>
+                <option *ngFor="let plantel of planteles" [value]="plantel.codigo_plantel">{{ plantel.nombre }}</option>
+              </select>
+              <div *ngIf="registroForm.get('codigo_plantel_sugerido')?.invalid && registroForm.get('codigo_plantel_sugerido')?.touched"
+                   class="invalid-feedback">Plantel es requerido.</div>
+            </div>
+          </div>
+        </div>
+
+                <!-- Botón de Registro -->
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit"
+                  [disabled]="registroForm.invalid || isLoading"
+                  class="btn btn-institucional btn-lg shadow-sm fw-bold">
+            <span *ngIf="!isLoading">Registrarme</span>
+            <span *ngIf="isLoading" class="d-flex align-items-center justify-content-center">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Registrando...
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Enlace para volver al login -->
+      <div class="text-center mt-4">
+        <p class="text-muted mb-0">¿Ya tienes una cuenta?
+          <a routerLink="/login" class="text-decoration-none text-primary fw-semibold">Iniciar Sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

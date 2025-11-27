@@ -1,0 +1,230 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.d-flex.align-items-center.justify-content-center.min-vh-100 {
+  background-color: #f0f2f5;
+}
+
+/* --- TARJETA PRINCIPAL --- */
+.card {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+/* --- TÍTULOS Y SUBTÍTULOS --- */
+.card-title {
+  font-size: 1.6em;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.card-subtitle {
+  font-size: 1em;
+  color: #6c757d;
+  text-align: center;
+}
+
+/* --- SECCIONES INTERNAS --- */
+.border {
+  border: 1px solid #dee2e6;
+}
+
+.bg-light-subtle {
+  background-color: #f8f9fa;
+}
+
+h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+/* --- CAMPOS DE FORMULARIO --- */
+.form-label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-control,
+.form-select {
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.95em;
+  border: 1px solid #ced4da;
+  background-color: #ffffff;
+  color: #212529;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #2c3e50;
+  outline: none;
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  font-size: 0.85em;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
+/* --- INPUT GROUP (Contraseña con ícono) --- */
+.input-group-text {
+  background-color: #e9ecef;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* --- MENSAJE DE PATRÓN DE CONTRASEÑA --- */
+.alert-info {
+  font-size: 0.85em;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #e3f2fd;
+  color: #0c5460;
+}
+
+/* --- BOTÓN DE REGISTRO --- */
+.btn-primary {
+  background-color: #2c3e50;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  padding: 10px;
+  font-size: 1em;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #1a2b3c;
+}
+
+.btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* --- ENLACE AL LOGIN --- */
+.text-muted a {
+  color: #2c3e50;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.text-muted a:hover {
+  color: #1a2b3c;
+  text-decoration: underline;
+}
+
+/* --- ANIMACIÓN DE ENTRADA --- */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+  }
+
+  h3 {
+    font-size: 1em;
+  }
+}
+
+/* --- MODO OSCURO: CONTENEDOR Y TARJETA --- */
+.modo-oscuro .d-flex.align-items-center.justify-content-center.min-vh-100 {
+  background-color: #121212;
+}
+
+.modo-oscuro .card {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* --- TÍTULOS Y SUBTÍTULOS --- */
+.modo-oscuro .card-title {
+  color: #f4f4f4;
+}
+
+.modo-oscuro .card-subtitle {
+  color: #b0b0b0;
+}
+
+.modo-oscuro h3 {
+  color: #f4f4f4;
+  border-bottom: 1px solid #444;
+}
+
+/* --- CAMPOS DE FORMULARIO --- */
+.modo-oscuro .form-label {
+  color: #f4f4f4;
+}
+
+.modo-oscuro .form-control,
+.modo-oscuro .form-select {
+  background-color: #2a2a2a;
+  color: #f4f4f4;
+  border: 1px solid #444;
+}
+
+.modo-oscuro .form-control:focus,
+.modo-oscuro .form-select:focus {
+  border-color: #9dc3ff;
+}
+
+.modo-oscuro .invalid-feedback {
+  color: #ff6b6b;
+}
+
+/* --- INPUT GROUP --- */
+.modo-oscuro .input-group-text {
+  background-color: #3a3a3a;
+  color: #f4f4f4;
+}
+
+/* --- MENSAJE DE CONTRASEÑA --- */
+.modo-oscuro .alert-info {
+  background-color: #2c3e50;
+  color: #e0f7fa;
+}
+
+/* --- BOTÓN DE REGISTRO --- */
+.modo-oscuro .btn-primary {
+  background-color: #3a3a3a;
+  color: #f4f4f4;
+}
+
+.modo-oscuro .btn-primary:hover {
+  background-color: #505050;
+}
+
+.modo-oscuro .btn-primary:disabled {
+  background-color: #555;
+}
+
+/* --- ENLACE AL LOGIN --- */
+.modo-oscuro .text-muted {
+  color: #b0b0b0;
+}
+
+.modo-oscuro .text-muted a {
+  color: #9dc3ff;
+}
+
+.modo-oscuro .text-muted a:hover {
+  color: #c0d8ff;
+}

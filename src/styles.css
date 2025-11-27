@@ -1,1 +1,225 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   Estilos Globales del Sistema Institucional
+   ------------------------------------------------------------
+   Uso: Transversal a todos los módulos (login, dashboard, etc.)
+   Propósito: Definir base visual, paleta, formularios y feedback
+   Autor: Supervisión Institucional / Validado por Luis
+   Fecha: 2025-09-10
+   ============================================================ */
+
+/* src/styles.css */
+
+/* === RESET Y BASE === */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f0f2f5;
+  color: #212529;
+}
+
+/* === PALETA INSTITUCIONAL === */
+:root {
+  --color-primario: #2c3e50;
+  --color-acento: #8e44ad;
+  --color-claro: #f4f4f4;
+  --color-error: #dc3545;
+}
+
+/* === SELECTS DE ANGULAR MATERIAL === */
+.mat-select-panel,
+.mat-option,
+.mat-option.mat-selected:not(.mat-option-multiple) {
+  background-color: white !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+/* === SNACKBAR GLOBAL === */
+.snackbar-success {
+  background-color: #388E3C !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.snackbar-error {
+  background-color: #D32F2F !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.snackbar-warning {
+  background-color: #FFA000 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* === FORMULARIOS Y BOTONES INSTITUCIONALES === */
+.form-label-institucional {
+  font-weight: 600;
+  color: var(--color-primario);
+}
+
+.input-institucional {
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.95em;
+  border: 1px solid #ced4da;
+  background-color: #ffffff;
+  color: #212529;
+}
+
+.input-institucional:focus {
+  border-color: var(--color-primario);
+  outline: none;
+}
+
+.invalid-feedback-institucional {
+  font-size: 0.85em;
+  color: var(--color-error);
+  margin-top: 4px;
+}
+
+.btn-institucional {
+  background-color: var(--color-primario);
+  color: white;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 10px 16px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-institucional:hover {
+  background-color: #1a2b3c;
+}
+
+/* === TARJETAS INSTITUCIONALES === */
+.control-card {
+  border-radius: 0.75rem;
+  border: 1px solid #e9ecef;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.control-card:hover:not(.cursor-not-allowed) {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.control-card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 0.25rem;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.control-card-description {
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+
+.control-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.card-institucional {
+  border-radius: 0.75rem;
+  border: 1px solid #e9ecef;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.card-institucional:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-institucional-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 0.25rem;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.card-institucional-description {
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* === CUERPOS DE TARJETAS PRINCIPALES === */
+.card-body-institucional {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* === CUERPO PRINCIPAL DE TARJETA === */
+.card-body-institucional {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* === SEPARADOR INSTITUCIONAL === */
+.control-separator {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-top: 1px solid #dee2e6;
+}
+
+/* === TÍTULO DE SECCIÓN === */
+.control-section-title {
+  font-size: 1.8rem;
+  margin-bottom: 1rem !important;
+  color: #343a40;
+  text-align: center;
+}
+
+/* === DESCRIPCIÓN DE SECCIÓN === */
+.control-section-description {
+  font-size: 1rem;
+  margin-bottom: 2.5rem !important;
+  color: #6c757d;
+  text-align: center;
+}
+
+/* === FILA DE TARJETAS === */
+.control-specific-cards-row {
+  max-width: 100%;
+}
+
+/* === CONTENEDOR DE COMPONENTES TERRITORIALES === */
+.territorial-container {
+  width: 100%;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: transparent !important;
+  min-height: auto;
+  justify-content: flex-start !important;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

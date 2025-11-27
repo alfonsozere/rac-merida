@@ -1,0 +1,52 @@
+<div class="page-wrapper">
+  <div class="page-container">
+    <ng-container *ngIf="!hasActiveChildRoute">
+      <h2 class="page-title">Panel de Control de Administrador</h2>
+      <p class="page-description">Selecciona una opción para gestionar los recursos del sistema según tu rol.</p>
+
+      <div class="card-grid">
+        <div *ngFor="let card of controlCards">
+          <div
+            class="card-option"
+            [ngClass]="{
+              'opacity-75 bg-light-subtle cursor-not-allowed': !isCardEnabled(card),
+              'border-bottom border-4': true,
+              'border-primary': card.className === 'card-state',
+              'border-secondary': card.className === 'card-municipal',
+              'border-success': card.className === 'card-circuital',
+              'border-warning': card.className === 'card-plantel',
+              'border-danger': card.className === 'card-db'
+            }"
+            (click)="selectControlCard(card)"
+            [attr.aria-disabled]="!isCardEnabled(card)"
+            [style.cursor]="!isCardEnabled(card) ? 'not-allowed' : 'pointer'">
+            <div class="card-body card-content d-flex flex-column align-items-center justify-content-center w-100">
+              <i class="bi control-icon bi-{{ card.icon }}" [ngClass]="{
+                'text-primary': card.className === 'card-state' && isCardEnabled(card),
+                'text-secondary': card.className === 'card-municipal' && isCardEnabled(card),
+                'text-success': card.className === 'card-circuital' && isCardEnabled(card),
+                'text-warning': card.className === 'card-plantel' && isCardEnabled(card),
+                'text-danger': card.className === 'card-db' && isCardEnabled(card),
+                'text-muted': !isCardEnabled(card)
+              }"></i>
+
+              <h3 class="control-card-title fw-bold mb-1">{{ getDynamicCardDetails(card).title }}</h3>
+              <p class="control-card-description text-muted">{{ getDynamicCardDetails(card).description }}</p>
+            </div>
+
+            <div *ngIf="!isCardEnabled(card)" class="overlay-restricted position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+              <i class="bi bi-lock-fill overlay-icon mb-2"></i>
+              <span class="overlay-text fw-bold fs-6">Acceso Restringido</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="hasActiveChildRoute">
+      <div class="router-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </ng-container>
+  </div>
+</div>
