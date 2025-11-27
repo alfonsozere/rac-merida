@@ -1,0 +1,393 @@
+<div class="empleados-container d-flex flex-column align-items-center bg-light">
+    <div class="card shadow-lg rounded-3 border-0 w-100 card-principal-rac">
+        <div class="p-1">
+            <div
+                class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h2 class="empleados-section-title text-center text-md-start mb-2 mb-md-0">
+                    Gestión de Empleados
+                    <br>
+                    <span *ngIf="currentUser" class="text-secondary fs-6">
+                        <strong class="text-dark me-2">{{ currentUser.nombre }} {{ currentUser.apellido }}</strong>
+                        ({{ getRoleNameById(currentUser.cod_rol) }})
+                    </span>
+                </h2>
+                <button (click)="emitGoBack()" class="btn btn-secondary btn-sm shadow-sm" hidden>
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </button>
+            </div>
+
+            <div *ngIf="error"
+                class="alert alert-{{ error.includes('Error') ? 'danger' : 'success' }} text-center rounded-3 shadow-sm mb-4 empleados-alert"
+                role="alert">
+                {{ error }}
+                <button type="button" class="btn-close" aria-label="Close" (click)="error = null"></button>
+            </div>
+
+            <div *ngIf="cargando" class="text-center my-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 text-primary fw-bold">Cargando datos de empleados y catálogos...</p>
+            </div>
+
+            <!-- <div class="card border-0 shadow-sm mb-5" *ngIf="!cargando">
+                <div class="p-1 empleados-formulario">
+                    <form [formGroup]="formularioEmpleado" (ngSubmit)="guardarEmpleado()">
+
+                        <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Datos de Identificación y Contacto</h6>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label for="cedula_empleado" class="form-label">Cédula <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="cedula_empleado" formControlName="cedula_empleado"
+                                    class="form-control"
+                                    [class.is-invalid]="formularioEmpleado.get('cedula_empleado')?.invalid && formularioEmpleado.get('cedula_empleado')?.touched">
+                                <div class="invalid-feedback">Cédula requerida (7 u 8 dígitos).</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="nombre_empleado" class="form-label">Nombre <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="nombre_empleado" formControlName="nombre_empleado"
+                                    class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="apellido_empleado" class="form-label">Apellido <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="apellido_empleado" formControlName="apellido_empleado"
+                                    class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="id_sexo" class="form-label">Sexo <span class="text-danger">*</span></label>
+                                <select id="id_sexo" formControlName="id_sexo" class="form-select" required>
+                                    <option [ngValue]="null" disabled>Seleccione...</option>
+                                    <option *ngFor="let sexo of sexos" [ngValue]="sexo.id">{{ sexo.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fecha_nacimiento" class="form-label">Fecha Nac. <span
+                                        class="text-danger">*</span></label>
+                                <input type="date" id="fecha_nacimiento" formControlName="fecha_nacimiento"
+                                    class="form-control" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="correo" class="form-label">Correo Electrónico</label>
+                                <input type="email" id="correo" formControlName="correo" class="form-control"
+                                    [class.is-invalid]="formularioEmpleado.get('correo')?.invalid && formularioEmpleado.get('correo')?.touched">
+                                <div class="invalid-feedback">Correo electrónico inválido.</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="text" id="telefono" formControlName="telefono" class="form-control"
+                                    [class.is-invalid]="formularioEmpleado.get('telefono')?.invalid && formularioEmpleado.get('telefono')?.touched">
+                                <div class="invalid-feedback">Teléfono inválido.</div>
+                            </div>
+                            <div class="col-12">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" id="direccion" formControlName="direccion" class="form-control">
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary border-bottom pb-1 mt-4 mb-3">Datos Opcionales</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label for="id_ubch" class="form-label">UBCH</label>
+                                <select id="id_ubch" formControlName="id_ubch" class="form-select">
+                                    <option [ngValue]="null">Seleccione...</option>
+                                    <option *ngFor="let item of ubchs" [ngValue]="item.id">{{ item.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_comuna" class="form-label">Comuna</label>
+                                <select id="id_comuna" formControlName="id_comuna" class="form-select">
+                                    <option [ngValue]="null">Seleccione...</option>
+                                    <option *ngFor="let item of comunas" [ngValue]="item.id">{{ item.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_consejo_comunal" class="form-label">Consejo Comunal</label>
+                                <select id="id_consejo_comunal" formControlName="id_consejo_comunal"
+                                    class="form-select">
+                                    <option [ngValue]="null">Seleccione...</option>
+                                    <option *ngFor="let item of consejosComunales" [ngValue]="item.id">{{ item.nombre }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <h6 class="fw-bold text-primary border-bottom pb-1 mt-4 mb-0">Datos Laborales</h6>
+                            <div class="row g-2 mt-1">
+
+                                <div class="col-md-3">
+                                    <label for="id_tipo_personal" class="form-label">Tipo de Personal <span
+                                            class="text-danger">*</span></label>
+                                    <select id="id_tipo_personal" formControlName="id_tipo_personal" class="form-select"
+                                        required>
+                                        <option [ngValue]="null" disabled>Seleccione...</option>
+                                        <option *ngFor="let tipo of tiposPersonal" [ngValue]="tipo.id">{{ tipo.nombre }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de Cargo</h6>
+                                <div class="row g-2 mt-1">
+
+                                    <ng-container
+                                        *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.DOCENTE">
+                                        <div class="col-md-3">
+                                            <label for="id_cargo_docente" class="form-label">Cargo Docente <span
+                                                    class="text-danger">*</span></label>
+                                            <select id="id_cargo_docente" formControlName="id_cargo_docente"
+                                                class="form-select">
+                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option *ngFor="let cargo of cargosDocentes" [ngValue]="cargo.id">{{
+                                                    cargo.nombre }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="codigo_docente_sufijo" class="form-label">Sufijo Cód.
+                                                Docente</label>
+                                            <input type="text" id="codigo_docente_sufijo"
+                                                formControlName="codigo_docente_sufijo" class="form-control">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="id_tipo_docente_especifico" class="form-label">Tipo Docente Esp.
+                                                <span class="text-danger">*</span></label>
+                                            <select id="id_tipo_docente_especifico"
+                                                formControlName="id_tipo_docente_especifico" class="form-select">
+                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option *ngFor="let tipo of tiposDocenteEspecificos"
+                                                    [ngValue]="tipo.id">{{
+                                                    tipo.nombre }}</option>
+                                            </select>
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-container
+                                        *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.ADMINISTRATIVO">
+                                        <div class="col-md-4">
+                                            <label for="id_cargo_administrativo" class="form-label">Cargo Administrativo
+                                                <span class="text-danger">*</span></label>
+                                            <select id="id_cargo_administrativo"
+                                                formControlName="id_cargo_administrativo" class="form-select">
+                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option *ngFor="let cargo of cargosAdministrativos"
+                                                    [ngValue]="cargo.id">{{
+                                                    cargo.nombre }}</option>
+                                            </select>
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-container
+                                        *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.OBRERO">
+
+                                        <div class="col-md-3">
+                                            <label for="id_cargo_obrero" class="form-label">Cargo Obrero <span
+                                                    class="text-danger">*</span></label>
+                                            <select id="id_cargo_obrero" formControlName="id_cargo_obrero"
+                                                class="form-select">
+                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option *ngFor="let cargo of cargosObrerosFiltrados"
+                                                    [ngValue]="cargo.id">{{
+                                                    cargo.nombre }}</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="id_grado_obrero" class="form-label">Grado Obrero <span
+                                                    class="text-danger">*</span></label>
+                                            <select id="id_grado_obrero" formControlName="id_grado_obrero"
+                                                class="form-select"
+                                                (change)="filtrarCargosObrero(formularioEmpleado.get('id_grado_obrero')?.value)">
+                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option *ngFor="let grado of gradosObreros" [ngValue]="grado.id">{{
+                                                    grado.nombre }}</option>
+                                            </select>
+                                        </div>
+                                    </ng-container>
+
+                                </div>
+                                <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de Horas</h6>
+                                <div class="row g-2 mt-1">
+
+                                    <ng-container *ngIf="formularioEmpleado.get('id_tipo_personal')?.value">
+                                        <div class="col-md-3">
+                                            <label for="horas_administrativas" class="form-label">Horas
+                                                Administrativas</label>
+                                            <input type="number" id="horas_administrativas"
+                                                formControlName="horas_administrativas" class="form-control">
+                                        </div>
+                                    </ng-container>
+
+
+                                    <ng-container
+                                        *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.DOCENTE">
+                                        <div class="col-md-3">
+                                            <label for="horas_academicas" class="form-label">Horas
+                                                Académicas</label>
+                                            <input type="number" id="horas_academicas"
+                                                formControlName="horas_academicas" class="form-control">
+                                        </div>
+                                    </ng-container>
+
+                                </div>
+
+                                <ng-container
+                                    *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.DOCENTE">
+
+                                    <h6 class="fw-bold text-primary border-bottom pb-1 mt-3 mb-0">Detalle de Asignación
+                                        de Cargo</h6>
+                                    <div class="row g-2 mt-1">
+                                        <ng-container
+                                            *ngIf="formularioEmpleado.get('id_tipo_docente_especifico')?.value === 1">
+                                            <div class="col-md-3">
+                                                <label for="grado_imparte" class="form-label">Grado</label>
+                                                <input type="text" id="grado_imparte" formControlName="grado_imparte"
+                                                    class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="seccion_grado" class="form-label">Sección</label>
+                                                <input type="text" id="seccion_grado" formControlName="seccion_grado"
+                                                    class="form-control">
+                                            </div>
+                                        </ng-container>
+
+                                        <ng-container
+                                            *ngIf="formularioEmpleado.get('id_tipo_docente_especifico')?.value === 2">
+                                            <div class="col-md-3">
+                                                <label for="area_imparte" class="form-label">Área</label>
+                                                <input type="text" id="area_imparte" formControlName="area_imparte"
+                                                    class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="anio_imparte" class="form-label">Año</label>
+                                                <input type="text" id="anio_imparte" formControlName="anio_imparte"
+                                                    class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="seccion_anio" class="form-label">Sección</label>
+                                                <input type="text" id="seccion_anio" formControlName="seccion_anio"
+                                                    class="form-control">
+                                            </div>
+                                        </ng-container>
+
+                                        <ng-container
+                                            *ngIf="formularioEmpleado.get('id_tipo_docente_especifico')?.value === 3">
+                                            <div class="col-md-4">
+                                                <label for="materia_especialidad"
+                                                    class="form-label">Materia/Especialidad</label>
+                                                <input type="text" id="materia_especialidad"
+                                                    formControlName="materia_especialidad" class="form-control">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="periodo_grupo" class="form-label">Período/Grupo</label>
+                                                <input type="text" id="periodo_grupo" formControlName="periodo_grupo"
+                                                    class="form-control">
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                </ng-container>
+                                <div class="col-md-3">
+                                    <label for="fecha_ingreso_laboral" class="form-label">Fecha Ingreso <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" id="fecha_ingreso_laboral"
+                                        formControlName="fecha_ingreso_laboral" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="id_plantel" class="form-label">Plantel Asignado <span
+                                            class="text-danger">*</span></label>
+                                    <select id="id_plantel" formControlName="id_plantel" class="form-select" required>
+                                        <option [ngValue]="null" disabled>Seleccione...</option>
+                                        <option *ngFor="let plantel of planteles" [ngValue]="plantel.id_plantel">{{
+                                            plantel.nombre }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="id_turno" class="form-label">Turno</label>
+                                    <select id="id_turno" formControlName="id_turno" class="form-select">
+                                        <option [ngValue]="null">Seleccione...</option>
+                                        <option *ngFor="let turno of turnos" [ngValue]="turno.id">{{ turno.nombre }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label for="id_situacion_laboral" class="form-label">Situación Laboral</label>
+                                    <select id="id_situacion_laboral" formControlName="id_situacion_laboral"
+                                        class="form-select">
+                                        <option [ngValue]="null">Seleccione...</option>
+                                        <option *ngFor="let sit of situacionesLaborales" [ngValue]="sit.id">{{
+                                            sit.nombre }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <label for="observaciones" class="form-label">Observaciones</label>
+                                <textarea id="observaciones" formControlName="observaciones" class="form-control"
+                                    rows="2"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 form-action-buttons">
+                            <button type="button" class="btn btn-warning shadow-sm" (click)="limpiarFormulario()">
+                                <i class="bi bi-x-circle me-1"></i> Cancelar / Nuevo
+                            </button>
+                            <button type="submit" class="btn btn-success shadow-sm"
+                                [disabled]="formularioEmpleado.invalid || cargando">
+                                <i class="bi bi-save me-1"></i> {{ modoEdicion ? 'Guardar Cambios' : 'Crear Empleado' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div> -->
+
+            <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Empleados</h3>
+
+            <div *ngIf="empleados.length > 0 && !cargando" class=" mb-1 p-1 tabla-empleados-rac">
+                <table
+                    class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle tabla-empleados-rac empleados-table autorizacion-table-compact empleados-table-monitoreo">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th title="Cédula" scope="col">Cédula</th>
+                            <th title="Nombre Completo" scope="col">Nombre Completo</th>
+                            <th title="Plantel" scope="col">Plantel</th>
+                            <th title="Tipo Personal" scope="col">Tipo Personal</th>
+                            <th title="Fecha Ingreso" scope="col">Fecha Ingreso</th>
+                            <th title="Situación laboral" scope="col">Situación laboral</th>
+                            <!-- <th title="Acciones" scope="col" class="text-center">Acciones</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let empleado of empleados">
+                            <td title="{{ empleado.cedula }}">{{ empleado.cedula }}</td>
+                            <td title="{{ empleado.nombre }} {{ empleado.apellido }}">{{ empleado.nombre }} {{ empleado.apellido }}</td>
+                            <td title="{{ empleado.plantel_nombre }}">{{ empleado.plantel_nombre }}</td>
+                            <td title="{{ empleado.nombre_tipo_personal }}">{{ empleado.nombre_tipo_personal }}</td>
+                            <td title="{{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}">{{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}</td>
+                            <td title="{{ empleado.nombre_situacion_laboral }}">{{ empleado.nombre_situacion_laboral }}</td>
+                            <!-- <td class="text-center">
+                                <button class="btn btn-sm btn-info me-2 shadow-sm empleados-btn-editar"
+                                    (click)="editarEmpleado(empleado)" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger shadow-sm empleados-btn-eliminar"
+                                    (click)="eliminarEmpleado(empleado.id_empleado, empleado.nombre + ' ' + empleado.apellido)"
+                                    title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td> -->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div *ngIf="empleados.length === 0 && !cargando && !error"
+                class="alert alert-info text-center rounded-3 shadow-sm my-4 empleados-alert">
+                No hay empleados registrados bajo su ámbito de gestión.
+            </div>
+
+        </div>
+    </div>
+</div>

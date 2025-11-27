@@ -35,7 +35,7 @@ export class Control implements OnInit, OnDestroy {
       title: 'Funcionalidades Estadal',
       description: 'Gestión de datos a nivel de estado.',
       icon: 'map-fill',
-      route: 'gestor-estadal',
+      route: 'gestor-estado',
       requiredRole: [ROLES.ADMIN_STATE],
       className: 'card-state'
     },
@@ -43,7 +43,7 @@ export class Control implements OnInit, OnDestroy {
       title: 'Funcionalidades Municipal',
       description: 'Gestión de datos a nivel de municipio.',
       icon: 'buildings-fill',
-      route: 'gestor-municipal',
+      route: 'gestor-municipio',
       requiredRole: ROLES.ADMIN_MUNICIPAL,
       className: 'card-municipal'
     },
@@ -51,7 +51,7 @@ export class Control implements OnInit, OnDestroy {
       title: 'Funcionalidades Circuital',
       description: 'Gestión de datos a nivel de circuito.',
       icon: 'bezier',
-      route: 'gestor-circuital',
+      route: 'gestor-circuito',
       requiredRole: ROLES.ADMIN_CIRCUITAL,
       className: 'card-circuital'
     },
