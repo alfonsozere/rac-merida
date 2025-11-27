@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, } from '@angular/forms';
 
-import { Api } from '../../core/api';
+import { Api } from '../../core/services/api';
 import { BackendMessageResponse } from '../../core/models/usuario.model';
 import { catchError, finalize } from 'rxjs/operators';
 import { of, EMPTY } from 'rxjs';
