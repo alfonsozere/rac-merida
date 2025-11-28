@@ -7,8 +7,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 64px);
-  padding: 40px;
+  min-height: calc(100vh - 128px);
+  padding: 0 20px; /* más flexible */
   background-color: #f0f2f5;
   box-sizing: border-box;
   gap: 40px; /* espacio entre izquierda y derecha */
@@ -155,20 +155,52 @@
 }
 
 /* --- RESPONSIVE --- */
+/* Tablets (<=1024px) */
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
+  }
+
+  .login-left, .login-card {
+    max-width: 90%;
+  }
+}
+
+/* Móviles (<=768px) */
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
     gap: 20px;
+    padding: 10px;
   }
 
-  .login-left,
-  .login-card {
-    flex: none;
+  .login-left, .login-card {
     max-width: 100%;
   }
 
   .login-image {
-    max-width: 200px;
+    max-width: 150px;
+  }
+
+  .login-title {
+    font-size: 1.4em;
+  }
+}
+
+/* Extra pequeños (<=480px) */
+@media (max-width: 480px) {
+  .login-title {
+    font-size: 1.2em;
+  }
+
+  .card-title {
+    font-size: 1.3em;
+  }
+
+  .card-subtitle {
+    font-size: 0.9em;
   }
 }
 

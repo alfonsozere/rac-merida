@@ -16,14 +16,14 @@ html, body {
 
 .app-content {
   flex: 1; /* Permite que el contenido principal ocupe todo el espacio disponible */
-  padding: 1px; /* Espaciado interno para el contenido */
+  /* padding: 1px; Espaciado interno para el contenido */
   background-color: #f5f5f5; /* Color de fondo suave para el contenido */
   color: #333; /* Color de texto predeterminado */
   overflow-y: auto; /* Permite el scroll si el contenido es muy largo */
 
   /* --- ¡Ajustes para el padding con header/footer fijos! --- */
-  padding-top: 64px; /* Altura del header */
-  padding-bottom: 80px; /* Altura del footer (un poco más para asegurar espacio) */
+  /* padding-top: 64px; Altura del header */
+  padding-bottom: 0px; /* Altura del footer (un poco más para asegurar espacio) */
 }
 
 /* --- Responsive Adjustments para el Layout general --- */
