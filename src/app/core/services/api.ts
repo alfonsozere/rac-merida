@@ -32,6 +32,7 @@ import { Parroquia } from '../models/parroquia.model';
 import { Municipio } from '../models/municipio.model';
 import { Estado } from '../models/estado.model';
 import { LoginPayload, LoginResponse } from '../models/login.model';
+import { CodigoSufijoDocente } from '../models/codigo-sufijo-docente.model';
 
 
 @Injectable({
@@ -73,47 +74,47 @@ export class Api {
   getUbchs(): Observable<Ubch[]> {
     return this.http.get<Ubch[]>(`${this.apiUrl}/ubchs`).pipe(catchError(this.handleError));
   }
-  
+
   getComunas(): Observable<Comunas[]> {
     return this.http.get<Comunas[]>(`${this.apiUrl}/comunas`).pipe(catchError(this.handleError));
   }
-  
+
   getConsejosComunales(): Observable<ConsejoComunales[]> {
     return this.http.get<ConsejoComunales[]>(`${this.apiUrl}/consejos_comunales`).pipe(catchError(this.handleError));
   }
-  
+
   getDependenciaPlantel(): Observable<Dependencias[]> {
     return this.http.get<Dependencias[]>(`${this.apiUrl}/dependencias_plantel`).pipe(catchError(this.handleError));
   }
-  
+
   getDenominacionPlantel(): Observable<Denominaciones[]> {
     return this.http.get<Denominaciones[]>(`${this.apiUrl}/denominaciones_plantel`).pipe(catchError(this.handleError));
   }
-  
+
   getNivelesPlantel(): Observable<Niveles[]> {
     return this.http.get<Niveles[]>(`${this.apiUrl}/niveles_plantel`).pipe(catchError(this.handleError));
   }
-  
+
   getModalidadPlantel(): Observable<Modalidades[]> {
     return this.http.get<Modalidades[]>(`${this.apiUrl}/modalidades_plantel`).pipe(catchError(this.handleError));
   }
-  
+
   getTurnos(): Observable<Turnos[]> {
     return this.http.get<Turnos[]>(`${this.apiUrl}/turnos`).pipe(catchError(this.handleError));
   }
-  
+
   getSituacionesLaborales(): Observable<SituacionLaboral[]> {
     return this.http.get<SituacionLaboral[]>(`${this.apiUrl}/situaciones_laborales`).pipe(catchError(this.handleError));
   }
-  
+
   getUbicacionPlantel(): Observable<Territorio[]> {
     return this.http.get<Territorio[]>(`${this.apiUrl}/ubicaciones_plantel`).pipe(catchError(this.handleError));
   }
-  
+
   getSexos(): Observable<Sexo[]> {
     return this.http.get<Sexo[]>(`${this.apiUrl}/sexos`).pipe(catchError(this.handleError));
   }
-  
+
   getAllCircuitos(): Observable<Circuito[]> {
     return this.http.get<Circuito[]>(`${this.apiUrl}/circuitos`).pipe(catchError(this.handleError));
   }
@@ -205,6 +206,12 @@ export class Api {
 
   getCargosObreros(): Observable<CargosObreros[]> {
     return this.http.get<CargosObreros[]>(`${this.apiUrl}/cargos_obreros`).pipe(catchError(this.handleError));
+  }
+
+  createCodigoSufijoDocente(data: CodigoSufijoDocente): Observable<BackendMessageResponse> {
+    return this.http.post<BackendMessageResponse>(`${this.apiUrl}/codigoSufijoDocente`, data).pipe(
+      catchError(this.handleError)
+    );
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

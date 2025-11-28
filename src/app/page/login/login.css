@@ -155,8 +155,8 @@
 }
 
 /* --- RESPONSIVE --- */
-/* Tablets (<=1024px) */
-@media (max-width: 1024px) {
+/* Tablets (<=1016px) */
+/* @media (max-width: 1016px) {
   .login-container {
     flex-direction: column;
     gap: 30px;
@@ -166,7 +166,7 @@
   .login-left, .login-card {
     max-width: 90%;
   }
-}
+} */
 
 /* Móviles (<=768px) */
 @media (max-width: 768px) {

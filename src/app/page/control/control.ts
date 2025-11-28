@@ -24,14 +24,6 @@ export class Control implements OnInit, OnDestroy {
 
   private allControlCards = [
     {
-      title: 'Autorización de Usuarios',
-      description: '',
-      icon: 'person-check-fill',
-      route: '',
-      requiredRole: 0,
-      className: 'card-authorization'
-    },
-    {
       title: 'Funcionalidades Estadal',
       description: 'Gestión de datos a nivel de estado.',
       icon: 'map-fill',
@@ -78,6 +70,14 @@ export class Control implements OnInit, OnDestroy {
       route: 'db',
       requiredRole: ROLES.SUPER_ADMIN,
       className: 'card-db'
+    },
+    {
+      title: 'Autorización de Usuarios',
+      description: '',
+      icon: 'person-check-fill',
+      route: '',
+      requiredRole: 0,
+      className: 'card-authorization'
     }
   ];
 

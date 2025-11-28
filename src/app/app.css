@@ -17,7 +17,7 @@ html, body {
 .app-content {
   flex: 1; /* Permite que el contenido principal ocupe todo el espacio disponible */
   /* padding: 1px; Espaciado interno para el contenido */
-  background-color: #f5f5f5; /* Color de fondo suave para el contenido */
+  background-color: #d5e5f5 !important; /* Color de fondo suave para el contenido */
   color: #333; /* Color de texto predeterminado */
   overflow-y: auto; /* Permite el scroll si el contenido es muy largo */
 
