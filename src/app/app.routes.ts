@@ -15,6 +15,7 @@ export const routes: Routes = [
   
   { path: 'panel/control/gestor-director', loadComponent: () => import('./page/gestor/gestor-director/gestor-director').then(m => m.GestorDirector), canActivate: [AuthGuard], data: {requiredRoles: [ROLES.SUPER_ADMIN,ROLES.ADMIN_SQUAD]} },
   { path: 'panel/control/gestor-director/empleados', loadComponent: () => import('./page/gestor/gestor-director/empleado-director/empleado-director').then(m => m.EmpleadoDirector), canActivate: [AuthGuard], data: {requiredRoles: [ROLES.SUPER_ADMIN,ROLES.ADMIN_SQUAD]} },
+  { path: 'panel/control/gestor-director/empleados/eliminados', loadComponent: () => import('./page/gestor/gestor-director/empleado-eliminado-director/empleado-eliminado-director').then(m => m.EmpleadoEliminadoDirector), canActivate: [AuthGuard], data: {requiredRoles: [ROLES.SUPER_ADMIN,ROLES.ADMIN_SQUAD]} },
   { path: 'panel/control/gestor-director/usuarios', loadComponent: () => import('./page/gestor/gestor-director/usuario-director/usuario-director').then(m => m.UsuarioDirector), canActivate: [AuthGuard], data: {requiredRoles: [ROLES.SUPER_ADMIN,ROLES.ADMIN_SQUAD]} },
   { path: 'panel/control/gestor-director/database', loadComponent: () => import('./page/gestor/gestor-director/database-director/database-director').then(m => m.DatabaseDirector), canActivate: [AuthGuard], data: {requiredRoles: [ROLES.SUPER_ADMIN,ROLES.ADMIN_SQUAD]} },
   

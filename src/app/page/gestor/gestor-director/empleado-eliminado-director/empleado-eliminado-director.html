@@ -1,0 +1,82 @@
+<div class="empleados-container d-flex flex-column align-items-center">
+  <div class="card shadow-lg rounded-3 border-0 w-100 card-principal-rac">
+    <div class="p-1">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <h2 class="empleados-section-title text-center text-md-start mb-2 mb-md-0">
+          Gestión de Empleados Eliminados
+        </h2>
+        <button (click)="emitGoBack()" class="btn btn-secondary btn-sm shadow-sm" hidden>
+          <i class="bi bi-arrow-left me-1"></i> Regresar
+        </button>
+      </div>
+
+      <!-- Mensajes de error o éxito -->
+      <div *ngIf="error"
+           class="alert alert-{{ error.includes('Error') ? 'danger' : 'success' }} text-center rounded-3 shadow-sm mb-4 empleados-alert"
+           role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="error = null"></button>
+      </div>
+
+      <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Empleados Eliminados</h3>
+
+      <!-- Tabla de empleados eliminados -->
+      <div *ngIf="empleados.length > 0 && !cargando" class="mb-1 p-1 tabla-empleados-rac">
+        <table
+          class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle tabla-empleados-rac empleados-table autorizacion-table-compact empleados-table-monitoreo">
+          <thead class="bg-primary text-white">
+            <tr>
+              <th title="Cédula" scope="col">Cédula</th>
+              <th title="Nombre Completo" scope="col">Nombre Completo</th>
+              <th title="Plantel" scope="col">Plantel</th>
+              <th title="Tipo Personal" scope="col">Tipo Personal</th>
+              <th title="Fecha Ingreso" scope="col">Fecha Ingreso</th>
+              <th title="Situación laboral" scope="col">Situación laboral</th>
+              <th title="Fecha Eliminación" scope="col">Fecha Eliminación</th>
+              <th title="Usuario Eliminador" scope="col">Usuario Eliminador</th>
+              <th title="Acciones" scope="col" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let empleado of empleados">
+              <td title="{{ empleado.cedula }}">{{ empleado.cedula }}</td>
+              <td title="{{ empleado.nombre }} {{ empleado.apellido }}">
+                {{ empleado.nombre }} {{ empleado.apellido }}
+              </td>
+              <td title="{{ empleado.plantel_nombre }}">{{ empleado.plantel_nombre }}</td>
+              <td title="{{ empleado.nombre_tipo_personal }}">{{ empleado.nombre_tipo_personal }}</td>
+              <td title="{{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}">
+                {{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}
+              </td>
+              <td title="{{ empleado.nombre_situacion_laboral }}">{{ empleado.nombre_situacion_laboral }}</td>
+              <td title="{{ empleado.fecha_eliminacion | date: 'dd/MM/yyyy HH:mm' }}">
+                {{ empleado.fecha_eliminacion | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td title="{{ empleado.usuario_eliminador }}">{{ empleado.usuario_eliminador }}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-success shadow-sm empleados-btn-restaurar"
+                        (click)="restaurarEmpleado(empleado.id_empleado)"
+                        title="Restaurar">
+                  <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mensaje si no hay empleados eliminados -->
+      <div *ngIf="empleados.length === 0 && !cargando" class="alert alert-info text-center mt-3">
+        No hay empleados eliminados registrados.
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="cargando" class="text-center mt-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

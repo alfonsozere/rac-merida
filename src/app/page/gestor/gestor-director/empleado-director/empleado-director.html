@@ -5,11 +5,11 @@
                 class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-3">
                 <h2 class="empleados-section-title text-center text-md-start mb-2 mb-md-0">
                     Gestión de Empleados
-                    <br>
+                    <!-- <br>
                     <span *ngIf="currentUser" class="text-secondary fs-6">
                         <strong class="text-dark me-2">{{ currentUser.nombre }} {{ currentUser.apellido }}</strong>
                         ({{ getRoleNameById(currentUser.cod_rol) }})
-                    </span>
+                    </span> -->
                 </h2>
                 <button (click)="emitGoBack()" class="btn btn-secondary btn-sm shadow-sm" hidden>
                     <i class="bi bi-arrow-left me-1"></i> Regresar
@@ -176,11 +176,12 @@
                                     </select>
                                 </div>
 
-                                <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de Cargo</h6>
                                 <div class="row g-2 mt-1">
 
                                     <ng-container
                                         *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.DOCENTE">
+                                        <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de
+                                            Cargo</h6>
                                         <div class="col-md-3">
                                             <label for="id_cargo_docente" class="form-label">Cargo Docente <span
                                                     class="text-danger">*</span></label>
@@ -192,10 +193,16 @@
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <label for="codigo_docente_sufijo" class="form-label">Sufijo Cód.
-                                                Docente</label>
-                                            <input type="text" id="codigo_docente_sufijo"
-                                                formControlName="codigo_docente_sufijo" class="form-control">
+                                            <label for="codigo_docente_sufijo" class="form-label">Sufijo Cód. Docente
+                                                <span class="text-danger">*</span></label>
+                                            <select id="codigo_docente_sufijo" formControlName="codigo_docente_sufijo"
+                                                class="form-select">
+                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option *ngFor="let codigo of codigoSufijoDocente"
+                                                    [ngValue]="codigo.codigo_nomina">
+                                                    {{ codigo.codigo_nomina }}
+                                                </option>
+                                            </select>
                                         </div>
                                         <div class="col-md-3">
                                             <label for="id_tipo_docente_especifico" class="form-label">Tipo Docente Esp.
@@ -212,21 +219,37 @@
 
                                     <ng-container
                                         *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.ADMINISTRATIVO">
-                                        <div class="col-md-4">
-                                            <label for="id_cargo_administrativo" class="form-label">Cargo Administrativo
-                                                <span class="text-danger">*</span></label>
-                                            <select id="id_cargo_administrativo"
-                                                formControlName="id_cargo_administrativo" class="form-select">
-                                                <option [ngValue]="null" disabled>Seleccione...</option>
-                                                <option *ngFor="let cargo of cargosAdministrativos"
-                                                    [ngValue]="cargo.id">{{
-                                                    cargo.nombre }}</option>
-                                            </select>
+                                        <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de
+                                            Cargo</h6>
+
+                                        <div class="row g-2">
+                                            <div class="col-md-4">
+                                                <label for="id_cargo_administrativo" class="form-label">Cargo
+                                                    Administrativo
+                                                    <span class="text-danger">*</span></label>
+                                                <select id="id_cargo_administrativo"
+                                                    formControlName="id_cargo_administrativo" class="form-select">
+                                                    <option [ngValue]="null" disabled>Seleccione...</option>
+                                                    <option *ngFor="let cargo of cargosAdministrativos"
+                                                        [ngValue]="cargo.id">{{
+                                                        cargo.nombre }}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="codigo_administrativo" class="form-label">Código
+                                                    Administrativo
+                                                    <span class="text-danger"></span></label>
+                                                <input type="text" id="codigo_administrativo"
+                                                    formControlName="codigo_administrativo" class="form-control">
+
+                                            </div>
                                         </div>
                                     </ng-container>
 
                                     <ng-container
                                         *ngIf="formularioEmpleado.get('id_tipo_personal')?.value === TIPO_PERSONAL.OBRERO">
+                                        <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de
+                                            Cargo</h6>
 
                                         <div class="col-md-3">
                                             <label for="id_grado_obrero" class="form-label">Grado Obrero <span
@@ -238,14 +261,14 @@
                                                 <option *ngFor="let grado of gradosObreros" [ngValue]="grado.id">{{
                                                     grado.nombre }}</option>
                                             </select>
-                                        </div>                                        
-                                        
+                                        </div>
+
                                         <div class="col-md-3">
                                             <label for="id_cargo_obrero" class="form-label">Cargo Obrero <span
                                                     class="text-danger">*</span></label>
                                             <select id="id_cargo_obrero" formControlName="id_cargo_obrero"
                                                 class="form-select">
-                                                <option [ngValue]="null" disabled>Seleccione...</option>
+                                                <option [value]="null" disabled>Seleccione...</option>
                                                 <option *ngFor="let cargo of cargosObrerosFiltrados"
                                                     [ngValue]="cargo.id">{{
                                                     cargo.nombre }}</option>
@@ -255,10 +278,11 @@
                                     </ng-container>
 
                                 </div>
-                                <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de Horas</h6>
                                 <div class="row g-2 mt-1">
 
                                     <ng-container *ngIf="formularioEmpleado.get('id_tipo_personal')?.value">
+                                        <h6 class="fw-bold text-primary border-bottom pb-1 mt-2 mb-0">Asignación de
+                                            Horas</h6>
                                         <div class="col-md-3">
                                             <label for="horas_administrativas" class="form-label">Horas
                                                 Administrativas</label>
@@ -335,48 +359,58 @@
                                         </ng-container>
                                     </div>
                                 </ng-container>
-                                <div class="col-md-3">
-                                    <label for="fecha_ingreso_laboral" class="form-label">Fecha Ingreso <span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" id="fecha_ingreso_laboral"
-                                        formControlName="fecha_ingreso_laboral" class="form-control" required>
-                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <label for="fecha_ingreso_laboral" class="form-label">Fecha Ingreso <span
+                                                class="text-danger">*</span></label>
+                                        <input type="date" id="fecha_ingreso_laboral"
+                                            formControlName="fecha_ingreso_laboral" class="form-control" required>
+                                    </div>
 
-                                <div class="col-md-4">
-                                    <label for="id_plantel" class="form-label">Plantel Asignado <span
-                                            class="text-danger">*</span></label>
-                                    <select id="id_plantel" formControlName="id_plantel" class="form-select" required>
-                                        <option [ngValue]="null" disabled>Seleccione...</option>
-                                        <option *ngFor="let plantel of planteles" [ngValue]="plantel.id_plantel">{{
-                                            plantel.nombre }}
-                                        </option>
-                                    </select>
-                                </div>
+                                    <div class="col-md-4">
+                                        <label for="id_plantel" class="form-label">Plantel Asignado <span
+                                                class="text-danger">*</span></label>
+                                        <select id="id_plantel" formControlName="id_plantel" class="form-select"
+                                            required>
+                                            <option [ngValue]="null" disabled>Seleccione...</option>
+                                            <option *ngFor="let plantel of planteles" [ngValue]="plantel.id_plantel">{{
+                                                plantel.nombre }}
+                                            </option>
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-3">
-                                    <label for="id_turno" class="form-label">Turno</label>
-                                    <select id="id_turno" formControlName="id_turno" class="form-select">
-                                        <option [ngValue]="null">Seleccione...</option>
-                                        <option *ngFor="let turno of turnos" [ngValue]="turno.id">{{ turno.nombre }}
-                                        </option>
-                                    </select>
+                                    <div class="col-md-3">
+                                        <label for="id_turno" class="form-label">Turno</label>
+                                        <select id="id_turno" formControlName="id_turno" class="form-select">
+                                            <option [ngValue]="null">Seleccione...</option>
+                                            <option *ngFor="let turno of turnos" [ngValue]="turno.id">{{ turno.nombre }}
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <div class="col-md-2">
-                                    <label for="id_situacion_laboral" class="form-label">Situación Laboral</label>
-                                    <select id="id_situacion_laboral" formControlName="id_situacion_laboral"
-                                        class="form-select">
-                                        <option [ngValue]="null">Seleccione...</option>
-                                        <option *ngFor="let sit of situacionesLaborales" [ngValue]="sit.id">{{
-                                            sit.nombre }}
-                                        </option>
-                                    </select>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label for="id_situacion_laboral" class="form-label">Situación
+                                            Laboral</label>
+                                        <select id="id_situacion_laboral" formControlName="id_situacion_laboral"
+                                            class="form-select">
+                                            <option [ngValue]="null">Seleccione...</option>
+                                            <option *ngFor="let sit of situacionesLaborales" [ngValue]="sit.id">
+                                                {{ sit.nombre }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="descripcion_situacion_laboral"
+                                            class="form-label">Descripción</label>
+                                        <textarea type="text" id="descripcion_situacion_laboral"
+                                            formControlName="descripcion_situacion_laboral" class="form-control" rows="3"></textarea>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-12 mt-3">
-                                <label for="observaciones" class="form-label">Observaciones</label>
-                                <textarea id="observaciones" formControlName="observaciones" class="form-control"
-                                    rows="2"></textarea>
+                                <div class="col-12 mt-3">
+                                    <label for="observaciones" class="form-label">Observaciones</label>
+                                    <textarea id="observaciones" formControlName="observaciones" class="form-control"
+                                        rows="2"></textarea>
+                                </div>
                             </div>
                         </div>
 

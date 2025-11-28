@@ -240,7 +240,5 @@ export class LookupService {
       catchError(this.handleError)
     );
   }
-
-
 }
 

@@ -33,6 +33,7 @@ import { Municipio } from '../models/municipio.model';
 import { Estado } from '../models/estado.model';
 import { LoginPayload, LoginResponse } from '../models/login.model';
 import { CodigoSufijoDocente } from '../models/codigo-sufijo-docente.model';
+import { EmpleadoEliminado } from '../models/empleado-eliminado.model';
 
 
 @Injectable({
@@ -182,6 +183,16 @@ export class Api {
 
   deleteEmpleado(id: number): Observable<BackendMessageResponse> {
     return this.http.delete<BackendMessageResponse>(`${this.apiUrl}/empleados/${id}`).pipe(catchError(this.handleError));
+  }
+
+  getEmpleadosEliminados(): Observable<EmpleadoEliminado[]> {
+    return this.http.get<EmpleadoEliminado[]>(`${this.apiUrl}/empleados/eliminados/lista`)
+      .pipe(catchError(this.handleError));
+  }
+
+  restoreEmpleado(id: number): Observable<BackendMessageResponse> {
+    return this.http.post<BackendMessageResponse>(`${this.apiUrl}/empleados/restaurar/${id}`, {})
+      .pipe(catchError(this.handleError));
   }
 
   getTiposPersonal(): Observable<TiposPersonal[]> {

@@ -36,6 +36,12 @@ export class GestorDirector implements OnInit, OnDestroy {
       description: 'Gestión de la base de datos asignada a este plantel.',
       icon: 'database-gear',
       route: 'database'
+    },
+    {
+      title: 'Control funcionarios eliminados',
+      description: 'Gestión de la base de datos asignada a este plantel.',
+      icon: 'database-gear',
+      route: 'empleados/eliminados'
     }
   ];
 
