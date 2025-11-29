@@ -1,8 +1,7 @@
 <div class="empleados-container d-flex flex-column align-items-center">
   <div class="card shadow-lg rounded-3 border-0 w-100 card-principal-rac">
     <div class="p-1">
-      <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-3">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-3">
         <h2 class="empleados-section-title text-center text-md-start mb-2 mb-md-0">
           Gestión de Empleados Eliminados
         </h2>
@@ -12,11 +11,8 @@
       </div>
 
       <!-- Mensajes de error o éxito -->
-      <div *ngIf="error"
-           class="alert alert-{{ error.includes('Error') ? 'danger' : 'success' }} text-center rounded-3 shadow-sm mb-4 empleados-alert"
-           role="alert">
+      <div *ngIf="error" class="alert alert-{{ error.includes('Error') ? 'danger' : 'success' }}">
         {{ error }}
-        <button type="button" class="btn-close" aria-label="Close" (click)="error = null"></button>
       </div>
 
       <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Empleados Eliminados</h3>
@@ -56,8 +52,7 @@
               <td title="{{ empleado.usuario_eliminador }}">{{ empleado.usuario_eliminador }}</td>
               <td class="text-center">
                 <button class="btn btn-sm btn-success shadow-sm empleados-btn-restaurar"
-                        (click)="restaurarEmpleado(empleado.id_empleado)"
-                        title="Restaurar">
+                  (click)="restaurarEmpleado(empleado.id_empleado)" title="Restaurar">
                   <i class="bi bi-arrow-counterclockwise"></i> Restaurar
                 </button>
               </td>

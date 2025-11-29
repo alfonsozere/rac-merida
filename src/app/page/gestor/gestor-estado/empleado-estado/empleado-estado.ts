@@ -1,14 +1,13 @@
 import { Component, Input, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
-import { forkJoin, Observable, Subscription, of } from 'rxjs'; // Se añade 'of' para Observables vacíos o predeterminados
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, AbstractControl, FormsModule } from '@angular/forms';
+import { forkJoin, Observable, Subscription, of } from 'rxjs';
 import { filter, map, catchError } from 'rxjs/operators';
-
-// Importar los servicios y modelos necesarios
-import { Usuario } from '../../../../core/models/usuario.model';
 import { ROLES, TIPO_PERSONAL } from '../../../../core/constants/constantes';
 import { LookupItem, LookupService } from '../../../../core/services/lookup';
+import { Empleado } from '../../../../core/models/empleado.model';
+import { Usuario } from '../../../../core/models/usuario.model';
 import { Plantel } from '../../../../core/models/plantel.model';
 import { CargosObreros } from '../../../../core/models/cargos-obreros.model';
 import { Estado } from '../../../../core/models/estado.model';
@@ -16,6 +15,19 @@ import { Municipio } from '../../../../core/models/municipio.model';
 import { Circuito } from '../../../../core/models/circuito.model';
 import { Auth } from '../../../../core/services/auth';
 import { ServicioEmpleado } from '../../../../core/services/empleado';
+import { CargoAdministrativos } from '../../../../core/models/cargo-administrativos.model';
+import { Sexo } from '../../../../core/models/sexo.model';
+import { Ubch } from '../../../../core/models/ubch.model';
+import { Comunas } from '../../../../core/models/comunas.model';
+import { ConsejoComunales } from '../../../../core/models/consejo-comunales.model';
+import { TiposPersonal } from '../../../../core/models/tipos-personal.model';
+import { Turnos } from '../../../../core/models/turnos.model';
+import { SituacionLaboral } from '../../../../core/models/situacion-laboral.model';
+import { CargoDocentes } from '../../../../core/models/cargo-docentes.model';
+import { DocentesEspecificos } from '../../../../core/models/docentes-especificos.model';
+import { GradosObreros } from '../../../../core/models/grados-obreros.model';
+import { CodigoSufijoDocente } from '../../../../core/models/codigo-sufijo-docente.model';
+declare const bootstrap: any;
 
 @Component({
   selector: 'app-empleado-estado',
@@ -30,7 +42,7 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
   @Input() selectedCard: any | null = null;
   @Output() goBack = new EventEmitter<void>();
 
-  empleados: any[] = [];
+  empleados: Empleado[] = [];
   cargando: boolean = false;
   error: string | null = null;
 
@@ -41,56 +53,43 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
   currentUser: Usuario | null = null;
   readonly ROLES = ROLES;
   readonly TIPO_PERSONAL = TIPO_PERSONAL;
-
-  // Colección de suscripciones para limpieza
   private subscriptions: Subscription = new Subscription();
 
-  // Listas para los selectores de datos de catálogos (lookups)
-  sexos: LookupItem[] = [];
-  ubchs: LookupItem[] = [];
-  comunas: LookupItem[] = [];
-  consejosComunales: LookupItem[] = [];
-  tiposPersonal: LookupItem[] = [];
-  turnos: LookupItem[] = [];
-  situacionesLaborales: LookupItem[] = [];
+  sexos: Sexo[] = [];
+  ubchs: Ubch[] = [];
+  comunas: Comunas[] = [];
+  consejosComunales: ConsejoComunales[] = [];
+  tiposPersonal: TiposPersonal[] = [];
+  turnos: Turnos[] = [];
+  situacionesLaborales: SituacionLaboral[] = [];
   planteles: Plantel[] = [];
-  cargosDocentes: LookupItem[] = [];
-  tiposDocenteEspecificos: LookupItem[] = [];
-  cargosAdministrativos: LookupItem[] = [];
+  cargosDocentes: CargoDocentes[] = [];
+  codigoSufijoDocente: CodigoSufijoDocente[] = [];
+  tiposDocenteEspecificos: DocentesEspecificos[] = [];
+  cargosAdministrativos: CargoAdministrativos[] = [];
   cargosObreros: CargosObreros[] = [];
-  gradosObreros: LookupItem[] = [];
+  gradosObreros: GradosObreros[] = [];
   cargosObrerosFiltrados: CargosObreros[] = [];
-
-  // Listas para los selectores geográficos
   estados: Estado[] = [];
   municipios: Municipio[] = [];
   circuitos: Circuito[] = [];
 
-  /**
- * Convierte valores falsy (cadenas vacías y arrays vacíos) a NULL.
- * Esto es esencial para que el backend (Node.js/PostgreSQL) pueda:
- * 1. Evitar errores de tipo al intentar insertar '' en columnas INTEGER (claves foráneas).
- * 2. Manejar correctamente los campos opcionales (NULLable) de la base de datos.
- */
   private sanitizeData(data: any): any {
-    // Trabaja con una copia de los datos
     const sanitized = { ...data };
-
     for (const key in sanitized) {
       if (sanitized.hasOwnProperty(key)) {
         const value = sanitized[key];
-
-        // Si el valor es una cadena vacía ('') o un array vacío (si aplica), se convierte a null.
         if (value === '' || (Array.isArray(value) && value.length === 0)) {
           sanitized[key] = null;
         }
-
-        // NOTA: Si un campo numérico opcional se deja vacío en el formulario, 
-        // suele enviarse como '' (cadena vacía), por lo que la primera condición es suficiente.
       }
     }
     return sanitized;
   }
+
+  // 🔹 Solo lo nuevo para el modal:
+  motivoSeleccionado: string = '';
+  empleadoSeleccionadoNombre: string = '';
 
   constructor(
     private authService: Auth,
@@ -130,18 +129,88 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
     } else {
       this.cargarEmpleados();
     }
+    const tipoPersonalControl = this.formularioEmpleado.get('id_tipo_personal');
+    const cargoAdminControl = this.formularioEmpleado.get('id_cargo_administrativo');
+    const codigoAdminControl = this.formularioEmpleado.get('codigo_administrativo');
+
+    // 1. Deshabilitar código administrativo si el tipo de personal es ADMINISTRATIVO
+    if (tipoPersonalControl && codigoAdminControl) {
+      const subTipoPersonal = tipoPersonalControl.valueChanges.subscribe(value => {
+        if (value === this.TIPO_PERSONAL.ADMINISTRATIVO) {
+          codigoAdminControl.disable({ emitEvent: false });
+        } else {
+          codigoAdminControl.enable({ emitEvent: false });
+          codigoAdminControl.setValue(null, { emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subTipoPersonal);
+    }
+
+    // 2. Rellenar código administrativo según el cargo seleccionado
+    if (cargoAdminControl && codigoAdminControl) {
+      const subCargoAdmin = cargoAdminControl.valueChanges.subscribe(value => {
+        if (value) {
+          const cargoSeleccionado = this.cargosAdministrativos.find(c => c.id === value);
+          if (cargoSeleccionado) {
+            codigoAdminControl.setValue(cargoSeleccionado.codigo_cargo, { emitEvent: false });
+            codigoAdminControl.disable({ emitEvent: false });
+          }
+        } else {
+          codigoAdminControl.setValue(null, { emitEvent: false });
+          codigoAdminControl.enable({ emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subCargoAdmin);
+    }
+
+    const subCargoDocente = this.formularioEmpleado.get('id_cargo_docente')?.valueChanges.subscribe(idCargo => {
+      if (idCargo) {
+        this.lookupService.getCodigosByCargoDocente(idCargo).subscribe(codigos => {
+          this.codigoSufijoDocente = codigos;
+          this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(null);
+          this.formularioEmpleado.get('codigo_docente_sufijo')?.enable();
+        });
+      } else {
+        this.codigoSufijoDocente = [];
+        this.formularioEmpleado.get('codigo_docente_sufijo')?.disable();
+      }
+    });
+    this.subscriptions.add(subCargoDocente);
+
+    const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
+    if (tipoDocenteControl) {
+      const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
+        // Primero deshabilitamos todos los campos de detalle
+        ['grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo']
+          .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
+
+        // Luego habilitamos según el tipo seleccionado
+        if (tipo === 1) {
+          this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
+        } else if (tipo === 2) {
+          this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
+        } else if (tipo === 3) {
+          this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subTipoDocente);
+    }
+    const subSituacion = this.formularioEmpleado.get('id_situacion_laboral')?.valueChanges.subscribe(idSit => {
+      const situacion = this.situacionesLaborales.find(s => s.id === idSit);
+      this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
+    });
+    this.subscriptions.add(subSituacion);
+
   }
 
-  /**
-   * Limpia las suscripciones al destruir el componente.
-   */
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  /**
-   * Inicializa el formulario reactivo con sus campos. Los campos condicionales inician sin validadores.
-   */
   initForm(): void {
     this.formularioEmpleado = this.fb.group({
       cedula_empleado: ['', [Validators.required, Validators.pattern(/^\d{7,8}$/)]],
@@ -163,6 +232,7 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
       codigo_docente_sufijo: [''],
       id_tipo_docente_especifico: [null],
       id_cargo_administrativo: [null],
+      codigo_administrativo: [{ value: null, disabled: true }],
       id_cargo_obrero: [null],
       id_grado_obrero: [null],
 
@@ -180,15 +250,16 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
 
       observaciones: [''],
       id_situacion_laboral: [null],
+      descripcion_situacion_laboral: [{ value: '', disabled: true }],
       id_plantel: [null, Validators.required],
-      id_estado: [null],
-      id_municipio: [null],
-      id_parroquia: [null],
-      id_denominacion_plantel: [null],
-      id_dependencia_plantel: [null],
-      id_ubicacion_plantel: [null],
-      id_nivel_plantel: [null],
-      id_modalidad_plantel: [null]
+      /* id_estado: [null],
+       id_municipio: [null],
+       id_parroquia: [null],
+       id_denominacion_plantel: [null],
+       id_dependencia_plantel: [null],
+       id_ubicacion_plantel: [null],
+       id_nivel_plantel: [null],
+       id_modalidad_plantel: [null] */
     });
 
     // Deshabilitar id_plantel según el rol
@@ -197,22 +268,12 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Configura la lógica condicional del formulario, suscrita a id_tipo_personal.
-   */
   setupConditionalFormLogic(): void {
     const tipoPersonalControl = this.formularioEmpleado.get('id_tipo_personal');
     if (!tipoPersonalControl) return;
-
-    // Suscripción al cambio de tipo de personal
     const sub = tipoPersonalControl.valueChanges.subscribe(tipoPersonalId => {
-      // 1. Limpiar validadores y valores de todos los campos condicionales
       this.resetPersonalSpecificFields();
-
-      // 2. Configurar validadores y valores para el tipo seleccionado
       this.configurePersonalSpecificFields(tipoPersonalId);
-
-      // 3. Forzar la revalidación del formulario
       this.formularioEmpleado.updateValueAndValidity();
     });
 
@@ -239,87 +300,88 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
         control.clearValidators();
         control.updateValueAndValidity();
         if (resetValues) {
-          // MUY IMPORTANTE: Prevenir bucle de detección de cambios: { emitEvent: false }
+          // Importante: Deshabilitar temporalmente los campos que no se usen.
+          // Revertimos la habilitación/deshabilitación a como estaba antes de que el usuario lo revirtiera.
+          // Si un control no tiene valor, es más seguro deshabilitarlo y habilitarlo solo si aplica.
+          control.disable({ emitEvent: false }); // Deshabilitamos todo lo específico por defecto
           control.setValue(control.value === '' ? '' : null, { emitEvent: false });
+        } else {
+          // Durante el patch (resetValues = false), nos aseguramos de que todos los controles puedan recibir el valor
+          control.enable({ emitEvent: false });
         }
       }
     });
   }
 
-  /**
-   * Configura los validadores requeridos para el tipo de personal seleccionado.
-   */
-  // En EmpleadosUsuarioComponent
-  // ...
 
   private configurePersonalSpecificFields(tipoPersonalId: number): void {
     const requiredValidator = Validators.required;
+    // Helper para acceder a los controles
     const getControl = (name: string): AbstractControl | null => this.formularioEmpleado.get(name);
 
-    // --- 1. Definición de Controles por Categoría ---
-    const docenteControls = ['id_cargo_docente', 'id_tipo_docente_especifico', 'horas_academicas', 'horas_administrativas'];
-    const administrativoControls = ['id_cargo_administrativo'];
-    const obreroControls = ['id_cargo_obrero', 'id_grado_obrero'];
+    // Definición de controles específicos por tipo
+    const docenteControls = ['id_cargo_docente', 'id_tipo_docente_especifico', 'horas_academicas', 'horas_administrativas', 'id_turno'];
+    const administrativoControls = ['id_cargo_administrativo', 'horas_administrativas', 'id_turno'];
+    const obreroControls = ['id_cargo_obrero', 'id_grado_obrero', 'horas_administrativas', 'id_turno'];
 
-    // Lista completa de todos los campos específicos de personal
+    // Lista de todos los controles específicos que deben ser manipulados (limpiados o validados)
     const allSpecificControls = [
       ...docenteControls,
       ...administrativoControls,
-      ...obreroControls,
-      'grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo', 'id_turno'
+      'grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo'
     ];
 
-    // --- 2. Fase de Limpieza (CRUCIAL): Remover Validadores y Limpiar Valores No Usados ---
+    // 1. Limpiar validadores en todos los campos para empezar de cero y deshabilitar
     allSpecificControls.forEach(name => {
       const control = getControl(name);
-
-      // Remover cualquier validador que exista de ediciones anteriores
       control?.clearValidators();
-
-      // Limpiar el valor solo si no se va a usar en esta iteración. 
-      // En modo edición, es mejor no limpiar el valor (siempre y cuando el patchValue se ejecute primero)
-      // Por ahora, solo nos enfocaremos en la limpieza de validadores.
-
-      // Marcar todos como válidos temporalmente para evitar que el formulario se bloquee
+      // Mantenemos la habilitación/deshabilitación en resetPersonalSpecificFields para controlar el 'patch' correctamente.
       control?.updateValueAndValidity();
     });
 
-
-    // --- 3. Aplicación de Validadores Específicos y Revalidación ---
-
+    // 2. Aplicar validadores específicos y habilitar según el tipo de personal
     if (tipoPersonalId === TIPO_PERSONAL.DOCENTE) {
-      // Campos de DOCENTE (Aplica Validators.required)
+
       getControl('id_cargo_docente')?.setValidators(requiredValidator);
       getControl('id_tipo_docente_especifico')?.setValidators(requiredValidator);
-
-      // Otros validadores
       getControl('horas_academicas')?.setValidators(Validators.min(0));
       getControl('horas_administrativas')?.setValidators(Validators.min(0));
+      getControl('id_turno')?.setValidators(requiredValidator); // Turno es requerido para docentes/administrativos/obreros
 
-      // Forzar la revalidación de los campos modificados
-      docenteControls.forEach(name => getControl(name)?.updateValueAndValidity());
+      // Habilitar y validar
+      docenteControls.forEach(name => {
+        getControl(name)?.enable();
+        getControl(name)?.updateValueAndValidity();
+      });
 
     } else if (tipoPersonalId === TIPO_PERSONAL.ADMINISTRATIVO) {
-      // Campos de ADMINISTRATIVO (Aplica Validators.required)
-      getControl('id_cargo_administrativo')?.setValidators(requiredValidator);
 
-      // Forzar la revalidación
-      administrativoControls.forEach(name => getControl(name)?.updateValueAndValidity());
+      getControl('id_cargo_administrativo')?.setValidators(requiredValidator);
+      getControl('horas_administrativas')?.setValidators(Validators.min(0));
+      getControl('id_turno')?.setValidators(requiredValidator);
+
+      // Habilitar y validar
+      administrativoControls.forEach(name => {
+        getControl(name)?.enable();
+        getControl(name)?.updateValueAndValidity();
+      });
 
     } else if (tipoPersonalId === TIPO_PERSONAL.OBRERO) {
-      // Campos de OBRERO (Aplica Validators.required)
+
       getControl('id_cargo_obrero')?.setValidators(requiredValidator);
       getControl('id_grado_obrero')?.setValidators(requiredValidator);
+      getControl('horas_administrativas')?.setValidators(Validators.min(0));
+      getControl('id_turno')?.setValidators(requiredValidator);
 
-      // Forzar la revalidación
-      obreroControls.forEach(name => getControl(name)?.updateValueAndValidity());
+      // Habilitar y validar
+      obreroControls.forEach(name => {
+        getControl(name)?.enable();
+        getControl(name)?.updateValueAndValidity();
+      });
+
     }
-
-    // Nota Importante: La función updateValueAndValidity() debe llamarse en los controles
-    // después de setValidators() y, finalmente, en el formulario completo
-    // al final de patchFormValues.
-
   }
+
 
   /**
    * Determina si el usuario actual está autorizado para realizar operaciones CRUD.
@@ -391,34 +453,31 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
     const idCircuito = this.currentUser.id_circuito_asignado;
     const codPlantel = this.currentUser.codigo_plantel_asignado;
 
-    // 1. Determinar el Observable de Estados (siempre filtrado por el rol asignado si existe)
     estados$ = this.lookupService.getEstados().pipe(
       map(estados => (idEstado) ? estados.filter(e => e.id === idEstado) : estados)
     );
 
-    // 2. Determinar los Observables de Municipios, Circuitos y Planteles
     switch (this.currentUser.cod_rol) {
       case ROLES.SUPER_ADMIN:
       case ROLES.ADMIN_STATE:
-        // Carga completa (usan las funciones sin argumentos)
+
         municipios$ = this.lookupService.getMunicipios();
         circuitos$ = this.lookupService.getCircuitos();
         planteles$ = this.lookupService.getPlanteles();
         break;
 
       case ROLES.ADMIN_MUNICIPAL:
-        // Filtra por Estado y Municipio asignados
+
         municipios$ = (idEstado !== null && idEstado !== undefined) ? this.lookupService.getMunicipiosByEstado(idEstado) : of([]);
         circuitos$ = (idMunicipio !== null && idMunicipio !== undefined) ? this.lookupService.getCircuitosByMunicipio(idMunicipio) : of([]);
         planteles$ = (idMunicipio !== null && idMunicipio !== undefined) ? this.lookupService.getPlantelesByMunicipio(idMunicipio) : of([]);
         break;
 
       case ROLES.ADMIN_CIRCUITAL:
-        // Filtra por Municipio y Circuito asignados
+
         municipios$ = (idEstado !== null && idEstado !== undefined) ? this.lookupService.getMunicipiosByEstado(idEstado) : of([]);
         circuitos$ = (idMunicipio !== null && idMunicipio !== undefined) ? this.lookupService.getCircuitosByMunicipio(idMunicipio) : of([]);
 
-        // Carga planteles por circuito o municipio
         if (idCircuito !== null && idCircuito !== undefined) {
           planteles$ = this.lookupService.getPlantelesByCircuito(idCircuito);
         } else if (idMunicipio !== null && idMunicipio !== undefined) {
@@ -430,35 +489,33 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
 
       case ROLES.ADMIN_SQUAD:
       case ROLES.STANDARD:
-        // Filtra geográficamente por lo que está disponible y el plantel por código
+
         municipios$ = (idEstado !== null && idEstado !== undefined) ? this.lookupService.getMunicipiosByEstado(idEstado) : of([]);
         circuitos$ = (idMunicipio !== null && idMunicipio !== undefined) ? this.lookupService.getCircuitosByMunicipio(idMunicipio) : of([]);
 
-        // Carga solo el plantel asignado (hace la comparación insensible a mayúsculas/minúsculas y espacios)
         planteles$ = this.lookupService.getPlanteles().pipe(
-          // ✨ AÑADIDO: Si la llamada HTTP falla (ej. 403), lo capturamos y devolvemos []
+
           catchError((err: HttpErrorResponse) => {
             console.error('ERROR EN API PLANTEL (Posible 403): Falló la carga inicial de planteles.', err.status, err.message);
             this.error = 'Error de permisos al cargar planteles asignados. Contacte a soporte.';
-            return of([]); // Devuelve un array vacío para que forkJoin continúe
+            return of([]);
           }),
           map(planteles => {
+
             if (!codPlantel) return [];
 
-            // Sanitiza el código del usuario para una comparación segura
             const safeCodPlantel = codPlantel.trim().toLowerCase();
 
-            // Filtra asegurando que el código del plantel también se sanee
             const plantelesFiltrados = planteles.filter(p =>
               p.codigo_plantel && p.codigo_plantel.trim().toLowerCase() === safeCodPlantel
             );
+
             return plantelesFiltrados;
           })
         );
         break;
     }
 
-    // 3. Combinar y Suscribirse
     const geoLookups$ = forkJoin([estados$, municipios$, circuitos$, planteles$]);
 
     forkJoin([commonLookups$, geoLookups$]).subscribe({
@@ -466,12 +523,10 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
         [this.sexos, this.ubchs, this.comunas, this.consejosComunales, this.tiposPersonal, this.turnos, this.situacionesLaborales, this.cargosDocentes, this.cargosAdministrativos, this.cargosObreros, this.gradosObreros, this.tiposDocenteEspecificos] = commonData;
         [this.estados, this.municipios, this.circuitos, this.planteles] = geoData;
 
-        // Establecer el valor del plantel para ADMIN_SQUAD y STANDARD
         if (this.currentUser && (this.currentUser.cod_rol === ROLES.ADMIN_SQUAD || this.currentUser.cod_rol === ROLES.STANDARD) && this.planteles.length === 1) {
 
           const plantelId = this.planteles[0].id_plantel;
 
-          // ✅ CORRECCIÓN APLICADA: Se usa 'id_plantel' para el control del formulario.
           this.formularioEmpleado.get('id_plantel')?.setValue(plantelId, { emitEvent: false });
 
         }
@@ -509,10 +564,8 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
     this.modoEdicion = false;
     this.empleadoSeleccionadoId = null;
 
-    // Limpia validadores y valores de los campos condicionales
     this.resetPersonalSpecificFields(true);
 
-    // Restaurar el valor de id_plantel para ADMIN_SQUAD/STANDARD si aplica
     if (this.currentUser && (this.currentUser.cod_rol === ROLES.ADMIN_SQUAD || this.currentUser.cod_rol === ROLES.STANDARD) && this.planteles.length === 1) {
       this.formularioEmpleado.get('id_plantel')?.setValue(this.planteles[0].id_plantel, { emitEvent: false });
       this.formularioEmpleado.get('id_plantel')?.disable();
@@ -534,36 +587,38 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
       this.error = 'Acceso denegado. No tienes permisos para crear o editar empleados.';
       return;
     }
-
     if (this.formularioEmpleado.invalid) {
+      let errorFound = false;
+      Object.keys(this.formularioEmpleado.controls).forEach(key => {
+        const control = this.formularioEmpleado.get(key);
+
+        if (control && control.invalid && (control.touched || control.dirty)) {
+          errorFound = true;
+        }
+      });
+      if (!errorFound) {
+      }
+
       this.error = 'Por favor, complete todos los campos requeridos y corrija los errores del formulario.';
       this.markAllAsTouched(this.formularioEmpleado);
       return;
     }
 
-    // 1. Obtener valores brutos (incluyendo deshabilitados)
-    // getRawValue() incluye todos los campos, habilitados y deshabilitados.
     let dataToSend = { ...this.formularioEmpleado.getRawValue() };
 
-    // 2. CRUCIAL: Saneamiento de datos. Convierte cadenas vacías ('') a null.
     dataToSend = this.sanitizeData(dataToSend);
 
-    // 3. ✨ CORRECCIÓN DE PLANTEL ASIGNADO PARA ROLES RESTRINGIDOS (ADMIN_SQUAD/STANDARD) ✨
-    // La lógica anterior fallaba porque dependía de que 'this.planteles' tuviera length=1 al guardar.
-    // Ahora, solo verificamos si el control está deshabilitado y si tiene el valor (que debió cargarse en ngOnInit).
     const plantelControl = this.formularioEmpleado.get('id_plantel');
 
     if (plantelControl?.disabled) {
-      // Reinsertamos el valor del control deshabilitado, ya que getRawValue() a veces lo omite o lo devuelve incorrecto.
-      // Si el valor es NULL, es porque la carga en loadLookupData falló.
+
       if (plantelControl.value === null || plantelControl.value === undefined) {
         this.error = 'Error de configuración: ID de plantel asignado no disponible.';
         return;
       }
-      // Si el control deshabilitado TIENE un valor (el ID NUMÉRICO), lo forzamos en dataToSend.
+
       dataToSend.id_plantel = plantelControl.value;
     }
-    // Si el campo NO está deshabilitado (roles superiores), dataToSend ya tiene el valor seleccionado por el usuario.
 
     this.cargando = true;
     this.error = null;
@@ -604,7 +659,7 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
   /**
    * Prepara el formulario para la edición de un empleado existente.
    */
-  editarEmpleado(empleado: any): void {
+  editarEmpleado(empleado: Empleado): void {
     if (!this.isAuthorized()) {
       this.error = 'Acceso denegado. No tienes permisos para editar este empleado.';
       return;
@@ -615,24 +670,19 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
 
     this.patchFormValues(empleado);
 
-    // 💡 CORRECCIÓN CLAVE:
-    // Revalidar el formulario completo después de parchar valores
-    // y aplicar validadores condicionales.
     this.formularioEmpleado.updateValueAndValidity();
 
-    // Esta línea ahora es redundante, ya que la anterior revalida todo:
-    // this.formularioEmpleado.get('id_tipo_personal')?.updateValueAndValidity();
   }
 
   /**
    * Rellena el formulario con los valores de un empleado.
    */
-  private patchFormValues(empleado: any): void {
-    // 1. Limpia los validadores y valores (sin resetear los valores, solo para limpiar validadores antiguos)
+  private patchFormValues(empleado: Empleado): void {
+    // Paso 1: Habilitar todos los controles específicos para que patchValue funcione
     this.resetPersonalSpecificFields(false);
 
+    // Paso 2: Aplicar los valores comunes y específicos (excepto sufijo docente)
     this.formularioEmpleado.patchValue({
-      // Campos comunes
       cedula_empleado: empleado.cedula,
       nombre_empleado: empleado.nombre,
       apellido_empleado: empleado.apellido,
@@ -651,9 +701,7 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
       id_plantel: empleado.id_plantel,
       id_estado: empleado.plantel_estado_id || null,
       id_municipio: empleado.plantel_municipio_id || null,
-      id_parroquia: empleado.id_parroquia || null,
 
-      // Campos específicos
       horas_academicas: empleado.horas_academicas,
       horas_administrativas: empleado.horas_administrativas,
       id_turno: empleado.id_turno,
@@ -665,55 +713,146 @@ export class EmpleadoEstado implements OnInit, OnDestroy {
       materia_especialidad: empleado.materia_especialidad,
       periodo_grupo: empleado.periodo_grupo,
       id_cargo_docente: empleado.id_cargo_docente,
-      codigo_docente_sufijo: empleado.codigo_docente_sufijo || '',
       id_cargo_administrativo: empleado.id_cargo_administrativo,
-      id_cargo_obrero: empleado.id_cargo_obrero,
       id_grado_obrero: empleado.id_grado_obrero,
+      id_cargo_obrero: empleado.id_cargo_obrero,
       id_tipo_docente_especifico: empleado.id_tipo_docente_especifico || null,
-    }, { emitEvent: false }); // Desactivar la emisión de eventos durante el patch
+    }, { emitEvent: false });
 
-    // 2. APLICAR LÓGICA CONDICIONAL: Forzar la configuración de validadores con el valor cargado
+    // Paso 2.1: Cargar descripción de situación laboral (solo informativa)
+    const idSit = empleado.id_situacion_laboral;
+    if (idSit !== null && this.situacionesLaborales.length > 0) {
+      const situacion = this.situacionesLaborales.find(s => s.id === idSit);
+      this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
+    }
+
+    // Paso 3: Reconfigurar validadores
     const tipoPersonalId = this.formularioEmpleado.get('id_tipo_personal')?.value;
     if (tipoPersonalId !== null) {
       this.configurePersonalSpecificFields(tipoPersonalId);
     }
 
+    // Paso 4: Si es docente, cargar sufijos según el cargo y setear el valor
+    if (empleado.id_tipo_personal === this.TIPO_PERSONAL.DOCENTE && empleado.id_cargo_docente) {
+      this.lookupService.getCodigosByCargoDocente(empleado.id_cargo_docente).subscribe(codigos => {
+        this.codigoSufijoDocente = codigos;
+        this.formularioEmpleado.get('codigo_docente_sufijo')?.enable({ emitEvent: false });
+
+        const sufijoValido = codigos.find(c => c.codigo_nomina === empleado.codigo_docente_sufijo);
+        if (sufijoValido) {
+          this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(sufijoValido.codigo_nomina, { emitEvent: false });
+        }
+      });
+    }
+
+    // Paso 5: Reaplicar filtro de cargos obrero
+    if (empleado.id_tipo_personal === this.TIPO_PERSONAL.OBRERO && empleado.id_grado_obrero) {
+      this.filtrarCargosObrero(empleado.id_grado_obrero);
+      setTimeout(() => {
+        this.formularioEmpleado.get('id_cargo_obrero')?.setValue(empleado.id_cargo_obrero, { emitEvent: false });
+      }, 50);
+    }
+
     this.formularioEmpleado.updateValueAndValidity();
   }
 
-  /**
-   * Elimina un empleado del sistema.
-   */
   eliminarEmpleado(id: number, nombreEmpleado: string): void {
     if (!this.isDeleteAuthorized()) {
       this.error = 'Acceso denegado. No tienes permisos para eliminar empleados.';
       return;
     }
 
-    // La librería confirm() será reemplazada por un modal, pero por ahora se mantiene
-    if (confirm(`¿Estás seguro de que quieres eliminar al empleado ${nombreEmpleado}? Esta acción es irreversible.`)) {
+    // Aquí puedes reemplazar confirm() por un modal personalizado si lo deseas
+    if (confirm(`¿Estás seguro de que quieres eliminar al empleado ${nombreEmpleado}? 
+  El registro será trasladado a la lista de eliminados.`)) {
       this.cargando = true;
       this.error = null;
-      this.servicioEmpleado.eliminarEmpleado(id)
+
+      this.servicioEmpleado.eliminarEmpleado(id, this.motivoSeleccionado)
         .subscribe({
           next: (res: any) => {
             this.cargando = false;
             this.cargarEmpleados();
             this.limpiarFormulario();
-            this.error = 'Empleado eliminado exitosamente.';
+            this.error = res.msg || 'Empleado eliminado exitosamente.';
             setTimeout(() => this.error = null, 3000);
           },
           error: (err: HttpErrorResponse) => {
             this.cargando = false;
             this.error = `Error al eliminar empleado: ${err.error?.msg || err.message || 'Error de servidor desconocido'}.`;
-
-            // ⭐ LOG DE AUDITORÍA EN FRONTEND SOBRE FALLO ⭐
-            console.error('[FRONTEND] Fallo en la eliminación:', err.status, err.error);
-
           }
         });
     }
   }
+
+    abrirModalEliminar(id: number, nombre: string): void {
+    this.empleadoSeleccionadoId = id;
+    this.empleadoSeleccionadoNombre = nombre;
+    this.motivoSeleccionado = '';
+
+    const modal = new bootstrap.Modal(document.getElementById('modalEliminarEmpleado'));
+    modal.show();
+  }
+
+  confirmarEliminar(): void {
+    if (!this.motivoSeleccionado) {
+      this.error = 'Debe seleccionar un motivo antes de continuar.';
+      return;
+    }
+
+    this.cargando = true;
+    this.error = null;
+
+    this.servicioEmpleado.eliminarEmpleado(this.empleadoSeleccionadoId!, this.motivoSeleccionado)
+      .subscribe({
+        next: (res: any) => {
+          this.cargando = false;
+          this.cargarEmpleados();
+          this.limpiarFormulario();
+          this.error = res.msg || 'Empleado eliminado exitosamente.';
+          setTimeout(() => this.error = null, 3000);
+
+          // Cerrar modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('modalEliminarEmpleado'));
+          modal.hide();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.cargando = false;
+          this.error = `Error al eliminar empleado: ${err.error?.msg || err.message || 'Error de servidor desconocido'}.`;
+        }
+      });
+  }
+
+
+
+
+  /*   eliminarEmpleado(id: number, nombreEmpleado: string): void {
+      if (!this.isDeleteAuthorized()) {
+        this.error = 'Acceso denegado. No tienes permisos para eliminar empleados.';
+        return;
+      }
+  
+      // NOTA: Se evita el uso de confirm() para usar una UI personalizada en un entorno iframe.
+      // Dejamos el placeholder por ahora, pero se recomienda cambiar a un modal personalizado.
+      if (confirm(`¿Estás seguro de que quieres eliminar al empleado ${nombreEmpleado}? Esta acción es irreversible.`)) {
+        this.cargando = true;
+        this.error = null;
+        this.servicioEmpleado.eliminarEmpleado(id)
+          .subscribe({
+            next: (res: any) => {
+              this.cargando = false;
+              this.cargarEmpleados();
+              this.limpiarFormulario();
+              this.error = 'Empleado eliminado exitosamente.';
+              setTimeout(() => this.error = null, 3000);
+            },
+            error: (err: HttpErrorResponse) => {
+              this.cargando = false;
+              this.error = `Error al eliminar empleado: ${err.error?.msg || err.message || 'Error de servidor desconocido'}.`;
+            }
+          });
+      }
+    } */
 
   /**
    * Carga la lista de empleados.

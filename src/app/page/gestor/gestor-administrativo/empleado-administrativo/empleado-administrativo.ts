@@ -27,7 +27,7 @@ import { CargoDocentes } from '../../../../core/models/cargo-docentes.model';
 import { DocentesEspecificos } from '../../../../core/models/docentes-especificos.model';
 import { GradosObreros } from '../../../../core/models/grados-obreros.model';
 import { CodigoSufijoDocente } from '../../../../core/models/codigo-sufijo-docente.model';
-
+declare const bootstrap: any;
 
 @Component({
   selector: 'app-empleado-administrativo',
@@ -86,6 +86,10 @@ export class EmpleadoAdministrativo implements OnInit, OnDestroy {
     }
     return sanitized;
   }
+
+  // 🔹 Solo lo nuevo para el modal:
+  motivoSeleccionado: string = '';
+  empleadoSeleccionadoNombre: string = '';
 
   constructor(
     private authService: Auth,
@@ -173,29 +177,33 @@ export class EmpleadoAdministrativo implements OnInit, OnDestroy {
     });
     this.subscriptions.add(subCargoDocente);
 
-      const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
-  if (tipoDocenteControl) {
-    const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
-      // Primero deshabilitamos todos los campos de detalle
-      ['grado_imparte','seccion_grado','area_imparte','anio_imparte','seccion_anio','materia_especialidad','periodo_grupo']
-        .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
+    const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
+    if (tipoDocenteControl) {
+      const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
+        // Primero deshabilitamos todos los campos de detalle
+        ['grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo']
+          .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
 
-      // Luego habilitamos según el tipo seleccionado
-      if (tipo === 1) {
-        this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
-      } else if (tipo === 2) {
-        this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
-      } else if (tipo === 3) {
-        this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
-      }
+        // Luego habilitamos según el tipo seleccionado
+        if (tipo === 1) {
+          this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
+        } else if (tipo === 2) {
+          this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
+        } else if (tipo === 3) {
+          this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subTipoDocente);
+    }
+    const subSituacion = this.formularioEmpleado.get('id_situacion_laboral')?.valueChanges.subscribe(idSit => {
+      const situacion = this.situacionesLaborales.find(s => s.id === idSit);
+      this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
     });
-    this.subscriptions.add(subTipoDocente);
-  }
-
+    this.subscriptions.add(subSituacion);
 
   }
 
@@ -242,6 +250,7 @@ export class EmpleadoAdministrativo implements OnInit, OnDestroy {
 
       observaciones: [''],
       id_situacion_laboral: [null],
+      descripcion_situacion_laboral: [{ value: '', disabled: true }],
       id_plantel: [null, Validators.required],
       /* id_estado: [null],
        id_municipio: [null],
@@ -668,77 +677,84 @@ export class EmpleadoAdministrativo implements OnInit, OnDestroy {
   /**
    * Rellena el formulario con los valores de un empleado.
    */
-private patchFormValues(empleado: Empleado): void {
-  // Paso 1: Habilitar todos los controles específicos para que patchValue funcione
-  this.resetPersonalSpecificFields(false);
+  private patchFormValues(empleado: Empleado): void {
+    // Paso 1: Habilitar todos los controles específicos para que patchValue funcione
+    this.resetPersonalSpecificFields(false);
 
-  // Paso 2: Aplicar los valores comunes y específicos (excepto sufijo docente)
-  this.formularioEmpleado.patchValue({
-    cedula_empleado: empleado.cedula,
-    nombre_empleado: empleado.nombre,
-    apellido_empleado: empleado.apellido,
-    id_sexo: empleado.id_sexo,
-    fecha_nacimiento: empleado.fecha_nacimiento ? empleado.fecha_nacimiento.substring(0, 10) : null,
-    direccion: empleado.direccion,
-    telefono: empleado.telefono,
-    correo: empleado.correo,
-    id_ubch: empleado.id_ubch,
-    id_comuna: empleado.id_comuna,
-    id_consejo_comunal: empleado.id_consejo_comunal,
-    fecha_ingreso_laboral: empleado.fecha_ingreso_laboral ? empleado.fecha_ingreso_laboral.substring(0, 10) : null,
-    id_tipo_personal: empleado.id_tipo_personal,
-    observaciones: empleado.observaciones,
-    id_situacion_laboral: empleado.id_situacion_laboral,
-    id_plantel: empleado.id_plantel,
-    id_estado: empleado.plantel_estado_id || null,
-    id_municipio: empleado.plantel_municipio_id || null,
+    // Paso 2: Aplicar los valores comunes y específicos (excepto sufijo docente)
+    this.formularioEmpleado.patchValue({
+      cedula_empleado: empleado.cedula,
+      nombre_empleado: empleado.nombre,
+      apellido_empleado: empleado.apellido,
+      id_sexo: empleado.id_sexo,
+      fecha_nacimiento: empleado.fecha_nacimiento ? empleado.fecha_nacimiento.substring(0, 10) : null,
+      direccion: empleado.direccion,
+      telefono: empleado.telefono,
+      correo: empleado.correo,
+      id_ubch: empleado.id_ubch,
+      id_comuna: empleado.id_comuna,
+      id_consejo_comunal: empleado.id_consejo_comunal,
+      fecha_ingreso_laboral: empleado.fecha_ingreso_laboral ? empleado.fecha_ingreso_laboral.substring(0, 10) : null,
+      id_tipo_personal: empleado.id_tipo_personal,
+      observaciones: empleado.observaciones,
+      id_situacion_laboral: empleado.id_situacion_laboral,
+      id_plantel: empleado.id_plantel,
+      id_estado: empleado.plantel_estado_id || null,
+      id_municipio: empleado.plantel_municipio_id || null,
 
-    horas_academicas: empleado.horas_academicas,
-    horas_administrativas: empleado.horas_administrativas,
-    id_turno: empleado.id_turno,
-    grado_imparte: empleado.grado_imparte,
-    seccion_grado: empleado.seccion_grado,
-    area_imparte: empleado.area_imparte,
-    anio_imparte: empleado.anio_imparte,
-    seccion_anio: empleado.seccion_anio,
-    materia_especialidad: empleado.materia_especialidad,
-    periodo_grupo: empleado.periodo_grupo,
-    id_cargo_docente: empleado.id_cargo_docente,
-    id_cargo_administrativo: empleado.id_cargo_administrativo,
-    id_grado_obrero: empleado.id_grado_obrero,
-    id_cargo_obrero: empleado.id_cargo_obrero,
-    id_tipo_docente_especifico: empleado.id_tipo_docente_especifico || null,
-  }, { emitEvent: false });
+      horas_academicas: empleado.horas_academicas,
+      horas_administrativas: empleado.horas_administrativas,
+      id_turno: empleado.id_turno,
+      grado_imparte: empleado.grado_imparte,
+      seccion_grado: empleado.seccion_grado,
+      area_imparte: empleado.area_imparte,
+      anio_imparte: empleado.anio_imparte,
+      seccion_anio: empleado.seccion_anio,
+      materia_especialidad: empleado.materia_especialidad,
+      periodo_grupo: empleado.periodo_grupo,
+      id_cargo_docente: empleado.id_cargo_docente,
+      id_cargo_administrativo: empleado.id_cargo_administrativo,
+      id_grado_obrero: empleado.id_grado_obrero,
+      id_cargo_obrero: empleado.id_cargo_obrero,
+      id_tipo_docente_especifico: empleado.id_tipo_docente_especifico || null,
+    }, { emitEvent: false });
 
-  // Paso 3: Reconfigurar validadores
-  const tipoPersonalId = this.formularioEmpleado.get('id_tipo_personal')?.value;
-  if (tipoPersonalId !== null) {
-    this.configurePersonalSpecificFields(tipoPersonalId);
+    // Paso 2.1: Cargar descripción de situación laboral (solo informativa)
+    const idSit = empleado.id_situacion_laboral;
+    if (idSit !== null && this.situacionesLaborales.length > 0) {
+      const situacion = this.situacionesLaborales.find(s => s.id === idSit);
+      this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
+    }
+
+    // Paso 3: Reconfigurar validadores
+    const tipoPersonalId = this.formularioEmpleado.get('id_tipo_personal')?.value;
+    if (tipoPersonalId !== null) {
+      this.configurePersonalSpecificFields(tipoPersonalId);
+    }
+
+    // Paso 4: Si es docente, cargar sufijos según el cargo y setear el valor
+    if (empleado.id_tipo_personal === this.TIPO_PERSONAL.DOCENTE && empleado.id_cargo_docente) {
+      this.lookupService.getCodigosByCargoDocente(empleado.id_cargo_docente).subscribe(codigos => {
+        this.codigoSufijoDocente = codigos;
+        this.formularioEmpleado.get('codigo_docente_sufijo')?.enable({ emitEvent: false });
+
+        const sufijoValido = codigos.find(c => c.codigo_nomina === empleado.codigo_docente_sufijo);
+        if (sufijoValido) {
+          this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(sufijoValido.codigo_nomina, { emitEvent: false });
+        }
+      });
+    }
+
+    // Paso 5: Reaplicar filtro de cargos obrero
+    if (empleado.id_tipo_personal === this.TIPO_PERSONAL.OBRERO && empleado.id_grado_obrero) {
+      this.filtrarCargosObrero(empleado.id_grado_obrero);
+      setTimeout(() => {
+        this.formularioEmpleado.get('id_cargo_obrero')?.setValue(empleado.id_cargo_obrero, { emitEvent: false });
+      }, 50);
+    }
+
+    this.formularioEmpleado.updateValueAndValidity();
   }
-
-  // Paso 4: Si es docente, cargar sufijos según el cargo y setear el valor
-  if (empleado.id_tipo_personal === this.TIPO_PERSONAL.DOCENTE && empleado.id_cargo_docente) {
-    this.lookupService.getCodigosByCargoDocente(empleado.id_cargo_docente).subscribe(codigos => {
-      this.codigoSufijoDocente = codigos;
-      this.formularioEmpleado.get('codigo_docente_sufijo')?.enable({ emitEvent: false });
-
-      const sufijoValido = codigos.find(c => c.codigo_nomina === empleado.codigo_docente_sufijo);
-      if (sufijoValido) {
-        this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(sufijoValido.codigo_nomina, { emitEvent: false });
-      }
-    });
-  }
-
-  // Paso 5: Reaplicar filtro de cargos obrero
-  if (empleado.id_tipo_personal === this.TIPO_PERSONAL.OBRERO && empleado.id_grado_obrero) {
-    this.filtrarCargosObrero(empleado.id_grado_obrero);
-    setTimeout(() => {
-      this.formularioEmpleado.get('id_cargo_obrero')?.setValue(empleado.id_cargo_obrero, { emitEvent: false });
-    }, 50);
-  }
-
-  this.formularioEmpleado.updateValueAndValidity();
-}
 
   eliminarEmpleado(id: number, nombreEmpleado: string): void {
     if (!this.isDeleteAuthorized()) {
@@ -746,18 +762,19 @@ private patchFormValues(empleado: Empleado): void {
       return;
     }
 
-    // NOTA: Se evita el uso de confirm() para usar una UI personalizada en un entorno iframe.
-    // Dejamos el placeholder por ahora, pero se recomienda cambiar a un modal personalizado.
-    if (confirm(`¿Estás seguro de que quieres eliminar al empleado ${nombreEmpleado}? Esta acción es irreversible.`)) {
+    // Aquí puedes reemplazar confirm() por un modal personalizado si lo deseas
+    if (confirm(`¿Estás seguro de que quieres eliminar al empleado ${nombreEmpleado}? 
+  El registro será trasladado a la lista de eliminados.`)) {
       this.cargando = true;
       this.error = null;
-      this.servicioEmpleado.eliminarEmpleado(id)
+
+      this.servicioEmpleado.eliminarEmpleado(id, this.motivoSeleccionado)
         .subscribe({
           next: (res: any) => {
             this.cargando = false;
             this.cargarEmpleados();
             this.limpiarFormulario();
-            this.error = 'Empleado eliminado exitosamente.';
+            this.error = res.msg || 'Empleado eliminado exitosamente.';
             setTimeout(() => this.error = null, 3000);
           },
           error: (err: HttpErrorResponse) => {
@@ -767,6 +784,75 @@ private patchFormValues(empleado: Empleado): void {
         });
     }
   }
+
+    abrirModalEliminar(id: number, nombre: string): void {
+    this.empleadoSeleccionadoId = id;
+    this.empleadoSeleccionadoNombre = nombre;
+    this.motivoSeleccionado = '';
+
+    const modal = new bootstrap.Modal(document.getElementById('modalEliminarEmpleado'));
+    modal.show();
+  }
+
+  confirmarEliminar(): void {
+    if (!this.motivoSeleccionado) {
+      this.error = 'Debe seleccionar un motivo antes de continuar.';
+      return;
+    }
+
+    this.cargando = true;
+    this.error = null;
+
+    this.servicioEmpleado.eliminarEmpleado(this.empleadoSeleccionadoId!, this.motivoSeleccionado)
+      .subscribe({
+        next: (res: any) => {
+          this.cargando = false;
+          this.cargarEmpleados();
+          this.limpiarFormulario();
+          this.error = res.msg || 'Empleado eliminado exitosamente.';
+          setTimeout(() => this.error = null, 3000);
+
+          // Cerrar modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('modalEliminarEmpleado'));
+          modal.hide();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.cargando = false;
+          this.error = `Error al eliminar empleado: ${err.error?.msg || err.message || 'Error de servidor desconocido'}.`;
+        }
+      });
+  }
+
+
+
+
+  /*   eliminarEmpleado(id: number, nombreEmpleado: string): void {
+      if (!this.isDeleteAuthorized()) {
+        this.error = 'Acceso denegado. No tienes permisos para eliminar empleados.';
+        return;
+      }
+  
+      // NOTA: Se evita el uso de confirm() para usar una UI personalizada en un entorno iframe.
+      // Dejamos el placeholder por ahora, pero se recomienda cambiar a un modal personalizado.
+      if (confirm(`¿Estás seguro de que quieres eliminar al empleado ${nombreEmpleado}? Esta acción es irreversible.`)) {
+        this.cargando = true;
+        this.error = null;
+        this.servicioEmpleado.eliminarEmpleado(id)
+          .subscribe({
+            next: (res: any) => {
+              this.cargando = false;
+              this.cargarEmpleados();
+              this.limpiarFormulario();
+              this.error = 'Empleado eliminado exitosamente.';
+              setTimeout(() => this.error = null, 3000);
+            },
+            error: (err: HttpErrorResponse) => {
+              this.cargando = false;
+              this.error = `Error al eliminar empleado: ${err.error?.msg || err.message || 'Error de servidor desconocido'}.`;
+            }
+          });
+      }
+    } */
 
   /**
    * Carga la lista de empleados.

@@ -27,8 +27,10 @@ export class ServicioEmpleado {
     return this.http.put<any>(`${this.apiUrl}/empleados/${id}`, empleado);
   }
 
-  eliminarEmpleado(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/empleados/${id}`);
+  eliminarEmpleado(id: number, motivo: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/empleados/${id}`, {
+      body: { motivo }
+    });
   }
 }
 

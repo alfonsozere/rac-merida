@@ -1,18 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { EmpleadoEliminado } from '../../../../core/models/empleado-eliminado.model';
 import { Api } from '../../../../core/services/api';
-
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-empleado-eliminado',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './empleado-eliminado-director.html',
-  styleUrl: './empleado-eliminado-director.css'
+  styleUrls: ['./empleado-eliminado-director.css']   // ojo: debe ser styleUrls (plural)
 })
 export class EmpleadoEliminadoDirector implements OnInit {
   empleados: EmpleadoEliminado[] = [];
   cargando = false;
   error: string | null = null;
+
+  // 🔹 Nuevo: salida al padre
+  @Output() goBack = new EventEmitter<void>();
 
   constructor(private api: Api) {}
 
@@ -27,7 +30,7 @@ export class EmpleadoEliminadoDirector implements OnInit {
         this.empleados = data;
         this.cargando = false;
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Error al cargar empleados eliminados';
         this.cargando = false;
       }
@@ -40,9 +43,14 @@ export class EmpleadoEliminadoDirector implements OnInit {
         this.error = resp.msg; // Mensaje de éxito
         this.cargarEmpleadosEliminados(); // Recargar la lista
       },
-      error: (err) => {
+      error: () => {
         this.error = 'Error al restaurar empleado';
       }
     });
+  }
+
+  // 🔹 Nuevo: método que el template invoca
+  emitGoBack(): void {
+    this.goBack.emit();
   }
 }
