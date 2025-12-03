@@ -1,39 +1,40 @@
-<div class="page-wrapper">
-  <div class="page-container">
-    <h2 class="page-title">Panel de Control de Administrador</h2>
-    <p class="page-description">
+<div class="control-wrapper">
+  <div class="control-container">
+    <h2 class="control-title">Panel de Control de Administrador</h2>
+    <p class="control-description">
       Selecciona una opción para gestionar los recursos del sistema según tu rol.
     </p>
 
-    <div class="card-grid">
+    <div class="control-card-grid">
       <div *ngFor="let card of controlCards">
-        <div
-          class="card-option"
-          [ngClass]="{
-            'opacity-75-subtle cursor-not-allowed': !isCardEnabled(card),
-            'border-bottom border-4': true,
-            'border-primary': card.className === 'card-gestor',
-            'border-info': card.className === 'card-authorization'
-          }"
-          (click)="selectControlCard(card)"
-          [attr.aria-disabled]="!isCardEnabled(card)"
-          [style.cursor]="!isCardEnabled(card) ? 'not-allowed' : 'pointer'">
+        <div class="control-card-option"
+             [ngClass]="{
+               'opacity-75-subtle cursor-not-allowed': !isCardEnabled(card),
+               'border-bottom border-4': true,
+               'border-primary': card.className === 'card-gestor',
+               'border-info': card.className === 'card-authorization'
+             }"
+             (click)="selectControlCard(card)"
+             [attr.aria-disabled]="!isCardEnabled(card)"
+             [style.cursor]="!isCardEnabled(card) ? 'not-allowed' : 'pointer'">
 
-          <div class="card-body card-content d-flex flex-column align-items-center justify-content-center w-100">
+          <div class="card-body control-card-content d-flex flex-column align-items-center justify-content-center w-100">
             <i class="bi control-icon bi-{{ card.icon }}"
-              [ngClass]="{
-                'text-primary': card.className === 'card-gestor' && isCardEnabled(card),
-                'text-info': card.className === 'card-authorization' && isCardEnabled(card),
-                'text-muted': !isCardEnabled(card)
-              }"></i>
+               [ngClass]="{
+                 'text-primary': card.className === 'card-gestor' && isCardEnabled(card),
+                 'text-info': card.className === 'card-authorization' && isCardEnabled(card),
+                 'text-muted': !isCardEnabled(card)
+               }"></i>
 
             <h3 class="control-card-title fw-bold mb-1">{{ card.title }}</h3>
             <p class="control-card-description text-muted">{{ card.description }}</p>
           </div>
 
-          <div *ngIf="!isCardEnabled(card)" class="overlay-restricted position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center">
-            <i class="bi bi-lock-fill overlay-icon mb-2"></i>
-            <span class="overlay-text fw-bold fs-6">Acceso Restringido</span>
+          <!-- Overlay de acceso restringido -->
+          <div *ngIf="!isCardEnabled(card)"
+               class="control-overlay-restricted position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+            <i class="bi bi-lock-fill control-overlay-icon mb-2"></i>
+            <span class="control-overlay-text fw-bold fs-6">Acceso Restringido</span>
           </div>
         </div>
       </div>

@@ -171,12 +171,6 @@ body {
   word-break: break-word;
 }
 
-/* === CUERPOS DE TARJETAS PRINCIPALES === */
-.card-body-institucional {
-  padding: 2rem;
-  text-align: center;
-}
-
 /* === CUERPO PRINCIPAL DE TARJETA === */
 .card-body-institucional {
   padding: 2rem;
@@ -221,5 +215,4 @@ body {
   justify-content: flex-start !important;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+

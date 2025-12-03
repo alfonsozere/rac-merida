@@ -1,41 +1,41 @@
-<div class="gestor-container d-flex flex-column align-items-center">
+<div class="gestor-wrapper d-flex flex-column align-items-center">
   <!-- Título y descripción -->
   <div>
-    <h3 class="control-section-title fw-bold text-dark">
+    <h3 class="gestor-section-title fw-bold text-dark">
       Funcionalidades de Gestión
     </h3>
-    <p class="control-section-description text-muted">
+    <p class="gestor-section-description text-muted">
       Selecciona una opción para administrar recursos según tu rol.
     </p>
   </div>
 
   <!-- Tarjetas de navegación -->
-  <div class="row g-4 control-specific-cards-row"
+  <div class="row g-4 gestor-cards-row"
        [ngClass]="{
          'row-cols-1 justify-content-center': visibleCards.length === 1,
          'row-cols-1 row-cols-sm-2 row-cols-md-3': visibleCards.length > 1
        }">
     <div *ngFor="let card of visibleCards" class="col d-flex justify-content-center">
-      <div class="card control-card h-100 d-flex flex-column align-items-center text-center position-relative"
-        (click)="navigateToCard(card)"
-        [ngClass]="{
-          'border-bottom border-4': true,
-          'border-primary': card.route.includes('usuarios'),
-          'border-success': card.route.includes('empleados'),
-          'border-warning': card.route.includes('database'),
-          'border-danger': card.route.includes('eliminados')
-        }">
-        
-        <div class="card-body card-content d-flex flex-column align-items-center justify-content-center w-100">
-          <i class="bi control-icon bi-{{ card.icon }}"
-            [ngClass]="{
-              'text-primary': card.route.includes('usuarios'),
-              'text-success': card.route.includes('empleados'),
-              'text-warning': card.route.includes('database'),
-              'text-danger': card.route.includes('eliminados')
-            }"></i>
-          <h4 class="card-title control-card-title fw-bold">{{ card.title }}</h4>
-          <p class="card-text control-card-description text-muted">{{ card.description }}</p>
+      <div class="card gestor-card h-100 d-flex flex-column align-items-center text-center position-relative"
+           (click)="navigateToCard(card)"
+           [ngClass]="{
+             'border-bottom border-4': true,
+             'border-primary': card.route.includes('usuarios'),
+             'border-success': card.route.includes('empleados'),
+             'border-warning': card.route.includes('database'),
+             'border-danger': card.route.includes('eliminados')
+           }">
+
+        <div class="card-body gestor-card-content d-flex flex-column align-items-center justify-content-center w-100">
+          <i class="bi gestor-icon bi-{{ card.icon }}"
+             [ngClass]="{
+               'text-primary': card.route.includes('usuarios'),
+               'text-success': card.route.includes('empleados'),
+               'text-warning': card.route.includes('database'),
+               'text-danger': card.route.includes('eliminados')
+             }"></i>
+          <h4 class="card-title gestor-card-title fw-bold">{{ card.title }}</h4>
+          <p class="card-text gestor-card-description text-muted">{{ card.description }}</p>
         </div>
       </div>
     </div>

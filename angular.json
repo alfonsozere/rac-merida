@@ -51,10 +51,6 @@
             "styles": [
               "src/styles.css",
               "src/styles-autorizacion.css",
-              "src/styles-database.css",
-              "src/styles-empleados.css",
-              "src/styles-gestor.css",
-              "src/styles-page-card.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css"
             ],

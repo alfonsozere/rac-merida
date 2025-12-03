@@ -9,8 +9,7 @@ import { Auth } from '../../core/services/auth';
 @Component({
   selector: 'app-panel',
   imports: [
-    CommonModule,
-    RouterOutlet
+    CommonModule
   ],
   templateUrl: './panel.html',
   styleUrl: './panel.css'

@@ -1,5 +1,5 @@
-<div class="empleados-container d-flex flex-column align-items-center">
-    <div class="card shadow-lg rounded-3 border-0 w-100 card-principal-rac">
+<div class="empleados-wrapper d-flex flex-column align-items-center">
+    <div class="card shadow-lg rounded-3 border-0 w-100 empleados-card">
         <div class="p-1">
             <!-- Encabezado -->
             <div
@@ -19,7 +19,7 @@
 
             <!-- Tabla de empleados -->
             <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Empleados</h3>
-            <div *ngIf="empleados.length > 0 && !cargando" class="mb-1 p-1 tabla-empleados-rac">
+            <div *ngIf="empleados.length > 0 && !cargando" class="mb-1 p-1 empleados-table-wrapper">
                 <table
                     class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle empleados-table">
                     <thead class="bg-primary text-white">
@@ -42,11 +42,11 @@
                             <td>{{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}</td>
                             <td>{{ empleado.nombre_situacion_laboral }}</td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-info me-2 shadow-sm" (click)="editarEmpleado(empleado)"
-                                    title="Editar">
+                                <button class="btn btn-sm btn-info me-2 shadow-sm empleados-btn-editar"
+                                    (click)="editarEmpleado(empleado)" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button class="btn btn-sm btn-danger shadow-sm"
+                                <button class="btn btn-sm btn-danger shadow-sm empleados-btn-eliminar"
                                     (click)="abrirModalEliminar(empleado.id_empleado, empleado.nombre + ' ' + empleado.apellido)"
                                     title="Eliminar">
                                     <i class="bi bi-trash"></i>
@@ -106,8 +106,8 @@
                     <h5 class="mb-0 fw-bold">{{ modoEdicion ? 'Editar Empleado' : 'Registrar Nuevo Empleado' }}</h5>
                 </div>
                 <div class="p-1 empleados-formulario">
+                    <!-- Aquí va el formulario reactivo -->
                     <form [formGroup]="formularioEmpleado" (ngSubmit)="guardarEmpleado()">
-
                         <h6 class="fw-bold text-primary border-bottom pb-1 mb-3">Datos de Identificación y Contacto</h6>
                         <div class="row g-2">
                             <div class="col-md-3">
@@ -439,9 +439,8 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- Botones -->
-                        <div class="d-flex justify-content-end gap-2 mt-4 form-action-buttons">
+                        <div class="d-flex justify-content-end gap-2 mt-4 empleados-action-buttons">
                             <button type="button" class="btn btn-warning shadow-sm" (click)="limpiarFormulario()">
                                 <i class="bi bi-x-circle me-1"></i> Cancelar / Nuevo
                             </button>

@@ -1,0 +1,122 @@
+/* === CONTENEDOR PRINCIPAL === */
+.usuario-container {
+  padding-bottom: 1rem;
+  background-color: transparent;
+  position: relative;
+  justify-content: flex-start;
+}
+
+.usuario-main-card {
+  width: 100%;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.usuario-main-card-body {
+  padding: 0 !important;
+  text-align: left;
+}
+
+/* === TÍTULOS === */
+.usuario-section-title {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #343a40;
+  text-align: center;
+}
+
+.usuario-subsection-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #343a40;
+}
+
+/* === BOTÓN AÑADIR USUARIO === */
+.usuario-add-btn {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  color: white;
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.usuario-add-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #117a8b;
+  border-color: #10707f;
+}
+
+/* === TABLA DE USUARIOS === */
+.usuario-table {
+  font-size: 0.9rem;
+}
+
+.usuario-table th,
+.usuario-table td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.usuario-table th:nth-child(3),
+.usuario-table td:nth-child(3) {
+  width: 180px;
+  max-width: 180px;
+}
+
+.usuario-table th:nth-child(5),
+.usuario-table td:nth-child(5),
+.usuario-table th:nth-child(6),
+.usuario-table td:nth-child(6),
+.usuario-table th:nth-child(7),
+.usuario-table td:nth-child(7) {
+  width: 100px;
+  max-width: 100px;
+}
+
+/* === BOTONES DE ACCIÓN === */
+.usuario-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  transition: all 0.3s ease;
+}
+
+.usuario-btn:hover {
+  transform: scale(1.05);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .usuario-section-title {
+    font-size: 1.3rem;
+  }
+
+  .usuario-subsection-title {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .usuario-table th,
+  .usuario-table td {
+    font-size: 0.8rem;
+    padding: 0.3rem;
+  }
+
+  .usuario-btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}

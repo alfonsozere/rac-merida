@@ -1,52 +1,48 @@
-<div class="page-wrapper">
-  
+<div class="database-wrapper">
+
+  <!-- Encabezado -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="header-content">
-        <h2 class="fw-bold mb-0">Administración de Base de Datos (Tablas)</h2>
-        <p class="text-muted mb-0">Seleccione la tabla de la base de datos que desea gestionar.</p>
+    <div class="database-header-content">
+      <h2 class="database-title fw-bold mb-0">Administración de Base de Datos (Tablas)</h2>
+      <p class="database-description text-muted mb-0">
+        Seleccione la tabla de la base de datos que desea gestionar.
+      </p>
     </div>
-    
-    <button class="btn btn-outline-secondary" (click)="goBack()">
-        <i class="bi bi-arrow-left-circle me-2"></i> Regresar a Control
+
+    <button class="btn btn-outline-secondary database-back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left-circle me-2"></i> Regresar a Control
     </button>
   </div>
 
-    <!-- Tarjetas de Tablas -->
-    <div class="card-grid">
-      <!-- 
-        MODIFICACIÓN CLAVE: Iteramos sobre 'visibleTables', la lista ya filtrada por rol.
-        Esto elimina los espacios vacíos causados por *ngIf.
-      -->
-      <div *ngFor="let card of visibleTables">
-        
-        <div
-          class="card-option"
-          [ngClass]="{
-            'border-bottom border-4': true,
-            'border-primary': card.className === 'card-primary',
-            'border-secondary': card.className === 'card-secondary',
-            'border-success': card.className === 'card-success',
-            'border-warning': card.className === 'card-warning',
-            'border-danger': card.className === 'card-danger',
-            'border-info': card.className === 'card-info'
-          }"
-          (click)="selectCard(card)"
-          [style.cursor]="'pointer'">
-          
-          <div class="card-body card-content d-flex flex-column align-items-center justify-content-center w-100">
-            <!-- Icono, título y descripción -->
-            <i class="bi control-icon bi-{{ card.icon }}" [ngClass]="'text-' + card.className.split('-')[1]"></i>
+  <!-- Tarjetas de Tablas -->
+  <div class="database-card-grid">
+    <div *ngFor="let card of visibleTables">
+      <div class="database-card-option"
+           [ngClass]="{
+             'border-bottom border-4': true,
+             'border-primary': card.className === 'card-primary',
+             'border-secondary': card.className === 'card-secondary',
+             'border-success': card.className === 'card-success',
+             'border-warning': card.className === 'card-warning',
+             'border-danger': card.className === 'card-danger',
+             'border-info': card.className === 'card-info'
+           }"
+           (click)="selectCard(card)"
+           [style.cursor]="'pointer'">
 
-            <h3 class="control-card-title fw-bold mb-1">{{ card.title }}</h3>
-            <p class="control-card-description text-muted">{{ card.description }}</p>
-          </div>
+        <div class="card-body database-card-content d-flex flex-column align-items-center justify-content-center w-100">
+          <!-- Icono, título y descripción -->
+          <i class="bi database-icon bi-{{ card.icon }}" [ngClass]="'text-' + card.className.split('-')[1]"></i>
+
+          <h3 class="database-card-title fw-bold mb-1">{{ card.title }}</h3>
+          <p class="database-card-description text-muted">{{ card.description }}</p>
         </div>
       </div>
     </div>
+  </div>
 
   <!-- Contenedor para las vistas de gestión de tablas específicas -->
-  <div class="router-outlet-container mt-5">
+  <div class="database-router-container mt-5">
     <router-outlet></router-outlet>
   </div>
 </div>
-

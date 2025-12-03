@@ -1,0 +1,90 @@
+/* === CONTENEDOR PRINCIPAL === */
+.empleados-eliminados-wrapper {
+  background-color: transparent;
+}
+
+/* === TARJETA PRINCIPAL === */
+.empleados-eliminados-card {
+  width: 100%;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+}
+
+/* === ENCABEZADO DE SECCIÓN === */
+.empleados-eliminados-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #343a40;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* === TABLA DE EMPLEADOS ELIMINADOS === */
+.empleados-eliminados-table-wrapper {
+  font-size: 0.85rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 53vh;
+}
+
+.empleados-eliminados-table {
+  width: 100%;
+  min-height: 100%;
+}
+
+.empleados-eliminados-table th,
+.empleados-eliminados-table td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+/* === ALERTAS === */
+.empleados-eliminados-alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .empleados-eliminados-card {
+    padding: 1rem;
+  }
+
+  .empleados-eliminados-table-wrapper {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 836px) {
+  .empleados-eliminados-table th:nth-child(5),
+  .empleados-eliminados-table td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 746px) {
+  .empleados-eliminados-table th:nth-child(3),
+  .empleados-eliminados-table td:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (max-width: 581px) {
+  .empleados-eliminados-table th:nth-child(4),
+  .empleados-eliminados-table td:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .empleados-eliminados-table th:nth-child(1),
+  .empleados-eliminados-table td:nth-child(1) {
+    display: none;
+  }
+}

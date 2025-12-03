@@ -1,7 +1,7 @@
-<div class="empleados-container d-flex flex-column align-items-center">
-  <div class="card shadow-lg rounded-3 border-0 w-100 card-principal-rac">
+<div class="empleados-eliminados-wrapper d-flex flex-column align-items-center">
+  <div class="card shadow-lg rounded-3 border-0 w-100 empleados-eliminados-card">
     <div class="p-1">
-      <h2 class="empleados-section-title text-center text-md-start mb-2 mb-md-0">
+      <h2 class="empleados-eliminados-section-title text-center text-md-start mb-2 mb-md-0">
         Gestión de Empleados Eliminados
       </h2>
 
@@ -12,10 +12,12 @@
 
       <!-- Tabla solo si el rol tiene permiso -->
       <div *ngIf="puedeVerEliminados()">
-        <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Empleados Eliminados</h3>
+        <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">
+          Lista de Empleados Eliminados
+        </h3>
 
-        <div *ngIf="empleados.length > 0 && !cargando" class="mb-1 p-1 tabla-empleados-rac">
-          <table class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle empleados-table">
+        <div *ngIf="empleados.length > 0 && !cargando" class="mb-1 p-1 empleados-eliminados-table-wrapper">
+          <table class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle empleados-eliminados-table">
             <thead class="bg-primary text-white">
               <tr>
                 <th>Cédula</th>
