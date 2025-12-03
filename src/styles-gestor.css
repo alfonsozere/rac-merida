@@ -28,6 +28,14 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-color: #ffffff;
+  max-width: 350px;
+  min-height: 240px; /* 🔹 alto fijo para todas */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;/* centrado */
+  height: 100%;/* 🔹 todas las tarjetas ocupan el mismo alto */
 }
 
 .control-card:hover {
@@ -38,12 +46,21 @@
 /* === CONTENIDO DE LA TARJETA === */
 .card-content {
   padding: 1rem 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* === ÍCONO DE LA TARJETA === */
 .control-icon {
   font-size: 2rem;
   color: #007bff;
+  transition: transform 0.3s ease;
+}
+
+.control-card:hover .control-icon {
+  transform: scale(1.1);
 }
 
 /* === TÍTULO DE LA TARJETA === */
@@ -59,39 +76,6 @@
   color: #6c757d;
 }
 
-/* === RESPONSIVE: TARJETAS EN MÓVIL === */
-@media (max-width: 768px) {
-  .control-section-title {
-    font-size: 1.3rem;
-    margin-top: 1rem;
-  }
-
-  .control-section-description {
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-
-  .control-card {
-    padding: 1rem;
-    border-radius: 0.5rem;
-  }
-
-  .control-icon {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .control-card-title {
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .control-card-description {
-    font-size: 0.8rem;
-  }
-}
-
 /* === INTERACTIVIDAD CONDICIONAL === */
 .control-card.border-primary:hover {
   border-color: #0056b3 !important;
@@ -101,27 +85,22 @@
   border-color: #0f6848 !important;
 }
 
-/* === TRANSICIÓN SUAVE PARA ÍCONOS === */
-.control-icon {
-  transition: transform 0.3s ease;
+.control-card.border-warning:hover {
+  border-color: #d39e00 !important;
 }
 
-.control-card:hover .control-icon {
-  transform: scale(1.1);
+.control-card.border-danger:hover {
+  border-color: #bd2130 !important;
 }
-
 
 /* === ESTILOS ADICIONALES PARA GESTOR === */
-/* === CONTENEDOR PRINCIPAL === */
 .gestor-container {
-  /* padding-top: 1rem; */
   padding-bottom: 1rem;
   background-color: transparent;
   position: relative;
   justify-content: flex-start;
 }
 
-/* === TARJETA PRINCIPAL === */
 .gestor-main-card {
   width: 100%;
   box-shadow: none !important;
@@ -133,7 +112,6 @@
   text-align: left;
 }
 
-/* === TÍTULO DE SECCIÓN === */
 .gestor-section-title {
   margin-top: 0.5rem;
   margin-bottom: 1rem;
@@ -143,7 +121,6 @@
   text-align: center;
 }
 
-/* === SUBTÍTULOS DE BLOQUES === */
 .gestor-subsection-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -191,9 +168,6 @@
 .gestor-table td:nth-child(3) {
   width: 180px;
   max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .gestor-table th:nth-child(5),
@@ -204,9 +178,6 @@
 .gestor-table td:nth-child(7) {
   width: 100px;
   max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* === BOTONES DE ACCIÓN === */
@@ -230,6 +201,37 @@
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
+  .control-section-title {
+    font-size: 1.3rem;
+    margin-top: 1rem;
+  }
+
+  .control-section-description {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .control-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    max-width: 100%;
+    /* 🔹 en móvil ocupa todo el ancho */
+  }
+
+  .control-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .control-card-title {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .control-card-description {
+    font-size: 0.8rem;
+  }
+
   .gestor-section-title {
     font-size: 1.3rem;
   }

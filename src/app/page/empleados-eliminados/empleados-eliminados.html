@@ -1,0 +1,66 @@
+<div class="empleados-container d-flex flex-column align-items-center">
+  <div class="card shadow-lg rounded-3 border-0 w-100 card-principal-rac">
+    <div class="p-1">
+      <h2 class="empleados-section-title text-center text-md-start mb-2 mb-md-0">
+        Gestión de Empleados Eliminados
+      </h2>
+
+      <!-- Mensajes -->
+      <div *ngIf="error" class="alert alert-{{ error.includes('Error') ? 'danger' : 'success' }}">
+        {{ error }}
+      </div>
+
+      <!-- Tabla solo si el rol tiene permiso -->
+      <div *ngIf="puedeVerEliminados()">
+        <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Empleados Eliminados</h3>
+
+        <div *ngIf="empleados.length > 0 && !cargando" class="mb-1 p-1 tabla-empleados-rac">
+          <table class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle empleados-table">
+            <thead class="bg-primary text-white">
+              <tr>
+                <th>Cédula</th>
+                <th>Nombre Completo</th>
+                <th>Plantel</th>
+                <th>Tipo Personal</th>
+                <th>Fecha Ingreso</th>
+                <th>Situación laboral</th>
+                <th>Fecha Eliminación</th>
+                <th>Usuario Eliminador</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let empleado of empleados">
+                <td>{{ empleado.cedula }}</td>
+                <td>{{ empleado.nombre }} {{ empleado.apellido }}</td>
+                <td>{{ empleado.plantel_nombre }}</td>
+                <td>{{ empleado.nombre_tipo_personal }}</td>
+                <td>{{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ empleado.nombre_situacion_laboral }}</td>
+                <td>{{ empleado.fecha_eliminacion | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ empleado.usuario_eliminador }}</td>
+                <td class="text-center">
+                  <button *ngIf="puedeRestaurar()" class="btn btn-sm btn-success shadow-sm"
+                          (click)="restaurarEmpleado(empleado.id_empleado)">
+                    <i class="bi bi-arrow-counterclockwise"></i> Restaurar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="empleados.length === 0 && !cargando" class="alert alert-info text-center mt-3">
+          No hay empleados eliminados registrados.
+        </div>
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="cargando" class="text-center mt-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

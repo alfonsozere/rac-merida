@@ -45,7 +45,16 @@
 .tabla-empleados-rac {
   font-size: 0.85rem;
   border-radius: 0.5rem;
-  overflow: hidden;
+  /*overflow: hidden;*/
+  overflow-x: auto;         /* Scroll horizontal */
+  overflow-y: auto;         /* Scroll vertical */
+  max-height: 53vh;        /* Ajusta la altura máxima visible */
+
+}
+
+.tabla-empleados-rac table {
+  width: 100%;
+  min-height: 100%;
 }
 
 .tabla-empleados-rac th,
