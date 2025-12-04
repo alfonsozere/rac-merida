@@ -14,5 +14,6 @@ export const routes: Routes = [
   { path: 'panel/control/gestor/empleados_eliminados', loadComponent: () => import('./page/empleados-eliminados/empleados-eliminados').then(m => m.EmpleadosEliminados), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
   { path: 'panel/control/gestor/usuarios', loadComponent: () => import('./page/usuarios/usuarios').then(m => m.Usuarios), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
   { path: 'panel/control/gestor/database', loadComponent: () => import('./page/database/database').then(m => m.Database), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
+  { path: 'panel/control/autorizacion', loadComponent: () => import('./page/autorizacion/autorizacion').then(m => m.Autorizacion), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

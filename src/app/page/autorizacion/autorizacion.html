@@ -1,0 +1,226 @@
+<div class="autorizacion-container d-flex flex-column align-items-center bg-light p-2">
+  <div class="card shadow-lg rounded-3 border-0 w-100 autorizacion-main-card">
+    <div class="card-body autorizacion-main-card-body">
+
+      <h5 class="text-center text-primary mb-2">
+        Usuario logueado: 
+        <span class="fw-bold">
+          {{ currentUserData?.nombre }} {{ currentUserData?.apellido }}
+        </span>
+      </h5>
+      
+      <h2 class="card-title mb-4 fw-bold text-dark text-center">
+        Autorización de nuevos Usuarios
+        <br><span class="text-primary">{{ configuracionRol?.titulo }}</span>
+      </h2>
+
+      <div *ngIf="adminEstadalMessage"
+        class="alert alert-{{adminEstadalMessageType}} text-center rounded-3 shadow-sm mb-4" role="alert">
+        {{ adminEstadalMessage }}
+      </div>
+
+      <div class="d-flex justify-content-end mb-3">
+        <div class="col-md-4 px-1">
+          <label for="filtroEstadoAdminEstadal" class="form-label fw-semibold">Filtrar por Estado:</label>
+          <select id="filtroEstadoAdminEstadal" class="form-select rounded-2" [(ngModel)]="selectedEstadoAdminEstadal"
+            (change)="onEstadoAdminEstadalChange()">
+            <option [ngValue]="null">Todos los Estados</option>
+            <option *ngFor="let estado of estadosFiltroAdminEstadal" [value]="estado.id">{{ estado.nombre }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div *ngIf="isLoadingAdminEstadal" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando solicitudes...</span>
+        </div>
+        <p class="mt-2 text-primary fw-bold">Cargando solicitudes del Sistema...</p>
+      </div>
+
+      <div *ngIf="!isLoadingAdminEstadal && adminEstadalPendientes.length > 0"
+        class="table-responsive autorizacion-table-responsive mb-1 p-1">
+        <table
+          class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle autorizacion-table">
+          <thead class="bg-primary text-white">
+            <tr>
+              <th scope="col">Cédula</th>
+              <th scope="col">Nombre Completo</th>
+              <th scope="col">Email</th>
+              <th scope="col">Rol Sugerido</th>
+              <th scope="col">Estado Sugerido</th>
+              <th scope="col">Fecha Solicitud</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of adminEstadalPendientes">
+              <td title="{{ usuario.tipo_cedula }}{{ usuario.cedula }}">{{ usuario.tipo_cedula }}{{
+                usuario.cedula }}</td>
+              <td title="{{ usuario.nombre }} {{ usuario.apellido }}">{{ usuario.nombre }} {{
+                usuario.apellido }}</td>
+              <td title="{{ usuario.correo }}">{{ usuario.correo }}</td>
+              <td title="{{ getRoleName(usuario.cod_rol_sugerido || 0) }}">{{
+                getRoleName(usuario.cod_rol_sugerido || 0) }}</td>
+              <td title="{{ usuario.nombre_estado_sugerido || 'N/A' }}">{{ usuario.nombre_estado_sugerido
+                || 'N/A' }}</td>
+              <td title="{{ usuario.fecha_registro | date:'dd/MM/yyyy' }}">{{ usuario.fecha_registro |
+                date:'dd/MM/yyyy' }}</td>
+              <td class="text-center align-middle" title="">
+                <button class="btn btn-sm btn-info view-details-btn" (click)="openSidePanel(usuario)"
+                  title="Ver Detalles">
+                  <i class="bi bi-eye"></i> Ver Detalles
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!isLoadingAdminEstadal && adminEstadalPendientes.length === 0 && !adminEstadalMessage"
+        class="alert alert-info text-center rounded-3 shadow-sm my-4" role="alert">
+        No hay solicitudes pendientes de Administradores Estadales.
+      </div>
+
+      <hr class="autorizacion-table-separator">
+
+      <div *ngIf="configuracionRol && configuracionRol.monitoreoInferiores.length > 0" class="monitoreo-section">
+      
+          <h3 class="autorizacion-section-title px-4">Monitoreo de Solicitudes Pendientes en el sistema</h3>
+
+          <div *ngIf="monitoreoMessage" class="alert alert-{{monitoreoMessageType}} text-center rounded-3 shadow-sm mb-4"
+            role="alert">
+            {{ monitoreoMessage }}
+          </div>
+
+          <div class="row g-3 mb-4 align-items-end px-1">
+            <div class="col-md-3">
+              <label for="filtroEstadoMonitoreo" class="form-label fw-semibold">Estado:</label>
+              <select id="filtroEstadoMonitoreo" class="form-select rounded-2" [(ngModel)]="selectedEstadoMonitoreo"
+                (change)="onEstadoMonitoreoChange()">
+                <option [ngValue]="null">Todos</option>
+                <option *ngFor="let estado of estadosFiltroMonitoreo" [value]="estado.id">{{ estado.nombre }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filtroMunicipioMonitoreo" class="form-label fw-semibold">Municipio:</label>
+              <select id="filtroMunicipioMonitoreo" class="form-select rounded-2" [(ngModel)]="selectedMunicipioMonitoreo"
+                (change)="onMunicipioMonitoreoChange()"
+                [disabled]="!selectedEstadoMonitoreo || municipiosFiltroMonitoreo.length === 0">
+                <option [ngValue]="null">Todos</option>
+                <option *ngFor="let municipio of municipiosFiltroMonitoreo" [value]="municipio.id">{{
+                  municipio.nombre }}</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filtroCircuitoMonitoreo" class="form-label fw-semibold">Circuito:</label>
+              <select id="filtroCircuitoMonitoreo" class="form-select rounded-2" [(ngModel)]="selectedCircuitoMonitoreo"
+                (change)="onCircuitoMonitoreoChange()"
+                [disabled]="!selectedMunicipioMonitoreo || circuitosFiltroMonitoreo.length === 0">
+                <option [ngValue]="null">Todos</option>
+                <option *ngFor="let circuito of circuitosFiltroMonitoreo" [value]="circuito.id_circuito">{{
+                  circuito.nombre_circuito }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filtroPlantelMonitoreo" class="form-label fw-semibold">Plantel:</label>
+              <select id="filtroPlantelMonitoreo" class="form-select rounded-2" [(ngModel)]="selectedPlantelMonitoreo"
+                (change)="onPlantelMonitoreoChange()">
+                <option [ngValue]="null">Todos</option>
+                <option *ngFor="let plantel of plantelesFiltroMonitoreo" [value]="plantel.codigo_plantel">{{ plantel.nombre
+                  }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filtroTipoRolMonitoreo" class="form-label fw-semibold">Tipo de Rol:</label>
+              <select id="filtroTipoRolMonitoreo" class="form-select rounded-2" [(ngModel)]="selectedTipoRolMonitoreo"
+                (change)="onTipoRolMonitoreoChange()">
+                <option [ngValue]="null">Todos</option>
+                <option *ngFor="let rol of tiposRolFiltroMonitoreo" [value]="rol.id">{{ rol.nombre }}</option>
+              </select>
+            </div>
+          </div>
+          
+          <div *ngIf="isLoadingMonitoreo" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando solicitudes...</span>
+            </div>
+            <p class="mt-2 text-primary fw-bold">Cargando solicitudes de Monitoreo...</p>
+          </div>
+
+          <div *ngIf="!isLoadingMonitoreo && monitoreoPendientes.length > 0"
+            class="table-responsive autorizacion-table-responsive px-1">
+            <table
+              class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle autorizacion-table autorizacion-table-compact">
+              <thead class="bg-primary text-white">
+                <tr>
+                  <th>Cédula</th>
+                  <th>Nombre Completo</th>
+                  <th>Email</th>
+                  <th>Rol Sugerido</th>
+                  <th>Ubicación Sugerida</th>
+                  <th>Fecha Solicitud</th>
+                  <th>Autorizador Pendiente</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let usuario of monitoreoPendientes">
+                  <td>{{ usuario.tipo_cedula }}{{ usuario.cedula }}</td>
+                  <td>{{ usuario.nombre }} {{ usuario.apellido }}</td>
+                  <td>{{ usuario.correo }}</td>
+                  <td>{{ usuario.rolSugeridoNombre }}</td>
+                  <td>{{ usuario.ubicacionCompleta }}</td>
+                  <td>{{ usuario.fecha_registro | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ usuario.rolAutorizadorNombre }}</td>
+                  <td class="text-center align-middle">
+                    <button class="btn btn-sm btn-info view-details-btn" (click)="openSidePanel(usuario)"
+                      title="Ver Detalles">
+                      <i class="bi bi-eye"></i> Ver Detalles
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="!isLoadingMonitoreo && monitoreoPendientes.length === 0 && !monitoreoMessage"
+            class="alert alert-info text-center rounded-3 shadow-sm my-4" role="alert">
+            No hay solicitudes pendientes de roles inferiores para monitorear.
+          </div>
+        
+      </div>
+      </div>
+  </div>
+
+  <div class="autorizacion-side-panel shadow-lg" [class.open]="showSidePanel">
+    <div class="autorizacion-side-header d-flex justify-content-between align-items-center p-3 bg-primary text-white">
+      <h5 class="m-0">Detalles del Usuario Pendiente</h5>
+      <button type="button" class="btn-close btn-close-white" (click)="closeSidePanel()"></button>
+    </div>
+    <div class="autorizacion-side-body p-4" *ngIf="selectedUser">
+      <p><strong>Cédula:</strong> {{ selectedUser.tipo_cedula }}{{ selectedUser.cedula }}</p>
+      <p><strong>Nombre:</strong> {{ selectedUser.nombre }}</p>
+      <p><strong>Apellido:</strong> {{ selectedUser.apellido }}</p>
+      <p><strong>Correo:</strong> {{ selectedUser.correo }}</p>
+      <p><strong>Usuario:</strong> {{ selectedUser.usuario }}</p>
+      <p><strong>Teléfono:</strong> {{ selectedUser.telefono }}</p>
+      <p><strong>Rol Sugerido:</strong> {{ getRoleName(selectedUser.cod_rol_sugerido || 0) }}</p>
+      <p><strong>Estado Sugerido:</strong> {{ selectedUser.nombre_estado_sugerido || 'N/A' }}</p>
+
+      <div class="d-flex justify-content-around mt-4">
+        <button class="btn btn-success autorizacion-approve-btn" (click)="approveUser(selectedUser)">
+          <i class="bi bi-check-circle-fill me-1"></i> Aprobar
+        </button>
+        <button class="btn btn-danger autorizacion-reject-btn" (click)="rejectUser(selectedUser)">
+          <i class="bi bi-x-circle-fill me-1"></i> Rechazar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="autorizacion-overlay" [class.open]="showSidePanel" (click)="closeSidePanel()"></div>
+</div>

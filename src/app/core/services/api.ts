@@ -121,7 +121,7 @@ export class Api {
   }
 
   getCircuitosPorMunicipio(municipioId: number): Observable<Circuito[]> {
-    return this.http.get<Circuito[]>(`${this.apiUrl}/circuitos/municipios/${municipioId}`).pipe(catchError(this.handleError));
+    return this.http.get<Circuito[]>(`${this.apiUrl}/circuitos/municipio/${municipioId}`).pipe(catchError(this.handleError));
   }
 
   getPlanteles(municipioId: number): Observable<Plantel[]> {

@@ -1,37 +1,51 @@
-/* --- Estilos Generales de la Aplicación (Layout) --- */
+/* === RESET GENERAL === */
 html, body {
   height: 100%;
-  margin: 0; /* Eliminar cualquier margen predeterminado del body */
-  font-family: "Inter", sans-serif; /* Fuente general para la app */
-  display: flex; /* Asegura que el body use flexbox para el layout principal */
-  flex-direction: column;
+  margin: 0;
+  font-family: "Inter", sans-serif;
 }
 
+/* === CONTENEDOR PRINCIPAL === */
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Asegura que el contenedor ocupe toda la altura */
-  /* Remove min-height: 100vh as it is no longer necessary with fixed positioning. */
+  min-height: 100vh;
 }
 
+/* === HEADER FIJO === */
+app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* asegura que quede por encima del contenido */
+}
+
+/* === FOOTER FIJO === */
+app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* === CONTENIDO PRINCIPAL === */
 .app-content {
-  flex: 1; /* Permite que el contenido principal ocupe todo el espacio disponible */
-  /* padding: 1px; Espaciado interno para el contenido */
-  background-color: #d5e5f5 !important; /* Color de fondo suave para el contenido */
-  color: #333; /* Color de texto predeterminado */
-  overflow-y: auto; /* Permite el scroll si el contenido es muy largo */
+  flex: 1;
+  background-color: #d5e5f5 !important;
+  color: #333;
+  overflow-y: auto;
 
-  /* --- ¡Ajustes para el padding con header/footer fijos! --- */
-  /* padding-top: 64px; Altura del header */
-  padding-bottom: 0px; /* Altura del footer (un poco más para asegurar espacio) */
+  /* Compensar altura de header y footer */
+  padding-top: 64px;   /* altura estimada del header */
+  padding-bottom: 60px; /* altura estimada del footer */
 }
 
-/* --- Responsive Adjustments para el Layout general --- */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
   .app-content {
-    /*padding: 10px; /* Menor padding en dispositivos móviles */
-    /* Ajustar padding para móviles si el header/footer cambian de altura */
-    padding-top: 56px; /* Min-height del header en móvil */
-    padding-bottom: 70px; /* Altura estimada del footer en móvil */
+    padding-top: 56px;   /* header más compacto en móvil */
+    padding-bottom: 70px; /* footer más alto en móvil */
   }
 }

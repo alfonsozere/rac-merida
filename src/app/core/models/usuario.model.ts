@@ -43,6 +43,11 @@ export interface Usuario {
 
   // Campo adicional para el tipo de cédula (ej. "V", "E")
   tipo_cedula?: string;
+  // 👇 propiedades adicionales para la vista
+  rolSugeridoNombre?: string;
+  ubicacionCompleta?: string;
+  rolAutorizadorNombre?: string;
+
 }
 
 /**

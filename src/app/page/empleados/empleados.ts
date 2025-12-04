@@ -38,6 +38,9 @@ declare var bootstrap: any;
   styleUrls: ['./empleados.css'],
 })
 export class Empleados implements OnInit, OnDestroy {
+
+  private rolUsuarioActual: string = '';
+
   empleados: Empleado[] = [];
   cargando = false;
   error: string | null = null;
@@ -89,6 +92,8 @@ export class Empleados implements OnInit, OnDestroy {
       this.authService.logout();
       return;
     }
+
+    this.rolUsuarioActual = String(this.currentUser.cod_rol ?? '');
 
     this.initForm();
     this.loadLookupData();
@@ -731,4 +736,23 @@ export class Empleados implements OnInit, OnDestroy {
     }
     this.cargosObrerosFiltrados = this.cargosObreros.filter(cargo => cargo.id_grado_obrero === gradoId);
   }
+
+// empleados.component.ts
+
+puedeVerAcciones(): boolean {
+    // 1. Convertir el valor a número
+    const rolNumerico = Number(this.rolUsuarioActual); 
+
+    // 3. La lógica de comparación
+    const tienePermiso = rolNumerico === ROLES.ADMIN_SQUAD
+           || 
+                         rolNumerico === ROLES.STANDARD
+    /*                           ||
+                         rolNumerico === ROLES.ADMIN_MUNICIPAL  ||
+                         rolNumerico === ROLES.ADMIN_CIRCUITAL; */
+                         
+    
+    
+    return tienePermiso;
+}
 }

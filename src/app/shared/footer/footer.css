@@ -1,29 +1,39 @@
-.app-footer {
-    background-color: white;
+/* === CONTENEDOR PRINCIPAL === */
+.footer-wrapper {
+  background-color: #ffffff;
   background-image: url('/assets/images/logo-footer.png'); /* Ruta relativa desde src/assets */
-  background-size: cover;       /* Ajusta la imagen para cubrir todo el área */
-  background-repeat: no-repeat; /* Evita que se repita */
-  background-position: center;  /* Centra la imagen */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   color: #000000;
   padding: 10px 20px;
   position: fixed;
   bottom: 0;
   width: 100%;
   font-size: 14px;
+  z-index: 100; /* asegura que quede por encima de otros elementos */
 }
 
-.footer-wrapper {
+/* === CONTENEDOR INTERNO === */
+.footer-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
 }
 
+/* === SECCIÓN IZQUIERDA === */
 .footer-left {
   display: flex;
   flex-direction: column;
 }
 
+.footer-developer {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* === SECCIÓN DERECHA === */
 .footer-right {
   text-align: right;
   display: flex;
@@ -31,7 +41,25 @@
   align-items: flex-end;
 }
 
-.current-date-text,
-.current-time-text {
+.footer-date,
+.footer-time {
   font-weight: bold;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .footer-right {
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-developer {
+    font-size: 0.8rem;
+  }
 }

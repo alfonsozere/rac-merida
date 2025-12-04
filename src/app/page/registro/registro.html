@@ -185,7 +185,7 @@
                       class="form-select input-institucional"
                       [class.is-invalid]="registroForm.get('id_circuito_sugerido')?.invalid && registroForm.get('id_circuito_sugerido')?.touched">
                 <option [ngValue]="null" disabled selected>Selecciona un circuito</option>
-                <option *ngFor="let circuito of circuitos" [value]="circuito.id">{{ circuito.nombre }}</option>
+                <option *ngFor="let circuito of circuitos" [value]="circuito.id_circuito">{{ circuito.nombre_circuito }}</option>
               </select>
               <div *ngIf="registroForm.get('id_circuito_sugerido')?.invalid && registroForm.get('id_circuito_sugerido')?.touched"
                    class="invalid-feedback">Circuito es requerido.</div>

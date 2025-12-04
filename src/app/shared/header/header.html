@@ -1,47 +1,47 @@
-<header class="app-header">
+<header class="header-wrapper">
   <!-- Logo + título -->
   <a [routerLink]="['/panel']" class="header-brand" routerLinkActive="header-brand-active">
-    <img [src]="logoUrl" alt="RAC-CDCE Logo" class="app-logo">
-    <span class="app-title">CDCE Mérida</span>
+    <img [src]="logoUrl" alt="RAC-CDCE Logo" class="header-logo">
+    <span class="header-title">CDCE Mérida</span>
   </a>
 
   <!-- Información del usuario -->
-  <span *ngIf="isAuthenticated() && currentUser" class="user-info-display user-info-responsive">
-    <span class="user-name font-user">
+  <span *ngIf="isAuthenticated() && currentUser" class="header-user-info header-user-info-responsive">
+    <span class="header-user-name">
       Usuario conectado: <strong>{{ currentUser.nombre }} {{ currentUser.apellido }}</strong>
     </span>
-    <span class="user-role-chip font-user" title="Tu rol actual en el sistema">
+    <span class="header-user-role" title="Tu rol actual en el sistema">
       {{ getRoleNameById(currentUser.cod_rol) }}
     </span>
   </span>
 
   <!-- Espaciador -->
-  <span class="spacer"></span>
+  <span class="header-spacer"></span>
 
   <!-- Botones de navegación -->
-  <div class="header-right header-nav-buttons">
+  <div class="header-right header-nav">
     <!-- Si NO está autenticado -->
     <ng-container *ngIf="!isAuthenticated()">
-      <button class="header-button" (click)="goToLogin()" [routerLink]="['/login']" routerLinkActive="active-link">
+      <button class="header-btn" (click)="goToLogin()" [routerLink]="['/login']" routerLinkActive="active-link">
         Iniciar Sesión
       </button>
-      <button class="header-button header-register-button" (click)="goToRegister()" [routerLink]="['/registro']" routerLinkActive="active-link">
+      <button class="header-btn header-btn-register" (click)="goToRegister()" [routerLink]="['/registro']" routerLinkActive="active-link">
         Registrarse
       </button>
     </ng-container>
 
     <!-- Si está autenticado -->
     <ng-container *ngIf="isAuthenticated()">
-      <button class="header-button" [routerLink]="['/panel']" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+      <button class="header-btn" [routerLink]="['/panel']" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
         Panel principal
       </button>
-      <button class="header-button" [routerLink]="['/panel/control']" *ngIf="canAccessControl()" routerLinkActive="active-link">
+      <button class="header-btn" [routerLink]="['/panel/control']" *ngIf="canAccessControl()" routerLinkActive="active-link">
         Control
       </button>
-      <button class="header-button" [routerLink]="['/panel/control/db']" *ngIf="canAccessDbMenu()" routerLinkActive="active-link">
+      <button class="header-btn" [routerLink]="['/panel/control/db']" *ngIf="canAccessDbMenu()" routerLinkActive="active-link">
         Menú BD
       </button>
-      <button class="header-button header-logout-button" (click)="logout()" title="Cerrar sesión">
+      <button class="header-btn header-btn-logout" (click)="logout()" title="Cerrar sesión">
         🚪 Cerrar sesión
       </button>
     </ng-container>

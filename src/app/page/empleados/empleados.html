@@ -30,7 +30,7 @@
                             <th scope="col">Tipo Personal</th>
                             <th scope="col">Fecha Ingreso</th>
                             <th scope="col">Situación laboral</th>
-                            <th scope="col" class="text-center">Acciones</th>
+                            <th scope="col" class="text-center" *ngIf="puedeVerAcciones()">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,7 +41,7 @@
                             <td>{{ empleado.nombre_tipo_personal }}</td>
                             <td>{{ empleado.fecha_ingreso_laboral | date: 'dd/MM/yyyy' }}</td>
                             <td>{{ empleado.nombre_situacion_laboral }}</td>
-                            <td class="text-center">
+                            <td class="text-center" *ngIf="puedeVerAcciones()">
                                 <button class="btn btn-sm btn-info me-2 shadow-sm empleados-btn-editar"
                                     (click)="editarEmpleado(empleado)" title="Editar">
                                     <i class="bi bi-pencil"></i>

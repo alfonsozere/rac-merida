@@ -33,21 +33,40 @@ export class GestorComponent implements OnInit {
       description: 'Gestión de la nómina asignada.',
       icon: 'person-workspace',
       route: 'panel/control/gestor/empleados',
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD, ROLES.STANDARD]
+      roles: [
+        ROLES.SUPER_ADMIN,
+        ROLES.ADMIN_STATE,
+        ROLES.ADMIN_MUNICIPAL,
+        ROLES.ADMIN_CIRCUITAL, 
+        ROLES.ADMIN_SQUAD,
+        ROLES.STANDARD
+      ]
     },
     {
       title: 'Control de Base de datos',
       description: 'Gestión de las tablas maestras del sistema.',
       icon: 'database-gear',
       route: 'panel/control/gestor/database',
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      roles: [
+        ROLES.SUPER_ADMIN,
+        ROLES.ADMIN_STATE,
+        ROLES.ADMIN_MUNICIPAL,
+        ROLES.ADMIN_CIRCUITAL, 
+        ROLES.ADMIN_SQUAD
+      ]
     },
     {
       title: 'Funcionarios eliminados',
       description: 'Restauración de registros eliminados.',
       icon: 'trash',
       route: 'panel/control/gestor/empleados_eliminados',
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_SQUAD]
+      roles: [
+        ROLES.SUPER_ADMIN,
+        ROLES.ADMIN_STATE,
+        ROLES.ADMIN_MUNICIPAL,
+        ROLES.ADMIN_CIRCUITAL, 
+        ROLES.ADMIN_SQUAD
+      ]
     }
   ];
 
