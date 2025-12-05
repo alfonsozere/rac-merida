@@ -16,10 +16,7 @@ interface TableCard {
 
 @Component({
   selector: 'app-database',
-  imports: [
-    CommonModule,
-    RouterOutlet
-  ],
+  imports: [ CommonModule ],
   templateUrl: './database.html',
   styleUrl: './database.css',
 })
@@ -184,7 +181,8 @@ export class Database implements OnInit {
    * Navega a la ruta hija específica de la tabla seleccionada.
    */
   selectCard(card: TableCard): void {
-    this.router.navigate([`/panel/control/gestor/${card.route}`]);
+    this.router.navigate(['/panel/control/gestor/database', card.route]);
+    console.log(`Navegando a tabla: ${card.route}`);
   }
 
   /**

@@ -1,0 +1,121 @@
+<div class="gestor-wrapper d-flex flex-column align-items-center">
+    <div class="card shadow-lg rounded-3 border-0 w-100 gestor-card">
+        <div class="p-1">
+            <!-- Encabezado -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h2 class="gestor-section-title text-center text-md-start mb-2 mb-md-0">
+                    Gestión de {{ tableName() | uppercase }}
+                </h2>
+                <!-- Botón Agregar (Opcional, estilo similar a tu ejemplo si decidimos ponerlo) -->
+                <button class="btn btn-primary btn-sm shadow-sm" [disabled]="isActionProcessing()">
+                    <i class="bi bi-plus-lg me-1"></i> Nuevo Registro
+                </button>
+            </div>
+
+            <!-- Alertas / Errores -->
+            @if (errorMessage()) {
+                <div class="alert alert-danger text-center rounded-3 shadow-sm mb-4 gestor-alert" role="alert">
+                    {{ errorMessage() }}
+                    <button type="button" class="btn-close" aria-label="Close" (click)="errorMessage.set('')"></button>
+                </div>
+            }
+
+            <!-- Spinner de Carga -->
+            @if (isLoading()) {
+                <div class="text-center my-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-primary fw-bold">Cargando datos...</p>
+                </div>
+            }
+
+            <!-- Mensaje vacío -->
+            @if (!isLoading() && data().length === 0 && !errorMessage()) {
+                <div class="alert alert-info text-center rounded-3 shadow-sm my-4 gestor-alert">
+                    No hay registros disponibles en la tabla <strong>{{ tableName() }}</strong>.
+                </div>
+            }
+
+            <!-- Tabla de Datos -->
+            @if (!isLoading() && data().length > 0) {
+                <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Registros</h3>
+                
+                <div class="mb-1 p-1 gestor-table-wrapper">
+                    <table class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle gestor-table">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <!-- Encabezados dinámicos -->
+                                @for (col of metadata(); track col.key) {
+                                    <th scope="col">
+                                        {{ col.title }}
+                                    </th>
+                                }
+                                <th scope="col" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filas dinámicas -->
+                            @for (row of data(); track row['id']) {
+                                <tr>
+                                    @for (col of metadata(); track col.key) {
+                                        <td>
+                                            {{ formatCellValue(row, col.key) }}
+                                        </td>
+                                    }
+                                    
+                                    <!-- Botones de Acción -->
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-info me-2 shadow-sm gestor-btn-editar"
+                                                (click)="onEdit(row)" 
+                                                title="Editar"
+                                                [disabled]="isActionProcessing()">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger shadow-sm gestor-btn-eliminar"
+                                                (click)="onDelete(row)" 
+                                                title="Eliminar"
+                                                [disabled]="isActionProcessing()">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Eliminación (Estructura Bootstrap) -->
+    @if (rowToDelete()) {
+        <!-- Fondo oscuro manual para simular el modal abierto -->
+        <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Eliminar Registro</h5>
+                        <button type="button" class="btn-close btn-close-white" (click)="cancelDelete()" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Está seguro que desea eliminar el registro con ID 
+                           <strong>{{ getDisplayId() }}</strong> de la tabla {{ tableName() }}?
+                        </p>
+                        
+                        @if (isActionProcessing()) {
+                            <div class="text-center text-danger my-2">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                <span class="ms-2">Procesando eliminación...</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="isActionProcessing()">Cancelar</button>
+                        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isActionProcessing()">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

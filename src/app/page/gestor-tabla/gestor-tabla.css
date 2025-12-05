@@ -1,0 +1,121 @@
+/* === CONTENEDOR PRINCIPAL === */
+.gestor-wrapper {
+  background-color: transparent;
+}
+
+/* === TARJETA PRINCIPAL === */
+.gestor-card {
+  width: 100%;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+}
+
+/* === ENCABEZADO DE SECCIÓN === */
+.gestor-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #343a40;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* === FORMULARIO (si aplica en el futuro) === */
+.gestor-formulario {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #dee2e6;
+}
+
+/* === BOTONES DE ACCIÓN (contenedor) === */
+.gestor-action-buttons .btn {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  transition: all 0.3s ease;
+}
+
+.gestor-action-buttons .btn:hover {
+  transform: scale(1.03);
+}
+
+/* === TABLA === */
+.gestor-table-wrapper {
+  font-size: 0.85rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 53vh;
+}
+
+.gestor-table {
+  width: 100%;
+  min-height: 100%;
+}
+
+.gestor-table th,
+.gestor-table td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+/* === ALERTAS Y MENSAJES === */
+.gestor-alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* === BOTONES DE EDICIÓN Y ELIMINACIÓN === */
+.gestor-btn-editar {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.gestor-btn-editar:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.gestor-btn-eliminar {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.gestor-btn-eliminar:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .gestor-card {
+    padding: 1rem;
+  }
+
+  .gestor-action-buttons .btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .gestor-table-wrapper {
+    font-size: 0.8rem;
+  }
+}
+
+/* Ajuste de tamaño de label en tablets/móviles */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  label {
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 767.98px) {
+  label {
+    font-size: 0.85em;
+  }
+}
