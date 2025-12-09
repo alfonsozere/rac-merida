@@ -30,20 +30,25 @@
   padding: 0 1rem;
 }
 
-/* === TARJETA INDIVIDUAL === */
+/* === TARJETA INDIVIDUAL (DIMENSIONES FIJAS: 350x350px) === */
 .gestor-card {
   border-radius: 0.75rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-color: #ffffff;
-  max-width: 350px;
-  min-height: 240px;
+  
+  /* DIMENSIONES FIJAS SOLICITADAS */
+  width: 250px;
+  max-width: 250px; /* Asegura que no se exceda */
+  height: 250px;
+  min-height: 250px; /* Asegura que no sea menor */
+  
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  height: 100%;
+  cursor: pointer;
 }
 
 .gestor-card:hover {
@@ -103,6 +108,16 @@
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
+  /* En pantallas pequeñas, forzamos que el ancho sea el 100% del contenedor 
+     para evitar desbordamientos, aunque esto anulará el 350px fijo de ancho.
+     El alto fijo de 350px se mantiene. */
+  .gestor-card {
+    width: 100%; 
+    max-width: 100%; 
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
   .gestor-section-title {
     font-size: 1.3rem;
     margin-top: 1rem;
@@ -111,12 +126,6 @@
   .gestor-section-description {
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
-  }
-
-  .gestor-card {
-    padding: 1rem;
-    border-radius: 0.5rem;
-    max-width: 100%;
   }
 
   .gestor-icon {

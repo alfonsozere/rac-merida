@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+//import { HttpClientModule } from '@angular/common/http';
 import { switchMap, tap, catchError, map } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
 import { Data, ColumnMetadata, DynamicRow } from '../../core/services/data';
@@ -20,7 +20,7 @@ interface GestorData {
   standalone: true,
   imports: [
     CommonModule,
-    HttpClientModule, 
+    //HttpClientModule, 
   ],
   templateUrl: './gestor-tabla.html',
   // Eliminamos la referencia a styleUrl, ahora usamos solo Bootstrap
@@ -58,6 +58,7 @@ export class GestorTabla implements OnInit {
       }),
       switchMap((params): Observable<GestorData> => { 
         const name = params.get('tableName') || '';
+        console.log(`[GestorTabla] Valor de la URL para 'tableName': ${name}`);
         
         if (!name) {
           this.isError.set(true);

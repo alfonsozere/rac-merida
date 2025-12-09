@@ -40,16 +40,18 @@
             <!-- Tabla de Datos -->
             @if (!isLoading() && data().length > 0) {
                 <h3 class="fw-bold text-primary border-bottom pb-1 mb-3 mt-5">Lista de Registros</h3>
-                
+               
                 <div class="mb-1 p-1 gestor-table-wrapper">
                     <table class="table table-hover table-bordered rounded-3 overflow-hidden shadow-sm align-middle gestor-table">
                         <thead class="bg-primary text-white">
                             <tr>
-                                <!-- Encabezados dinámicos -->
+                                <!-- Encabezados dinámicos CORREGIDO: Se añade @if (col.visible) -->
                                 @for (col of metadata(); track col.key) {
-                                    <th scope="col">
-                                        {{ col.title }}
-                                    </th>
+                                    @if (col.visible) { 
+                                        <th scope="col">
+                                            {{ col.title }}
+                                        </th>
+                                    }
                                 }
                                 <th scope="col" class="text-center">Acciones</th>
                             </tr>
@@ -58,12 +60,15 @@
                             <!-- Filas dinámicas -->
                             @for (row of data(); track row['id']) {
                                 <tr>
+                                    <!-- Celdas dinámicas CORREGIDO: Se añade @if (col.visible) -->
                                     @for (col of metadata(); track col.key) {
-                                        <td>
-                                            {{ formatCellValue(row, col.key) }}
-                                        </td>
+                                        @if (col.visible) {
+                                            <td>
+                                                {{ formatCellValue(row, col.key) }}
+                                            </td>
+                                        }
                                     }
-                                    
+                                   
                                     <!-- Botones de Acción -->
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-info me-2 shadow-sm gestor-btn-editar"
@@ -100,9 +105,9 @@
                     </div>
                     <div class="modal-body">
                         <p>¿Está seguro que desea eliminar el registro con ID 
-                           <strong>{{ getDisplayId() }}</strong> de la tabla {{ tableName() }}?
+                            <strong>{{ getDisplayId() }}</strong> de la tabla {{ tableName() }}?
                         </p>
-                        
+                       
                         @if (isActionProcessing()) {
                             <div class="text-center text-danger my-2">
                                 <div class="spinner-border spinner-border-sm" role="status"></div>

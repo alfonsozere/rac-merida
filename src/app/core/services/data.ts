@@ -1,139 +1,308 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, delay, tap, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs'; 
+import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+// IMPORTANTE: Asegúrate de que esta ruta sea correcta en tu proyecto
+ 
 
 // Define la estructura que describirá cada columna de la tabla.
 export interface ColumnMetadata {
-  key: string;      // Nombre de la propiedad en el objeto de datos (e.g., 'nombre_completo')
-  title: string;    // Título a mostrar en la cabecera de la tabla (e.g., 'Nombre Completo')
-  type: 'text' | 'number' | 'date' | 'boolean'; // Tipo de dato para renderizado y filtrado
-  sortable: boolean; // Indica si la columna es ordenable
-  visible: boolean; // Indica si la columna debe ser mostrada por defecto
+  key: string;      
+  title: string;    
+  type: 'text' | 'number' | 'date' | 'boolean'; 
+  sortable: boolean; 
+  visible: boolean; 
+}
+
+//PARA BORRAR
+interface ApiResponse {
+    ok?: boolean;
+    msg?: string;
+    [key: string]: any; // Permite acceder a 'roles', 'sexos', etc.
 }
 
 // Define la estructura base de una fila de datos dinámica.
 export type DynamicRow = Record<string, any>;
 
-// --- DATOS MOCK SIMULADOS PARA EJEMPLO DE TABLAS ---
+// --- METADATOS SIMULADOS (ESTO SÍ PUEDE SER FIJO) ---
+// La estructura de la tabla (qué columnas existen) se mantiene en un mock 
+// ya que la API a menudo no proporciona esta información.
 const MOCK_METADATA: Record<string, ColumnMetadata[]> = {
-  'sexos': [
-    { key: 'id', title: 'ID', type: 'number', sortable: true, visible: true },
-    { key: 'nombre', title: 'Nombre', type: 'text', sortable: true, visible: true },
-    { key: 'descripcion', title: 'Descripción', type: 'text', sortable: false, visible: true },
-    { key: 'fecha_creacion', title: 'Fecha Creación', type: 'date', sortable: true, visible: false },
-    { key: 'activo', title: 'Activo', type: 'boolean', sortable: true, visible: true },
-  ],
-  'roles': [
-    { key: 'role_id', title: 'Cód. Rol', type: 'number', sortable: true, visible: true },
-    { key: 'nombre', title: 'Nombre', type: 'text', sortable: true, visible: true },
-    { key: 'nivel_acceso', title: 'Nivel Acceso', type: 'number', sortable: true, visible: true },
-    { key: 'usuarios_asociados', title: 'Usuarios (Count)', type: 'number', sortable: false, visible: true },
-  ],
-  'estados': [
-    { key: 'id_estado', title: 'ID Estado', type: 'number', sortable: true, visible: false },
-    { key: 'nombre', title: 'Estado', type: 'text', sortable: true, visible: true },
-    { key: 'capital', title: 'Capital', type: 'text', sortable: true, visible: true },
-    { key: 'poblacion', title: 'Población', type: 'number', sortable: true, visible: true },
-  ],
-};
+  // Metadatos de la tabla 'sexos' basados en la respuesta real de la API
+// Usuarios
+  'users': [
+    // --- DATOS PRINCIPALES ---
+    { key: 'id_usuario', title: 'ID', type: 'number', sortable: true, visible: false },
+    { key: 'nombre', title: 'Nombre', type: 'text', sortable: true, visible: true },
+    { key: 'apellido', title: 'Apellido', type: 'text', sortable: true, visible: true },
+    { key: 'tipo_cedula', title: 'Tipo Cédula', type: 'text', sortable: true, visible: false },
+    { key: 'cedula', title: 'Cédula', type: 'text', sortable: true, visible: true },
+    { key: 'usuario', title: 'Usuario', type: 'text', sortable: true, visible: true },
+    { key: 'correo', title: 'Correo', type: 'text', sortable: true, visible: false },
+    { key: 'telefono', title: 'Teléfono', type: 'text', sortable: true, visible: false },
 
-const MOCK_DATA: Record<string, DynamicRow[]> = {
-  'sexos': [
-    { id: 1, nombre: 'Masculino', descripcion: 'Identidad masculina', fecha_creacion: '2023-01-15T10:00:00Z', activo: true },
-    { id: 2, nombre: 'Femenino', descripcion: 'Identidad femenina', fecha_creacion: '2023-01-16T11:30:00Z', activo: true },
-    { id: 3, nombre: 'Otro', descripcion: 'Identidad no binaria o indefinida', fecha_creacion: '2023-01-17T09:45:00Z', activo: false },
-  ],
-  'roles': [
-    { role_id: 100, nombre: 'SUPER_ADMIN', nivel_acceso: 100, usuarios_asociados: 5 },
-    { role_id: 50, nombre: 'ADMIN_STATE', nivel_acceso: 50, usuarios_asociados: 12 },
-    { role_id: 10, nombre: 'STANDARD', nivel_acceso: 10, usuarios_asociados: 300 },
-  ],
-  'estados': [
-    { id_estado: 1, nombre: 'Mérida', capital: 'Mérida', poblacion: 900000 },
-    { id_estado: 2, nombre: 'Zulia', capital: 'Maracaibo', poblacion: 4000000 },
-    { id_estado: 3, nombre: 'Carabobo', capital: 'Valencia', poblacion: 2500000 },
-  ],
+    // --- ROL ASIGNADO (ACTUAL) ---
+    { key: 'cod_rol', title: 'Cod. Rol', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_rol', title: 'Rol Asignado', type: 'text', sortable: true, visible: true },
+    { key: 'descripcion_rol', title: 'Descripción Rol', type: 'text', sortable: false, visible: false },
+    
+    // --- UBICACIÓN ASIGNADA (ACTUAL) ---
+    { key: 'id_estado_asignado', title: 'ID Edo. Asig.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_estado_asignado', title: 'Estado Asignado', type: 'text', sortable: true, visible: true },
+    { key: 'id_municipio_asignado', title: 'ID Mun. Asig.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_municipio_asignado', title: 'Municipio Asignado', type: 'text', sortable: true, visible: true },
+    { key: 'id_circuito_asignado', title: 'ID Circuito Asig.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_circuito_asignado', title: 'Circuito Asignado', type: 'text', sortable: true, visible: true },
+    { key: 'codigo_plantel_asignado', title: 'Cód. Plantel Asig.', type: 'text', sortable: true, visible: false },
+    { key: 'nombre_plantel_asignado', title: 'Plantel Asignado', type: 'text', sortable: true, visible: true },
+    { key: 'denominacion_plantel_asignado', title: 'Denom. Plantel Asig.', type: 'text', sortable: true, visible: false },
+    
+    // --- DATOS DE REGISTRO/APROBACIÓN ---
+    { key: 'fecha_registro', title: 'Fec. Registro', type: 'date', sortable: true, visible: true },
+    { key: 'fecha_aprobacion', title: 'Fec. Aprobación', type: 'date', sortable: true, visible: true },
+    
+    // --- ROL SUGERIDO (PENDIENTE DE APROBACIÓN) ---
+    { key: 'cod_rol_sugerido', title: 'Cod. Rol Sug.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_rol_sugerido', title: 'Rol Sugerido', type: 'text', sortable: true, visible: true },
+    
+    // --- UBICACIÓN SUGERIDA (PENDIENTE DE APROBACIÓN) ---
+    { key: 'id_estado_sugerido', title: 'ID Edo. Sug.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_estado_sugerido', title: 'Estado Sugerido', type: 'text', sortable: true, visible: false },
+    { key: 'id_municipio_sugerido', title: 'ID Mun. Sug.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_municipio_sugerido', title: 'Municipio Sugerido', type: 'text', sortable: true, visible: false },
+    { key: 'id_circuito_sugerido', title: 'ID Circuito Sug.', type: 'number', sortable: true, visible: false },
+    { key: 'nombre_circuito_sugerido', title: 'Circuito Sugerido', type: 'text', sortable: true, visible: false },
+    { key: 'codigo_plantel_sugerido', title: 'Cód. Plantel Sug.', type: 'text', sortable: true, visible: false },
+    { key: 'nombre_plantel_sugerido', title: 'Plantel Sugerido', type: 'text', sortable: true, visible: false },
+    { key: 'denominacion_plantel_sugerido', title: 'Denom. Plantel Sug.', type: 'text', sortable: true, visible: false },
+
+  ],
+  // Roles
+  'roles': [
+    { key: 'id_rol', title: 'ID', type: 'number', sortable: true, visible: true },
+    { key: 'nombre_rol', title: 'Nombre', type: 'text', sortable: true, visible: true },
+    { key: 'descripcion', title: 'Descripción', type: 'text', sortable: true, visible: true },
+    { key: 'ide', title: 'Nombre', type: 'text', sortable: true, visible: false },
+  ],  
+  //
+  'sexos': [
+    { key: 'id', title: 'ID', type: 'number', sortable: true, visible: true },
+    { key: 'nombre', title: 'Nombre', type: 'text', sortable: true, visible: true },
+    { key: 'abrev_sexo', title: 'Abreviatura', type: 'text', sortable: true, visible: true },
+  ],
+// Empleados
+'empleados': [
+  // --- DATOS PRINCIPALES ---
+  { key: 'id_empleado', title: 'ID Empleado', type: 'number', sortable: true, visible: false },
+  { key: 'cedula', title: 'Cédula', type: 'text', sortable: true, visible: true },
+  { key: 'nombre', title: 'Nombre', type: 'text', sortable: true, visible: true },
+  { key: 'apellido', title: 'Apellido', type: 'text', sortable: true, visible: true },
+  { key: 'correo', title: 'Correo', type: 'text', sortable: true, visible: true },
+  { key: 'telefono', title: 'Teléfono', type: 'text', sortable: true, visible: true },
+  { key: 'direccion', title: 'Dirección', type: 'text', sortable: false, visible: false },
+
+  // --- FECHAS Y HORAS ---
+  { key: 'fecha_nacimiento', title: 'Fec. Nacimiento', type: 'date', sortable: true, visible: true },
+  { key: 'fecha_ingreso_laboral', title: 'Fec. Ingreso Lab.', type: 'date', sortable: true, visible: true },
+  { key: 'horas_academicas', title: 'H. Académicas', type: 'number', sortable: true, visible: false },
+  { key: 'horas_administrativas', title: 'H. Administrativas', type: 'number', sortable: true, visible: false },
+  
+  // --- INFORMACIÓN RELACIONADA (FKs visibles y ocultas) ---
+  // Sexo
+  { key: 'id_sexo', title: 'ID Sexo', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_sexo', title: 'Sexo', type: 'text', sortable: true, visible: true },
+  
+  // Tipo Personal y Situación Laboral
+  { key: 'id_tipo_personal', title: 'ID Tipo Personal', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_tipo_personal', title: 'Tipo Personal', type: 'text', sortable: true, visible: true },
+  { key: 'id_situacion_laboral', title: 'ID Situación Lab.', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_situacion_laboral', title: 'Situación Laboral', type: 'text', sortable: true, visible: true },
+  
+  // Cargo Display
+  { key: 'cargo_display_name', title: 'Cargo Actual', type: 'text', sortable: true, visible: true },
+  
+  // Plantel (Resumen)
+  { key: 'id_plantel', title: 'ID Plantel', type: 'number', sortable: true, visible: false },
+  { key: 'plantel_nombre', title: 'Plantel', type: 'text', sortable: true, visible: true },
+  { key: 'plantel_codigo', title: 'Cód. Plantel', type: 'text', sortable: true, visible: false },
+  { key: 'plantel_nombre_circuito', title: 'Circuito', type: 'text', sortable: true, visible: true },
+  { key: 'plantel_municipio_nombre', title: 'Municipio', type: 'text', sortable: true, visible: true },
+  
+  // Ubicación Geográfica (Detalles)
+  { key: 'id_ubch', title: 'ID UBCH', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_ubch', title: 'UBCH', type: 'text', sortable: true, visible: false },
+  { key: 'id_comuna', title: 'ID Comuna', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_comuna', title: 'Comuna', type: 'text', sortable: true, visible: false },
+  { key: 'id_consejo_comunal', title: 'ID CC', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_consejo_comunal', title: 'Consejo Comunal', type: 'text', sortable: true, visible: false },
+  
+  // Turno
+  { key: 'id_turno', title: 'ID Turno', type: 'number', sortable: true, visible: false },
+  { key: 'nombre_turno', title: 'Turno', type: 'text', sortable: true, visible: false },
+  
+  // Observaciones
+  { key: 'observaciones', title: 'Observaciones', type: 'text', sortable: false, visible: false },
+  
+  // --- CAMPOS ESPECÍFICOS DE CARGO (Mayormente ocultos si no aplica) ---
+  // Docente
+  { key: 'id_cargo_docente', title: 'ID Cargo Docente', type: 'number', sortable: true, visible: false },
+  { key: 'cargo_nombre_docente', title: 'Cargo Docente', type: 'text', sortable: true, visible: false },
+  { key: 'grado_imparte', title: 'Grado', type: 'text', sortable: true, visible: false },
+  { key: 'seccion_grado', title: 'Sección G.', type: 'text', sortable: true, visible: false },
+
+  // Obrero
+  { key: 'id_cargo_obrero', title: 'ID Cargo Obrero', type: 'number', sortable: true, visible: false },
+  { key: 'cargo_nombre_obrero', title: 'Cargo Obrero', type: 'text', sortable: true, visible: false },
+  { key: 'id_grado_obrero', title: 'ID Grado Obrero', type: 'number', sortable: true, visible: false },
+  { key: 'grado_obrero_nombre', title: 'Grado Obrero', type: 'text', sortable: true, visible: false },
+
+  // Administrativo
+  { key: 'id_cargo_administrativo', title: 'ID Cargo Admin', type: 'number', sortable: true, visible: false },
+  { key: 'cargo_nombre_administrativo', title: 'Cargo Admin', type: 'text', sortable: true, visible: false },
+],
+// Tipo de personal
+'tipos_personal': [
+  { key: 'id', title: 'IDs', type: 'number', sortable: true, visible: false },
+  { key: 'nombre', title: 'Nombre', type: 'text', sortable: true, visible: true },
+],
+// Situaciones Laborales
+// Docentes
+// Administrativos
+// Grados obrero
+// Obreros
+// Tipo docentes especificos
+// Estados
+// Municipios
+// Parroquias
+// Circuitos educativos
+// Planteles
+// Denominación planteles
+// Dependencias planteles
+// Niveles planteles
+// Modalidades planteles
+// Ubicación planteles
+// Turno planteles
+// Comunas
+// ubchs
+// Consejo comunales
 };
-// --- FIN DATOS MOCK ---
+// --- FIN METADATOS SIMULADOS ---
 
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root'
 })
-// La clase se llama Data, pero funciona como el DataService.
 export class Data { 
-  private http = inject(HttpClient);
-  private API_URL = '/api/v1/dynamic';
+  private http = inject(HttpClient);
+  // Usa la URL base importada del entorno para la conexión real
+  private API_BASE_URL = environment.apiUrl; 
 
-  constructor() { }
+  constructor() { }
 
-  /**
-   * Obtiene la estructura (metadata) de la tabla especificada.
-   */
-  getMetadata(tableName: string): Observable<ColumnMetadata[]> {
-    console.log(`[DataService] Solicitando Metadata para: ${tableName}`);
-    
-    // Devolvemos el mock con un retraso para simular la latencia de red
-    const metadata = MOCK_METADATA[tableName] || [];
-    
-    return of(metadata).pipe(delay(500), tap(() => {
-        if(metadata.length === 0) {
-            console.warn(`Advertencia: Metadata no encontrada/definida para la tabla: ${tableName}.`);
-        }
-    }));
-  }
+  /**
+   * Obtiene la estructura (metadata) de la tabla especificada desde el mock local.
+   */
+  getMetadata(tableName: string): Observable<ColumnMetadata[]> {
+    console.log(`[DataService] Solicitando Metadata (MOCK) para: ${tableName}`);
+    
+    // Devolvemos el mock de metadata.
+    const metadata = MOCK_METADATA[tableName] || [];
+    
+    return new Observable<ColumnMetadata[]>(observer => {
+        if (metadata.length === 0) {
+            console.warn(`Advertencia: Metadata no encontrada/definida para la tabla: ${tableName}.`);
+        }
+        observer.next(metadata);
+        observer.complete();
+    });
+  }
 
-  /**
-   * Obtiene los datos reales de la tabla especificada.
-   */
-  getData(tableName: string): Observable<DynamicRow[]> {
-    console.log(`[DataService] Solicitando Datos para: ${tableName}`);
+  /**
+   * Obtiene los datos REALES de la tabla especificada haciendo una llamada HTTP.
+   * La tabla ahora mostrará el contenido real de la base de datos.
+   */
 
-    // Devolvemos el mock con un retraso para simular la latencia de red
-    const data = MOCK_DATA[tableName] || [];
-    
-    return of(data).pipe(delay(750), tap(() => {
-        if(data.length === 0) {
-            console.warn(`Advertencia: No se encontraron datos MOCK para la tabla: ${tableName}. Devolviendo array vacío.`);
-        }
-    }));
-  }
-  
-  /**
-   * Simula la actualización de una fila en una tabla.
-   * @param tableName El nombre de la tabla.
-   * @param row La fila completa con los datos actualizados.
-   * @returns Observable<boolean> verdadero si la operación fue exitosa.
-   */
-  updateData(tableName: string, row: DynamicRow): Observable<boolean> {
-    // CORRECCIÓN: Usar notación de corchetes para 'id' y 'role_id'
-    console.log(`[DataService] Simulación de ACTUALIZACIÓN en ${tableName} para el ID: ${row['id'] || row['role_id']}`);
-    
-    // Simulación de validación
-    if (!row['nombre']) {
-        return throwError(() => new Error('El campo "nombre" no puede estar vacío.'));
-    }
-    
-    // Simulación de la operación exitosa con retardo
-    return of(true).pipe(delay(1000), tap(() => {
-        console.log(`[DataService] ACTUALIZACIÓN de ${tableName} exitosa (Simulado).`);
-    }));
-  }
+  // FUNCIONAL
+  /* getData(tableName: string): Observable<DynamicRow[]> {
+    // Construye la URL completa: 'https://cdce-merida.ddns.net/api/sexos'
+    const url = `${this.API_BASE_URL}/${tableName}`;
+    console.log(`[DataService] Solicitando DATOS REALES de la API: ${url}`);
 
-  /**
-   * Simula la eliminación de una fila de una tabla.
-   * @param tableName El nombre de la tabla.
-   * @param row La fila a eliminar (usada para obtener el ID).
-   * @returns Observable<boolean> verdadero si la operación fue exitosa.
-   */
-  deleteData(tableName: string, row: DynamicRow): Observable<boolean> {
-    // CORRECCIÓN: Usar notación de corchetes para 'id' y 'role_id'
-    const primaryKey = row['id'] || row['role_id'] || 'N/A';
-    console.warn(`[DataService] Simulación de ELIMINACIÓN en ${tableName} del ID: ${primaryKey}`);
+    // Hace la llamada HTTP real a la API.
+    return this.http.get<DynamicRow[]>(url).pipe(
+      tap(data => {
+        if (data.length === 0) {
+          console.warn(`Advertencia: API devolvió un array vacío para la tabla: ${tableName}.`);
+        }
+      })
+    );
+  } */
+  
+// PARA BORRAR
+getData(tableName: string): Observable<DynamicRow[]> {
+    const url = `${this.API_BASE_URL}/${tableName}`;
 
-    // Simulación de la operación exitosa con retardo
-    return of(true).pipe(delay(500), tap(() => {
-        console.log(`[DataService] ELIMINACIÓN de ${tableName} exitosa (Simulado).`);
-    }));
-  }
+    console.log(`[DataService] La tabla solicitada es: '${tableName}'`);
+
+    // Cambiamos el tipo esperado a algo que pueda ser un objeto o un array
+    return this.http.get<ApiResponse | DynamicRow[]>(url).pipe(
+        map(response => {
+            // Caso 1: La respuesta es un ARRAY directo (ej. tipos_personal)
+            if (Array.isArray(response)) {
+                return response as DynamicRow[];
+            }
+
+            // Caso 2: La respuesta es un OBJETO contenedor (ej. roles)
+            if (typeof response === 'object' && response !== null && response[tableName]) {
+                const dataArray = response[tableName];
+                if (Array.isArray(dataArray)) {
+                    // Extraemos y devolvemos el array correcto
+                    return dataArray as DynamicRow[];
+                }
+            }
+            
+            // Si no se encuentra un array, se devuelve vacío.
+            console.warn(`[DataService] No se pudo extraer el array de datos para '${tableName}'.`);
+            return [] as DynamicRow[];
+        }),
+        catchError(err => {
+             console.error(`[DataService] Fallo en la obtención de datos para ${tableName}:`, err);
+             return throwError(() => new Error(`Fallo en la obtención de datos para ${tableName}: ${err.message}`));
+        })
+    );
+}
+
+
+
+  /**
+   * Actualiza una fila en una tabla haciendo una llamada PUT real.
+   */
+  updateData(tableName: string, row: DynamicRow): Observable<any> {
+    // Busca la clave primaria (ID) para construir la URL de actualización
+    const primaryKey = row['id'] || row['role_id'] || row['id_estado'] || 'N/A';
+    const url = `${this.API_BASE_URL}/${tableName}/${primaryKey}`;
+    
+    console.log(`[DataService] Llamada PUT real a: ${url} con datos:`, row);
+    
+    // Hace la llamada PUT real.
+    return this.http.put(url, row).pipe(
+      tap(() => console.log(`[DataService] ACTUALIZACIÓN de ${tableName} exitosa (API Real).`))
+    );
+  }
+
+  /**
+   * Elimina una fila de una tabla haciendo una llamada DELETE real.
+   */
+  deleteData(tableName: string, row: DynamicRow): Observable<any> {
+    const primaryKey = row['id'] || row['role_id'] || row['id_estado'] || 'N/A';
+    const url = `${this.API_BASE_URL}/${tableName}/${primaryKey}`;
+    
+    console.warn(`[DataService] Llamada DELETE real a: ${url}`);
+
+    // Hace la llamada DELETE real.
+    return this.http.delete(url).pipe(
+      tap(() => console.log(`[DataService] ELIMINACIÓN de ${tableName} exitosa (API Real).`))
+    );
+  }
 }
