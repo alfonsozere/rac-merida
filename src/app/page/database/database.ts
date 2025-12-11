@@ -32,7 +32,7 @@ export class Database implements OnInit {
   public specificTables: TableCard[] = [
     // --- GESTIÓN DE SEGURIDAD ---
     {
-      title: 'Usuarios', description: 'Gestión de credenciales y perfiles de acceso.', icon: 'people', route: 'usuarios', className: 'card-primary',
+      title: 'Usuarios', description: 'Gestión de credenciales y perfiles de acceso.', icon: 'people', route: 'users', className: 'card-primary',
       requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
