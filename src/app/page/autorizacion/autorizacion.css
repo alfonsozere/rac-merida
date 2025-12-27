@@ -1,8 +1,18 @@
 /* ============================================================
-   AutorizacionComponent styles (aislados y con prefijo lógico)
-   ------------------------------------------------------------
-   Autor: Supervisión Institucional / Validado por Luis
-   ============================================================ */
+    AutorizacionComponent styles (Optimizado y con prefijo lógico)
+    ------------------------------------------------------------
+    Autor: Supervisión Institucional / Validado por Luis
+    ============================================================ */
+
+/* === CLASES REUTILIZABLES (Añadida para reducir el tamaño del chunk) === */
+.cell-compact {
+  /* Estas propiedades se aplican a los th/td que necesitan ser angostos en la tabla de Monitoreo */
+  width: 100px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* === CONTENEDOR PRINCIPAL === */
 .autorizacion-wrapper {
@@ -47,13 +57,13 @@
   font-size: 0.95rem;
 }
 
-/* === TABLAS === */
+/* === TABLAS GENERALES === */
 .autorizacion-table-responsive {
   font-size: 0.85rem;
   border-radius: 0.5rem;
   overflow-x: auto;
   overflow-y: auto;
-  max-height: 53vh;
+  max-height: 53vh; /* Considerar usar calc(100vh - Xpx) si hay problemas */
 }
 
 .autorizacion-table {
@@ -69,33 +79,11 @@
   vertical-align: middle;
 }
 
-/* Columna Email en tabla principal */
+/* Columna Email en tabla principal (Sigue usando nth-child porque solo aplica a esa tabla) */
 .autorizacion-table th:nth-child(3),
 .autorizacion-table td:nth-child(3) {
   width: 180px;
   max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Tabla de monitoreo: compactar varias columnas */
-.autorizacion-table-monitoreo th:nth-child(1),
-.autorizacion-table-monitoreo td:nth-child(1),
-.autorizacion-table-monitoreo th:nth-child(2),
-.autorizacion-table-monitoreo td:nth-child(2),
-.autorizacion-table-monitoreo th:nth-child(3),
-.autorizacion-table-monitoreo td:nth-child(3),
-.autorizacion-table-monitoreo th:nth-child(4),
-.autorizacion-table-monitoreo td:nth-child(4),
-.autorizacion-table-monitoreo th:nth-child(5),
-.autorizacion-table-monitoreo td:nth-child(5),
-.autorizacion-table-monitoreo th:nth-child(6),
-.autorizacion-table-monitoreo td:nth-child(6),
-.autorizacion-table-monitoreo th:nth-child(7),
-.autorizacion-table-monitoreo td:nth-child(7) {
-  width: 100px;
-  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -126,27 +114,21 @@
   border-top: 1px solid #0400ff8e;
 }
 
-/* === BOTÓN VER DETALLES === */
-.autorizacion-view-btn {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
-  font-size: 0.8rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.3rem;
-  color: #ffffff;
-  border-width: 1px;
-  border-style: solid;
+/* === BOTÓN VER DETALLES (SIMPLIFICADO) === */
+/* Se mantiene solo lo que NO es proporcionado por Bootstrap (btn-sm btn-info) */
+.view-details-btn {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  cursor: pointer;
 }
 
-.autorizacion-view-btn:hover {
+.view-details-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  background-color: #117a8b;
-  border-color: #10707f;
+  /* Se mantiene el hover custom si es necesario */
+  background-color: #117a8b !important;
+  border-color: #10707f !important;
 }
+
 
 /* === PANEL LATERAL === */
 .autorizacion-side-panel {
@@ -170,7 +152,7 @@
 
 .autorizacion-side-header {
   padding: 1rem;
-  background-color: #007bff;
+  background-color: #007bff; /* Nota: El HTML usa bg-primary, que puede ser diferente */
   color: #ffffff;
   border-bottom: 1px solid #dee2e6;
 }
@@ -214,7 +196,9 @@
   visibility: visible;
 }
 
-/* === MEDIA QUERIES PARA TABLAS (ocultar columnas) === */
+/* === MEDIA QUERIES PARA TABLAS (Ocultar columnas) === */
+/* Se mantienen, ya que son la forma eficiente de ocultar columnas por ancho */
+
 @media (max-width: 1120px) {
   .autorizacion-table th:nth-child(6),
   .autorizacion-table td:nth-child(6) {

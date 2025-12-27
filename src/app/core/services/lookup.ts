@@ -146,7 +146,7 @@ export class LookupService {
   }
 
   getGradosObreros(): Observable<GradosObreros[]> {
-    return this.http.get<GradosObreros[]>(`${this.baseBackendUrl}/grado_obrero`).pipe(
+    return this.http.get<GradosObreros[]>(`${this.baseBackendUrl}/grados_obreros`).pipe(
       catchError(this.handleError)
     );
   }

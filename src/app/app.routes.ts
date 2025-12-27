@@ -16,5 +16,5 @@ export const routes: Routes = [
   { path: 'panel/control/gestor/database', loadComponent: () => import('./page/database/database').then(m => m.Database), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
   { path: 'panel/control/gestor/database/:tableName', loadComponent: () => import('./page/gestor-tabla/gestor-tabla').then(m => m.GestorTabla), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
   { path: 'panel/control/autorizacion', loadComponent: () => import('./page/autorizacion/autorizacion').then(m => m.Autorizacion), canActivate: [AuthGuard], data: { requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL, ROLES.ADMIN_CIRCUITAL, ROLES.ADMIN_SQUAD] } },
-  { path: '', redirectTo: 'login', pathMatch: 'full' }
+  { path: '', redirectTo: 'panel', pathMatch: 'full' }
 ];

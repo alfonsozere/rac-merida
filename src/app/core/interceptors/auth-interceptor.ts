@@ -9,14 +9,14 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: Auth) { }
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // --- DEBUG: Muestra la URL que el interceptor está procesando ---
-    console.log(`[INTERCEPTOR DEBUG] Procesando URL: ${request.url}`);
+    //console.log(`[INTERCEPTOR DEBUG] Procesando URL: ${request.url}`);
     
     const token = this.authService.getToken(); 
 
     // Si hay un token Y la petición NO es a los endpoints de login/registro
     if (token && !request.url.includes('/auth/login') && !request.url.includes('/auth/register')) {
         // --- DEBUG: Confirma que se va a añadir el token ---
-        console.log(`[INTERCEPTOR DEBUG] TOKEN OK. Añadiendo 'Authorization' a: ${request.url}`);
+        //console.log(`[INTERCEPTOR DEBUG] TOKEN OK. Añadiendo 'Authorization' a: ${request.url}`);
 
       const clonedRequest = request.clone({
         setHeaders: {

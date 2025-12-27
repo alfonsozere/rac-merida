@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription, of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { catchError, finalize, map } from 'rxjs/operators';
 
 // Importar los servicios y modelos necesarios
 import { Usuario } from '../../core/models/usuario.model';
@@ -90,122 +90,140 @@ export class Usuarios implements OnInit, OnDestroy {
    * Obtiene la lista completa de usuarios del backend y aplica filtros en el frontend
    * según el rol del usuario logueado y su ámbito de gestión.
    */
-  getUsuarios(): void {
-    this.isLoading = true; // Activar el indicador de carga
-    this.errorMessage = null; // Limpiar mensajes de error previos
-    this.approvalMessage = null; // Limpiar mensajes de aprobación previos
-    this.approvalMessageType = null;
+/**
+   * Obtiene la lista completa de usuarios del backend y aplica filtros en el frontend
+   * según el rol del usuario logueado y su ámbito de gestión.
+   */
+  getUsuarios(): void {
+    this.isLoading = true; // Activar el indicador de carga
+    this.errorMessage = null; // Limpiar mensajes de error previos
+    this.approvalMessage = null; // Limpiar mensajes de aprobación previos
+    this.approvalMessageType = null;
 
-    this.dataSubscription = this.apiService.getUsuarios()
-      .pipe(
-        catchError(error => {
-          // Manejo de errores durante la carga de usuarios
-          this.errorMessage = 'No se pudieron cargar los usuarios. Por favor, verifica tu conexión o la URL de la API.';
-          if (error.status === 401) {
-            this.errorMessage = 'Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.';
-            this.authService.logout(); // Redirigir a login si la sesión ha expirado
-          } else if (error.status === 404) {
-            this.errorMessage = 'El recurso de usuarios no fue encontrado en el servidor. Verifica la ruta en la API.';
-          } else {
-            this.errorMessage = `Error: ${error.message || 'Error de servidor desconocido'}. Código: ${error.status || 'N/A'}`;
-          }
-          console.error('DEBUG (getUsuarios): Error completo al cargar usuarios:', error);
-          return of([]); // Retornar un observable vacío para evitar que la aplicación falle
-        }),
-        finalize(() => {
-          this.isLoading = false; // Desactivar el indicador de carga al finalizar la petición
-        })
-      )
-      .subscribe(allFetchedUsuarios => {
-        this.usuarios = []; // Limpiar lista de usuarios activos
-        this.pendingUsuarios = []; // Limpiar lista de usuarios pendientes
+    this.dataSubscription = this.apiService.getUsuarios()
+      .pipe(
+        // [NUEVO] PASO CLAVE: Adaptar la respuesta del servicio
+        map((response: any) => {
+          // Extraemos el arreglo 'users' del objeto contenedor { ok, msg, users }
+          // Usamos 'any' en la entrada para evitar conflictos con el tipado prometido del servicio
+          // y garantizamos que la salida sea un Usuario[].
+          return response && response.users ? response.users : [];
+        }),
+        catchError(error => {
+          // Manejo de errores durante la carga de usuarios
+          this.errorMessage = 'No se pudieron cargar los usuarios. Por favor, verifica tu conexión o la URL de la API.';
+          if (error.status === 401) {
+            this.errorMessage = 'Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.';
+            this.authService.logout(); // Redirigir a login si la sesión ha expirado
+          } else if (error.status === 404) {
+            this.errorMessage = 'El recurso de usuarios no fue encontrado en el servidor. Verifica la ruta en la API.';
+          } else {
+            this.errorMessage = `Error: ${error.message || 'Error de servidor desconocido'}. Código: ${error.status || 'N/A'}`;
+          }
+          console.error('DEBUG (getUsuarios): Error completo al cargar usuarios:', error);
+          // Retornar un observable vacío para que el subscribe reciba Usuario[] vacío
+          return of([]); 
+        }),
+        finalize(() => {
+          this.isLoading = false; // Desactivar el indicador de carga al finalizar la petición
+        })
+      )
+      .subscribe((allFetchedUsuarios: Usuario[]) => { // allFetchedUsuarios ahora es definitivamente Usuario[]
+        this.usuarios = []; // Limpiar lista de usuarios activos
+        this.pendingUsuarios = []; // Limpiar lista de usuarios pendientes
 
 
-        if (!allFetchedUsuarios || allFetchedUsuarios.length === 0) {
-          this.errorMessage = 'No se encontraron usuarios en el sistema que coincidan con tu ámbito.';
+        // AHORA FUNCIONA: allFetchedUsuarios es un array (Usuario[])
+        if (!allFetchedUsuarios || allFetchedUsuarios.length === 0) {
+          // Mostrar un mensaje más específico si el error fue por un array vacío
+          if (!this.errorMessage) {
+            this.errorMessage = 'No se encontraron usuarios en el sistema que coincidan con tu ámbito.';
+          }
+          return;
+        }
 
-          return;
-        }
+        // Separar usuarios activos (cualquier rol distinto de PENDING) de los pendientes (solo rol PENDING)
+        // ESTAS LÍNEAS YA NO DEBEN FALLAR:
+        const allActive = allFetchedUsuarios.filter(u => u.cod_rol !== ROLES.PENDING);
+        const allPending = allFetchedUsuarios.filter(u => u.cod_rol === ROLES.PENDING);
+        
+        // ... (el resto de tu lógica de filtrado permanece igual)
 
-        // Separar usuarios activos (cualquier rol distinto de PENDING) de los pendientes (solo rol PENDING)
-        const allActive = allFetchedUsuarios.filter(u => u.cod_rol !== ROLES.PENDING);
-        const allPending = allFetchedUsuarios.filter(u => u.cod_rol === ROLES.PENDING);
+        // Aplicar la lógica de filtrado específica según el rol del usuario logueado
+        if (this.currentUserRole === ROLES.SUPER_ADMIN) {
+          // SUPER_ADMIN ve todos los usuarios activos y todos los pendientes.
+          this.usuarios = allActive;
+          this.pendingUsuarios = allPending;
+        } else if (this.currentUserRole === ROLES.ADMIN_STATE && this.currentUserStateId !== null) {
+          // ADMIN_STATE ve usuarios activos de su estado y pendientes con rol sugerido ADMIN_MUNICIPAL de su estado.
+          this.usuarios = allActive.filter(u =>
+            u.id_estado_asignado === this.currentUserStateId
+          );
+          this.pendingUsuarios = allPending.filter(u => {
+            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
+            const isRoleMatch = u.cod_rol_sugerido === ROLES.ADMIN_MUNICIPAL;
+            const isMatch = isStateMatch && isRoleMatch;
+            return isMatch;
+          });
+        }
+        else if (this.currentUserRole === ROLES.ADMIN_MUNICIPAL && this.currentUserMunicipalId !== null) {
+          // ADMIN_MUNICIPAL ve usuarios activos de su municipio y pendientes con rol sugerido ADMIN_CIRCUITAL de su municipio.
+          this.usuarios = allActive.filter(u =>
+            u.id_municipio_asignado === this.currentUserMunicipalId
+          );
+          this.pendingUsuarios = allPending.filter(u => {
+            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
+            const isMunicipalMatch = u.id_municipio_sugerido === this.currentUserMunicipalId;
+            const isRoleMatch = u.cod_rol_sugerido === ROLES.ADMIN_CIRCUITAL;
+            const isMatch = isStateMatch && isMunicipalMatch && isRoleMatch;
+            return isMatch;
+          });
+        }
+        else if (this.currentUserRole === ROLES.ADMIN_CIRCUITAL && this.currentUserCircuitoId !== null) {
+          // ADMIN_CIRCUITAL ve usuarios activos de su circuito y pendientes con rol sugerido ADMIN_SQUAD de su circuito.
+          this.usuarios = allActive.filter(u =>
+            u.id_circuito_asignado === this.currentUserCircuitoId
+          );
+          this.pendingUsuarios = allPending.filter(u => {
+            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
+            const isMunicipalMatch = u.id_municipio_sugerido === this.currentUserMunicipalId;
+            const isCircuitalMatch = u.id_circuito_sugerido === this.currentUserCircuitoId; // Usar id_circuito_sugerido
+            const isRoleMatch = u.cod_rol_sugerido === ROLES.ADMIN_SQUAD;
+            const isMatch = isStateMatch && isMunicipalMatch && isCircuitalMatch && isRoleMatch;
+            return isMatch;
+          });
+        }
+        else if (this.currentUserRole === ROLES.ADMIN_SQUAD && this.currentUserPlantelId !== null) {
+          // ADMIN_SQUAD ve usuarios activos de su plantel y pendientes con rol sugerido STANDARD de su plantel.
+          this.usuarios = allActive.filter(u =>
+            u.codigo_plantel_asignado === this.currentUserPlantelId
+          );
+          this.pendingUsuarios = allPending.filter(u => {
+            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
+            const isMunicipalMatch = u.id_municipio_sugerido === this.currentUserMunicipalId;
+            const isCircuitalMatch = u.id_circuito_sugerido === this.currentUserCircuitoId;
+            const isPlantelMatch = u.codigo_plantel_sugerido === this.currentUserPlantelId;
+            const isRoleMatch = u.cod_rol_sugerido === ROLES.STANDARD;
+            const isMatch = isStateMatch && isMunicipalMatch && isCircuitalMatch && isPlantelMatch && isRoleMatch;
+            return isMatch;
+          });
+        }
+        else {
+          // Caso por defecto: el rol del usuario no tiene permisos para gestionar usuarios en esta sección.
+          this.errorMessage = 'Tu rol actual no tiene permisos para ver o gestionar esta tabla de usuarios o aprobaciones.';
+          this.usuarios = [];
+          this.pendingUsuarios = [];
+        }
 
-        // Aplicar la lógica de filtrado específica según el rol del usuario logueado
-        if (this.currentUserRole === ROLES.SUPER_ADMIN) {
-          // SUPER_ADMIN ve todos los usuarios activos y todos los pendientes.
-          this.usuarios = allActive;
-          this.pendingUsuarios = allPending;
-        } else if (this.currentUserRole === ROLES.ADMIN_STATE && this.currentUserStateId !== null) {
-          // ADMIN_STATE ve usuarios activos de su estado y pendientes con rol sugerido ADMIN_MUNICIPAL de su estado.
-          this.usuarios = allActive.filter(u =>
-            u.id_estado_asignado === this.currentUserStateId
-          );
-          this.pendingUsuarios = allPending.filter(u => {
-            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
-            const isRoleMatch = u.cod_rol_sugerido === ROLES.ADMIN_MUNICIPAL;
-            const isMatch = isStateMatch && isRoleMatch;
-            return isMatch;
-          });
-        }
-        else if (this.currentUserRole === ROLES.ADMIN_MUNICIPAL && this.currentUserMunicipalId !== null) {
-          // ADMIN_MUNICIPAL ve usuarios activos de su municipio y pendientes con rol sugerido ADMIN_CIRCUITAL de su municipio.
-          this.usuarios = allActive.filter(u =>
-            u.id_municipio_asignado === this.currentUserMunicipalId
-          );
-          this.pendingUsuarios = allPending.filter(u => {
-            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
-            const isMunicipalMatch = u.id_municipio_sugerido === this.currentUserMunicipalId;
-            const isRoleMatch = u.cod_rol_sugerido === ROLES.ADMIN_CIRCUITAL;
-            const isMatch = isStateMatch && isMunicipalMatch && isRoleMatch;
-            return isMatch;
-          });
-        }
-        else if (this.currentUserRole === ROLES.ADMIN_CIRCUITAL && this.currentUserCircuitoId !== null) {
-          // ADMIN_CIRCUITAL ve usuarios activos de su circuito y pendientes con rol sugerido ADMIN_SQUAD de su circuito.
-          this.usuarios = allActive.filter(u =>
-            u.id_circuito_asignado === this.currentUserCircuitoId
-          );
-          this.pendingUsuarios = allPending.filter(u => {
-            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
-            const isMunicipalMatch = u.id_municipio_sugerido === this.currentUserMunicipalId;
-            const isCircuitalMatch = u.id_circuito_sugerido === this.currentUserCircuitoId; // Usar id_circuito_sugerido
-            const isRoleMatch = u.cod_rol_sugerido === ROLES.ADMIN_SQUAD;
-            const isMatch = isStateMatch && isMunicipalMatch && isCircuitalMatch && isRoleMatch;
-            return isMatch;
-          });
-        }
-        else if (this.currentUserRole === ROLES.ADMIN_SQUAD && this.currentUserPlantelId !== null) {
-          // ADMIN_SQUAD ve usuarios activos de su plantel y pendientes con rol sugerido STANDARD de su plantel.
-          this.usuarios = allActive.filter(u =>
-            u.codigo_plantel_asignado === this.currentUserPlantelId
-          );
-          this.pendingUsuarios = allPending.filter(u => {
-            const isStateMatch = u.id_estado_sugerido === this.currentUserStateId;
-            const isMunicipalMatch = u.id_municipio_sugerido === this.currentUserMunicipalId;
-            const isCircuitalMatch = u.id_circuito_sugerido === this.currentUserCircuitoId;
-            const isPlantelMatch = u.codigo_plantel_sugerido === this.currentUserPlantelId;
-            const isRoleMatch = u.cod_rol_sugerido === ROLES.STANDARD;
-            const isMatch = isStateMatch && isMunicipalMatch && isCircuitalMatch && isPlantelMatch && isRoleMatch;
-            return isMatch;
-          });
-        }
-        else {
-          // Caso por defecto: el rol del usuario no tiene permisos para gestionar usuarios en esta sección.
-          this.errorMessage = 'Tu rol actual no tiene permisos para ver o gestionar esta tabla de usuarios o aprobaciones.';
-          this.usuarios = [];
-          this.pendingUsuarios = [];
-        }
+        // Verificar el estado de los usuarios pendientes y mostrar un mensaje informativo si no hay solicitudes.
+        this.checkPendingStatusAndShowMessage();
 
-        // Verificar el estado de los usuarios pendientes y mostrar un mensaje informativo si no hay solicitudes.
-        this.checkPendingStatusAndShowMessage();
-
-        // Mostrar mensaje si no se encontraron usuarios activos o pendientes después de todos los filtros.
-        if (this.usuarios.length === 0 && this.pendingUsuarios.length === 0 && !this.errorMessage) {
-          this.errorMessage = 'No se encontraron usuarios que coincidan con tu ámbito de gestión después de aplicar los filtros.';
-        }
-      });
-  }
+        // Mostrar mensaje si no se encontraron usuarios activos o pendientes después de todos los filtros.
+        if (this.usuarios.length === 0 && this.pendingUsuarios.length === 0 && !this.errorMessage) {
+          this.errorMessage = 'No se encontraron usuarios que coincidan con tu ámbito de gestión después de aplicar los filtros.';
+        }
+      });
+  }
 
   // --- MÉTODOS DE ACCIÓN PARA LA TABLA PRINCIPAL DE USUARIOS ---
 
