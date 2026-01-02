@@ -166,140 +166,140 @@ export class Autorizacion implements OnInit, OnDestroy {
    */
   // MÉTODO AFECTADO: loadAllPendingUsers (Reemplazo completo)
 
-// Asegúrate de que tienes 'map' importado de 'rxjs/operators' en este componente:
-// import { catchError, finalize, map, of } from 'rxjs/operators'; // Los imports deben estar aquí
+  // Asegúrate de que tienes 'map' importado de 'rxjs/operators' en este componente:
+  // import { catchError, finalize, map, of } from 'rxjs/operators'; // Los imports deben estar aquí
 
-loadAllPendingUsers(): void {
-    this.isLoadingAdminEstadal = true;
-    this.isLoadingMonitoreo = true;
-    this.adminEstadalMessage = null;
-    this.monitoreoMessage = null;
+  loadAllPendingUsers(): void {
+    this.isLoadingAdminEstadal = true;
+    this.isLoadingMonitoreo = true;
+    this.adminEstadalMessage = null;
+    this.monitoreoMessage = null;
 
-    this.dataSubscription = this.apiService.getUsuarios()
-      .pipe(
-        // SOLUCIÓN 1: Usamos 'map' para extraer el array 'users' del objeto respuesta.
-        // Esto normaliza la salida del pipe a Observable<Usuario[]>.
-        // Usamos 'any' en la entrada del map para evitar conflictos de tipado 
+    this.dataSubscription = this.apiService.getUsuarios()
+      .pipe(
+        // SOLUCIÓN 1: Usamos 'map' para extraer el array 'users' del objeto respuesta.
+        // Esto normaliza la salida del pipe a Observable<Usuario[]>.
+        // Usamos 'any' en la entrada del map para evitar conflictos de tipado 
         // ya que el servicio promete 'Usuario[]' pero devuelve el objeto contenedor.
-        map((response: any) => {
-          // Aseguramos que 'response' exista y que contenga la propiedad 'users'.
-          return response && response.users ? response.users : [];
-        }),
-        
-        catchError(error => {
-          this.adminEstadalMessage = 'Error al cargar usuarios pendientes.';
-          this.monitoreoMessage = 'Error al cargar usuarios para monitoreo.';
-          console.error('Error:', error);
-          // SOLUCIÓN 2: Devolvemos 'of([])'. Como la salida del pipe ya es Usuario[] (gracias al map),
-          // no hay conflicto de tipos.
-          return of([]); 
-        }),
-        
-        finalize(() => {
-          this.isLoadingAdminEstadal = false;
-          this.isLoadingMonitoreo = false;
-        })
-      )
-      .subscribe((allUsers: Usuario[]) => { // allUsers ahora es definitivamente un array de Usuario[]
+        map((response: any) => {
+          // Aseguramos que 'response' exista y que contenga la propiedad 'users'.
+          return response && response.users ? response.users : [];
+        }),
 
-        // ESTE FILTRADO AHORA FUNCIONA: allUsers es un array y tiene el método .filter
-        const allPending = allUsers.filter(u => u.cod_rol === ROLES.PENDING);
-        const rolAutorizadoDirecto = this.configuracionRol?.rolAutorizado;
-        const ROL_A_EXCLUIR_DE_MONITOREO = 2; // Admin State
+        catchError(error => {
+          this.adminEstadalMessage = 'Error al cargar usuarios pendientes.';
+          this.monitoreoMessage = 'Error al cargar usuarios para monitoreo.';
+          console.error('Error:', error);
+          // SOLUCIÓN 2: Devolvemos 'of([])'. Como la salida del pipe ya es Usuario[] (gracias al map),
+          // no hay conflicto de tipos.
+          return of([]);
+        }),
 
-        // ----------------------------------------------------------------
-        // PASO 1: EXTRAER VARIABLES DE ALCANCE DEL USUARIO LOGUEADO
-        // ----------------------------------------------------------------
-        const idEstadoAsignado = this.currentUserData?.id_estado_asignado || null;
-        const idMunicipioAsignado = this.currentUserData?.id_municipio_asignado || null;
-        const idCircuitoAsignado = this.currentUserData?.id_circuito_asignado || null;
-        const codigoPlantelAsignado = this.currentUserData?.codigo_plantel_asignado || null;
-        // ----------------------------------------------------------------
+        finalize(() => {
+          this.isLoadingAdminEstadal = false;
+          this.isLoadingMonitoreo = false;
+        })
+      )
+      .subscribe((allUsers: Usuario[]) => { // allUsers ahora es definitivamente un array de Usuario[]
+
+        // ESTE FILTRADO AHORA FUNCIONA: allUsers es un array y tiene el método .filter
+        const allPending = allUsers.filter(u => u.cod_rol === ROLES.PENDING);
+        const rolAutorizadoDirecto = this.configuracionRol?.rolAutorizado;
+        const ROL_A_EXCLUIR_DE_MONITOREO = 2; // Admin State
+
+        // ----------------------------------------------------------------
+        // PASO 1: EXTRAER VARIABLES DE ALCANCE DEL USUARIO LOGUEADO
+        // ----------------------------------------------------------------
+        const idEstadoAsignado = this.currentUserData?.id_estado_asignado || null;
+        const idMunicipioAsignado = this.currentUserData?.id_municipio_asignado || null;
+        const idCircuitoAsignado = this.currentUserData?.id_circuito_asignado || null;
+        const codigoPlantelAsignado = this.currentUserData?.codigo_plantel_asignado || null;
+        // ----------------------------------------------------------------
 
 
-        // ----------------------------------------------------------------
-        // 1. Filtrar para la Tabla de Autorización Directa (AdminEstadal)
-        // ----------------------------------------------------------------
-        this.adminEstadalPendientes = allPending.filter(u => {
-          const isAutorizable = u.cod_rol_sugerido === rolAutorizadoDirecto;
+        // ----------------------------------------------------------------
+        // 1. Filtrar para la Tabla de Autorización Directa (AdminEstadal)
+        // ----------------------------------------------------------------
+        this.adminEstadalPendientes = allPending.filter(u => {
+          const isAutorizable = u.cod_rol_sugerido === rolAutorizadoDirecto;
 
-          // **NUEVO FILTRO:** Aplicar el control de alcance geográfico
-          const hasGeographicScope = this.checkGeographicScope(
-            u,
-            idEstadoAsignado,
-            idMunicipioAsignado,
-            idCircuitoAsignado,
-            codigoPlantelAsignado
-          );
+          // **NUEVO FILTRO:** Aplicar el control de alcance geográfico
+          const hasGeographicScope = this.checkGeographicScope(
+            u,
+            idEstadoAsignado,
+            idMunicipioAsignado,
+            idCircuitoAsignado,
+            codigoPlantelAsignado
+          );
 
-          const selectedEstadoAdminEstadalNum = (this.selectedEstadoAdminEstadal !== null && this.selectedEstadoAdminEstadal !== undefined) ? Number(this.selectedEstadoAdminEstadal) : null;
-          const matchesEstado = selectedEstadoAdminEstadalNum === null || u.id_estado_sugerido === selectedEstadoAdminEstadalNum;
+          const selectedEstadoAdminEstadalNum = (this.selectedEstadoAdminEstadal !== null && this.selectedEstadoAdminEstadal !== undefined) ? Number(this.selectedEstadoAdminEstadal) : null;
+          const matchesEstado = selectedEstadoAdminEstadalNum === null || u.id_estado_sugerido === selectedEstadoAdminEstadalNum;
 
-          // Se requiere: ser el rol correcto, estar en el alcance del admin Y cumplir el filtro de Estado.
-          const shouldInclude = isAutorizable && hasGeographicScope && matchesEstado;
+          // Se requiere: ser el rol correcto, estar en el alcance del admin Y cumplir el filtro de Estado.
+          const shouldInclude = isAutorizable && hasGeographicScope && matchesEstado;
 
-          return shouldInclude;
-        });
+          return shouldInclude;
+        });
 
-        if (this.adminEstadalPendientes.length === 0) {
-          this.adminEstadalMessage = `No hay solicitudes pendientes de ${this.getRoleName(rolAutorizadoDirecto || 0)}.`;
-          this.adminEstadalMessageType = 'warning';
-        } else {
-          this.adminEstadalMessage = null;
-        }
+        if (this.adminEstadalPendientes.length === 0) {
+          this.adminEstadalMessage = `No hay solicitudes pendientes de ${this.getRoleName(rolAutorizadoDirecto || 0)}.`;
+          this.adminEstadalMessageType = 'warning';
+        } else {
+          this.adminEstadalMessage = null;
+        }
 
-        // ----------------------------------------------------------------
-        // 2. Filtrar para la Tabla de Monitoreo (Roles Inferiores)
-        // ----------------------------------------------------------------
-        this.monitoreoPendientes = allPending
-          .filter(u => {
-            // Check 1: ¿Es un rol de monitoreo inferior permitido?
-            const isMonitoreoRole = this.configuracionRol?.monitoreoInferiores.includes(u.cod_rol_sugerido || -1);
+        // ----------------------------------------------------------------
+        // 2. Filtrar para la Tabla de Monitoreo (Roles Inferiores)
+        // ----------------------------------------------------------------
+        this.monitoreoPendientes = allPending
+          .filter(u => {
+            // Check 1: ¿Es un rol de monitoreo inferior permitido?
+            const isMonitoreoRole = this.configuracionRol?.monitoreoInferiores.includes(u.cod_rol_sugerido || -1);
 
-            // Check 2: EXCLUSIÓN del ROL 2 y Rol de Autorización Directa (se mantienen)
-            const isNotRoleTwo = u.cod_rol_sugerido !== ROL_A_EXCLUIR_DE_MONITOREO;
-            const isNotDirectlyAutorizable = u.cod_rol_sugerido !== rolAutorizadoDirecto;
+            // Check 2: EXCLUSIÓN del ROL 2 y Rol de Autorización Directa (se mantienen)
+            const isNotRoleTwo = u.cod_rol_sugerido !== ROL_A_EXCLUIR_DE_MONITOREO;
+            const isNotDirectlyAutorizable = u.cod_rol_sugerido !== rolAutorizadoDirecto;
 
-            // **NUEVO FILTRO:** Aplicar el control de alcance geográfico
-            const hasGeographicScope = this.checkGeographicScope(
-              u,
-              idEstadoAsignado,
-              idMunicipioAsignado,
-              idCircuitoAsignado,
-              codigoPlantelAsignado
-            );
+            // **NUEVO FILTRO:** Aplicar el control de alcance geográfico
+            const hasGeographicScope = this.checkGeographicScope(
+              u,
+              idEstadoAsignado,
+              idMunicipioAsignado,
+              idCircuitoAsignado,
+              codigoPlantelAsignado
+            );
 
-            // ... (Filtros geográficos y de rol de la tabla) ...
-            const selectedEstadoMonitoreoNum = (this.selectedEstadoMonitoreo !== null && this.selectedEstadoMonitoreo !== undefined) ? Number(this.selectedEstadoMonitoreo) : null;
-            const selectedMunicipioMonitoreoNum = (this.selectedMunicipioMonitoreo !== null && this.selectedMunicipioMonitoreo !== undefined) ? Number(this.selectedMunicipioMonitoreo) : null;
-            const selectedCircuitoMonitoreoNum = (this.selectedCircuitoMonitoreo !== null && this.selectedCircuitoMonitoreo !== undefined) ? Number(this.selectedCircuitoMonitoreo) : null;
+            // ... (Filtros geográficos y de rol de la tabla) ...
+            const selectedEstadoMonitoreoNum = (this.selectedEstadoMonitoreo !== null && this.selectedEstadoMonitoreo !== undefined) ? Number(this.selectedEstadoMonitoreo) : null;
+            const selectedMunicipioMonitoreoNum = (this.selectedMunicipioMonitoreo !== null && this.selectedMunicipioMonitoreo !== undefined) ? Number(this.selectedMunicipioMonitoreo) : null;
+            const selectedCircuitoMonitoreoNum = (this.selectedCircuitoMonitoreo !== null && this.selectedCircuitoMonitoreo !== undefined) ? Number(this.selectedCircuitoMonitoreo) : null;
 
-            const matchesEstado = selectedEstadoMonitoreoNum === null || u.id_estado_sugerido === selectedEstadoMonitoreoNum;
-            const matchesMunicipio = selectedMunicipioMonitoreoNum === null || u.id_municipio_sugerido === selectedMunicipioMonitoreoNum;
-            const matchesCircuito = selectedCircuitoMonitoreoNum === null || u.id_circuito_sugerido === selectedCircuitoMonitoreoNum;
-            const matchesPlantel = this.selectedPlantelMonitoreo === null || u.codigo_plantel_sugerido === this.selectedPlantelMonitoreo;
-            const matchesTipoRol = this.selectedTipoRolMonitoreo === null || u.cod_rol_sugerido === this.selectedTipoRolMonitoreo;
+            const matchesEstado = selectedEstadoMonitoreoNum === null || u.id_estado_sugerido === selectedEstadoMonitoreoNum;
+            const matchesMunicipio = selectedMunicipioMonitoreoNum === null || u.id_municipio_sugerido === selectedMunicipioMonitoreoNum;
+            const matchesCircuito = selectedCircuitoMonitoreoNum === null || u.id_circuito_sugerido === selectedCircuitoMonitoreoNum;
+            const matchesPlantel = this.selectedPlantelMonitoreo === null || u.codigo_plantel_sugerido === this.selectedPlantelMonitoreo;
+            const matchesTipoRol = this.selectedTipoRolMonitoreo === null || u.cod_rol_sugerido === this.selectedTipoRolMonitoreo;
 
-            // Resultado final: Debe ser monitoreable, no excluido, estar en el alcance geográfico Y cumplir los filtros de la tabla.
-            const shouldInclude = isMonitoreoRole && isNotRoleTwo && isNotDirectlyAutorizable && hasGeographicScope && matchesEstado && matchesMunicipio && matchesCircuito && matchesPlantel && matchesTipoRol;
+            // Resultado final: Debe ser monitoreable, no excluido, estar en el alcance geográfico Y cumplir los filtros de la tabla.
+            const shouldInclude = isMonitoreoRole && isNotRoleTwo && isNotDirectlyAutorizable && hasGeographicScope && matchesEstado && matchesMunicipio && matchesCircuito && matchesPlantel && matchesTipoRol;
 
-            return shouldInclude;
-          })
-          .map(u => ({
-            ...u,
-            rolSugeridoNombre: this.getRoleName(u.cod_rol_sugerido || 0),
-            ubicacionCompleta: this.getCompleteLocation(u),
-            rolAutorizadorNombre: this.getRoleName(this.getApproverRole(u.cod_rol_sugerido || 0) || 0)
-          }));
+            return shouldInclude;
+          })
+          .map(u => ({
+            ...u,
+            rolSugeridoNombre: this.getRoleName(u.cod_rol_sugerido || 0),
+            ubicacionCompleta: this.getCompleteLocation(u),
+            rolAutorizadorNombre: this.getRoleName(this.getApproverRole(u.cod_rol_sugerido || 0) || 0)
+          }));
 
-        if (this.monitoreoPendientes.length === 0) {
-          this.monitoreoMessage = 'No hay solicitudes pendientes de roles inferiores para monitorear.';
-          this.monitoreoMessageType = 'warning';
-        } else {
-          this.monitoreoMessage = null;
-        }
-      });
-  }
+        if (this.monitoreoPendientes.length === 0) {
+          this.monitoreoMessage = 'No hay solicitudes pendientes de roles inferiores para monitorear.';
+          this.monitoreoMessageType = 'warning';
+        } else {
+          this.monitoreoMessage = null;
+        }
+      });
+  }
 
   // --- Lógica de Filtros Dinámicos para la Tabla de Monitoreo --- 
   onEstadoMonitoreoChange(): void {
@@ -341,8 +341,8 @@ loadAllPendingUsers(): void {
         error: (err) => console.error('Error al cargar circuitos/planteles para filtro:', err)
       });
     }
-    console.log('Municipio seleccionado:', this.selectedMunicipioMonitoreo);
-    console.log('Circuitos cargados:', this.circuitosFiltroMonitoreo.length);
+    //console.log('Municipio seleccionado:', this.selectedMunicipioMonitoreo);
+    //console.log('Circuitos cargados:', this.circuitosFiltroMonitoreo.length);
     this.loadAllPendingUsers();
   }
 
@@ -436,13 +436,22 @@ loadAllPendingUsers(): void {
 
     const updatedUser: Partial<Usuario> = {
       id_usuario: usuario.id_usuario,
+      // Asignación de Rol
       cod_rol: usuario.cod_rol_sugerido || ROLES.STANDARD,
+
+      // Mapeo de Ubicación: de Sugerido a Asignado
       id_estado_asignado: usuario.id_estado_sugerido,
+      id_municipio_asignado: usuario.id_municipio_sugerido,
+      id_circuito_asignado: usuario.id_circuito_sugerido,
+      codigo_plantel_asignado: usuario.codigo_plantel_sugerido,
+
+      // Limpieza de campos de solicitud (para que deje de ser pendiente)
       cod_rol_sugerido: null,
       id_estado_sugerido: null,
       id_municipio_sugerido: null,
       id_circuito_sugerido: null,
       codigo_plantel_sugerido: null,
+
       fecha_aprobacion: new Date().toISOString().split('T')[0]
     };
 

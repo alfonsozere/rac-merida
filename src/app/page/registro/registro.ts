@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { catchError, finalize, delay } from 'rxjs/operators';
-import { of, EMPTY } from 'rxjs';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { catchError, finalize, delay, debounceTime, take, switchMap, map } from 'rxjs/operators';
+import { of, EMPTY, Observable } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { RolPublico } from '../../core/models/rol-publico.model';
 import { Estado } from '../../core/models/estado.model';
@@ -66,10 +66,10 @@ export class Registro implements OnInit {
       nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       tipo_cedula: [{ value: 'V', disabled: true }, Validators.required],
-      cedula: ['', [Validators.required, Validators.pattern(/^\d{7,8}$/)]],
+      cedula: ['', [Validators.required, Validators.pattern(/^\d{7,8}$/)], [this.cedulaExistenteValidator()]],
       telefono: ['', [Validators.required, Validators.pattern(this.telefonoRegex)]],
-      correo: ['', [Validators.required, Validators.pattern(this.emailRegex)]],
-      usuario: ['', [Validators.required, Validators.pattern(this.usuarioRegex)]],
+      correo: ['', [Validators.required, Validators.pattern(this.emailRegex)], [this.correoExistenteValidator()]],
+      usuario: ['', [Validators.required, Validators.pattern(this.usuarioRegex)], [this.usuarioExistenteValidator()]],
       contrasena: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(12), Validators.pattern(this.passwordRegex)]],
       confirmarContrasena: ['', Validators.required],
       cod_rol_sugerido: ['', Validators.required],
@@ -314,44 +314,44 @@ export class Registro implements OnInit {
     this.isLoading = true;
 
     if (this.registroForm.valid) {
-  const { confirmarContrasena, tipo_cedula, ...formData } = this.registroForm.getRawValue();
+      const { confirmarContrasena, tipo_cedula, ...formData } = this.registroForm.getRawValue();
 
-  const payload: RegistroUsuarioPayload = {
-    nombre: formData.nombre,
-    apellido: formData.apellido,
-    tipo_cedula: tipo_cedula,
-    cedula: parseInt(formData.cedula, 10),
-    telefono: formData.telefono,
-    correo: formData.correo,
-    usuario: formData.usuario,
-    contrasena: formData.contrasena,
-    cod_rol_sugerido: parseInt(formData.cod_rol_sugerido, 10),
-    id_estado_sugerido: formData.id_estado_sugerido !== null && formData.id_estado_sugerido !== '' ? parseInt(formData.id_estado_sugerido, 10) : null,
-    id_municipio_sugerido: formData.id_municipio_sugerido !== null && formData.id_municipio_sugerido !== '' ? parseInt(formData.id_municipio_sugerido, 10) : null,
-    id_circuito_sugerido: formData.id_circuito_sugerido !== null && formData.id_circuito_sugerido !== '' ? parseInt(formData.id_circuito_sugerido, 10) : null,
-    codigo_plantel_sugerido: formData.codigo_plantel_sugerido !== null && formData.codigo_plantel_sugerido !== '' ? formData.codigo_plantel_sugerido : null,
-    fecha_registro: new Date().toISOString()
-  };
+      const payload: RegistroUsuarioPayload = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        tipo_cedula: tipo_cedula,
+        cedula: parseInt(formData.cedula, 10),
+        telefono: formData.telefono,
+        correo: formData.correo,
+        usuario: formData.usuario,
+        contrasena: formData.contrasena,
+        cod_rol_sugerido: parseInt(formData.cod_rol_sugerido, 10),
+        id_estado_sugerido: formData.id_estado_sugerido !== null && formData.id_estado_sugerido !== '' ? parseInt(formData.id_estado_sugerido, 10) : null,
+        id_municipio_sugerido: formData.id_municipio_sugerido !== null && formData.id_municipio_sugerido !== '' ? parseInt(formData.id_municipio_sugerido, 10) : null,
+        id_circuito_sugerido: formData.id_circuito_sugerido !== null && formData.id_circuito_sugerido !== '' ? parseInt(formData.id_circuito_sugerido, 10) : null,
+        codigo_plantel_sugerido: formData.codigo_plantel_sugerido !== null && formData.codigo_plantel_sugerido !== '' ? formData.codigo_plantel_sugerido : null,
+        fecha_registro: new Date().toISOString()
+      };
 
-  // 👇 Aquí agregas el log para ver el payload completo
-  console.log('DEBUG: Payload enviado al backend:', payload);
+      // 👇 Aquí agregas el log para ver el payload completo
+      console.log('DEBUG: Payload enviado al backend:', payload);
 
-  this.apiService.registerUser(payload)
-    .pipe(
-      delay(1000),
-      finalize(() => this.isLoading = false),
-      catchError((err: BackendMessageResponse) => {
-        this.mostrarMensaje(err.msg || 'Error al registrar el usuario.', 'danger');
-        return EMPTY;
-      })
-    )
-    .subscribe(response => {
-      if (response) {
-        this.mostrarMensaje(response.msg, 'success');
-        this.router.navigate(['/login']);
-      }
-    });
-} else {
+      this.apiService.registerUser(payload)
+        .pipe(
+          delay(1000),
+          finalize(() => this.isLoading = false),
+          catchError((err: BackendMessageResponse) => {
+            this.mostrarMensaje(err.msg || 'Error al registrar el usuario.', 'danger');
+            return EMPTY;
+          })
+        )
+        .subscribe(response => {
+          if (response) {
+            this.mostrarMensaje(response.msg, 'success');
+            this.router.navigate(['/login']);
+          }
+        });
+    } else {
       this.isLoading = false;
       this.mostrarMensaje('Por favor, completa todos los campos requeridos correctamente.', 'warning');
     }
@@ -364,5 +364,43 @@ export class Registro implements OnInit {
       this.message = null;
       this.messageType = null;
     }, 5000);
+  }
+
+  // --- VALIDACIONES ASÍNCRONAS ---
+
+  private cedulaExistenteValidator() {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!control.value) return of(null);
+      return of(control.value).pipe(
+        debounceTime(500),
+        switchMap(cedula => this.apiService.checkCedulaExists(cedula)),
+        map(existe => existe ? { cedulaTomada: true } : null),
+        take(1)
+      );
+    };
+  }
+
+  private correoExistenteValidator() {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!control.value) return of(null);
+      return of(control.value).pipe(
+        debounceTime(500),
+        switchMap(correo => this.apiService.checkEmailExists(correo)),
+        map(existe => existe ? { emailTomado: true } : null),
+        take(1)
+      );
+    };
+  }
+
+  private usuarioExistenteValidator() {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!control.value) return of(null);
+      return of(control.value).pipe(
+        debounceTime(500),
+        switchMap(usuario => this.apiService.checkUserExists(usuario)),
+        map(existe => existe ? { usuarioTomado: true } : null),
+        take(1)
+      );
+    };
   }
 }

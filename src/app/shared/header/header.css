@@ -85,8 +85,8 @@
   background-color: #c0392b;
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
+/* === RESPONSIVE === 768px */
+@media (max-width: 1073px) {
   .header-wrapper {
     flex-wrap: wrap;
     gap: 0.5rem;

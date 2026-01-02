@@ -1,9 +1,12 @@
 /* === CONTENEDOR PRINCIPAL === */
 .gestor-wrapper {
-  padding-bottom: 1rem;
-  background-color: transparent;
-  position: relative;
-  justify-content: flex-start;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #d5e5f5 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
 }
 
 /* === TÍTULO DE SECCIÓN === */
@@ -106,8 +109,13 @@
   border-color: #bd2130 !important;
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
+/* === RESPONSIVE === 768px */
+@media (max-width: 1073px) {
+  .gestor-title {
+    font-size: 1.8rem;
+    margin-top: 5rem;
+    margin-bottom: 1.5rem;
+  }
   /* En pantallas pequeñas, forzamos que el ancho sea el 100% del contenedor 
      para evitar desbordamientos, aunque esto anulará el 350px fijo de ancho.
      El alto fijo de 350px se mantiene. */
@@ -118,10 +126,6 @@
     border-radius: 0.5rem;
   }
   
-  .gestor-section-title {
-    font-size: 1.3rem;
-    margin-top: 1rem;
-  }
 
   .gestor-section-description {
     font-size: 0.9rem;

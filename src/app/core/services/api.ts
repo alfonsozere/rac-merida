@@ -2,8 +2,8 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 import { RolPublico } from '../models/rol-publico.model';
@@ -155,6 +155,45 @@ export class Api {
 
   getUsuarios(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(`${this.apiUrl}/users`).pipe(catchError(this.handleError));
+  }
+
+// Métodos auxiliares para las validaciones asíncronas
+  // Ahora consumen los endpoints específicos del backend para mejorar el rendimiento
+  
+  /**
+   * Verifica si una cédula ya existe en la base de datos
+   * @param cedula Cédula a consultar
+   * @returns Observable con true si existe, false si no
+   */
+  checkCedulaExists(cedula: string): Observable<boolean> {
+    return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-cedula/${cedula}`).pipe(
+      map(res => res.exists),
+      catchError(() => of(false))
+    );
+  }
+
+  /**
+   * Verifica si un correo electrónico ya está registrado
+   * @param email Correo a consultar
+   * @returns Observable con true si existe, false si no
+   */
+  checkEmailExists(email: string): Observable<boolean> {
+    return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-email/${email}`).pipe(
+      map(res => res.exists),
+      catchError(() => of(false))
+    );
+  }
+
+  /**
+   * Verifica si un nombre de usuario ya está en uso
+   * @param username Nombre de usuario a consultar
+   * @returns Observable con true si existe, false si no
+   */
+  checkUserExists(username: string): Observable<boolean> {
+    return this.http.get<{ exists: boolean }>(`${this.apiUrl}/users/check-user/${username}`).pipe(
+      map(res => res.exists),
+      catchError(() => of(false))
+    );
   }
 
   updateUsuario(id: number, data: Partial<Usuario>): Observable<BackendMessageResponse> {

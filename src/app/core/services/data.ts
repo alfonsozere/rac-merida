@@ -329,7 +329,7 @@ export class Data {
    * Obtiene la estructura (metadata) de la tabla especificada desde el mock local.
    */
   getMetadata(tableName: string): Observable<ColumnMetadata[]> {
-    console.log(`[DataService] Solicitando Metadata (MOCK) para: ${tableName}`);
+    //console.log(`[DataService] Solicitando Metadata (MOCK) para: ${tableName}`);
 
     // Devolvemos el mock de metadata.
     const metadata = MOCK_METADATA[tableName] || [];
@@ -352,7 +352,7 @@ export class Data {
   /* getData(tableName: string): Observable<DynamicRow[]> {
     // Construye la URL completa: 'https://cdce-merida.ddns.net/api/sexos'
     const url = `${this.API_BASE_URL}/${tableName}`;
-    console.log(`[DataService] Solicitando DATOS REALES de la API: ${url}`);
+    //console.log(`[DataService] Solicitando DATOS REALES de la API: ${url}`);
 
     // Hace la llamada HTTP real a la API.
     return this.http.get<DynamicRow[]>(url).pipe(
@@ -368,7 +368,7 @@ export class Data {
   getData(tableName: string): Observable<DynamicRow[]> {
     const url = `${this.API_BASE_URL}/${tableName}`;
 
-    console.log(`[DataService] La tabla solicitada es: '${tableName}'`);
+    //console.log(`[DataService] La tabla solicitada es: '${tableName}'`);
 
     // Cambiamos el tipo esperado a algo que pueda ser un objeto o un array
     return this.http.get<ApiResponse | DynamicRow[]>(url).pipe(
@@ -408,7 +408,7 @@ export class Data {
     const primaryKey = row['id'] || row['role_id'] || row['id_estado'] || 'N/A';
     const url = `${this.API_BASE_URL}/${tableName}/${primaryKey}`;
 
-    console.log(`[DataService] Llamada PUT real a: ${url} con datos:`, row);
+    //console.log(`[DataService] Llamada PUT real a: ${url} con datos:`, row);
 
     // Hace la llamada PUT real.
     return this.http.put(url, row).pipe(

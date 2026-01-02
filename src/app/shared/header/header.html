@@ -1,14 +1,11 @@
 <header class="header-wrapper">
   <!-- Logo + título -->
-  <a [routerLink]="['/panel']" class="header-brand" routerLinkActive="header-brand-active">
-    <img [src]="logoUrl" alt="RAC-CDCE Logo" class="header-logo">
-    <span class="header-title">CDCE Mérida</span>
-  </a>
+  <a [routerLink]="['/panel']" class="header-brand" routerLinkActive="header-brand-active"><img [src]="logoUrl" alt="RAC-CDCE Logo" class="header-logo"><span class="header-title">CDCE Mérida</span></a>
 
   <!-- Información del usuario -->
   <span *ngIf="isAuthenticated() && currentUser" class="header-user-info header-user-info-responsive">
-    <span class="header-user-name">
-      Usuario conectado: <strong>{{ currentUser.nombre }} {{ currentUser.apellido }}</strong>
+    <span> </span>
+    <span class="header-user-name">| Usuario conectado: <strong>{{ currentUser.nombre }} {{ currentUser.apellido }}</strong>
     </span>
     <span class="header-user-role" title="Tu rol actual en el sistema">
       {{ getRoleNameById(currentUser.cod_rol) }}
@@ -37,6 +34,9 @@
       </button>
       <button class="header-btn" [routerLink]="['/panel/control']" *ngIf="canAccessControl()" routerLinkActive="active-link">
         Control
+      </button>
+      <button class="header-btn" [routerLink]="['/panel/control/gestor']" *ngIf="canAccessControl()" routerLinkActive="active-link">
+        Gestor
       </button>
       <button class="header-btn" [routerLink]="['/panel/control/db']" *ngIf="canAccessDbMenu()" routerLinkActive="active-link">
         Menú BD

@@ -56,11 +56,19 @@
               <label for="cedula" class="form-label form-label-institucional">Cédula</label>
               <input type="text" id="cedula" formControlName="cedula" placeholder="Tu número de cédula"
                      class="form-control input-institucional"
-                     [class.is-invalid]="registroForm.get('cedula')?.invalid && registroForm.get('cedula')?.touched">
+                     [class.is-invalid]="(registroForm.get('cedula')?.invalid || registroForm.get('cedula')?.hasError('cedulaTomada')) && registroForm.get('cedula')?.touched">
+              
+              <!-- Cargando Validación -->
+              <div *ngIf="registroForm.get('cedula')?.pending" class="text-primary fs-7 mt-1">
+                <span class="spinner-border spinner-border-sm" role="status"></span> Validando cédula...
+              </div>
+
               <div *ngIf="registroForm.get('cedula')?.hasError('required') && registroForm.get('cedula')?.touched"
                    class="invalid-feedback">Cédula es requerida.</div>
               <div *ngIf="registroForm.get('cedula')?.hasError('pattern') && registroForm.get('cedula')?.touched"
                    class="invalid-feedback">Debe ser numérica (7 u 8 dígitos).</div>
+              <div *ngIf="registroForm.get('cedula')?.hasError('cedulaTomada')"
+                   class="invalid-feedback d-block">Esta cédula ya se encuentra registrada.</div>
             </div>
 
             <div class="col-12">
@@ -71,12 +79,12 @@
               <div *ngIf="registroForm.get('telefono')?.hasError('required') && registroForm.get('telefono')?.touched"
                    class="invalid-feedback">Teléfono es requerido.</div>
               <div *ngIf="registroForm.get('telefono')?.hasError('pattern') && registroForm.get('telefono')?.touched"
-                   class="invalid-feedback">Debe ser numérico (7 a 11 dígitos).</div>
+                   class="invalid-feedback">Debe ser un número válido de Venezuela.</div>
             </div>
           </div>
         </div>
 
-                <!-- Sección de Datos de Cuenta -->
+        <!-- Sección de Datos de Cuenta -->
         <div class="mb-4 p-3 border rounded-3-subtle">
           <h3 class="mb-3 fs-5 fw-bold text-primary border-bottom pb-2">Datos de Cuenta</h3>
           <div class="row g-3">
@@ -84,22 +92,38 @@
               <label for="correo" class="form-label form-label-institucional">Correo Electrónico</label>
               <input type="email" id="correo" formControlName="correo" placeholder="tu@ejemplo.com"
                      class="form-control input-institucional"
-                     [class.is-invalid]="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
+                     [class.is-invalid]="(registroForm.get('correo')?.invalid || registroForm.get('correo')?.hasError('emailTomado')) && registroForm.get('correo')?.touched">
+              
+              <!-- Cargando Validación -->
+              <div *ngIf="registroForm.get('correo')?.pending" class="text-primary fs-7 mt-1">
+                <span class="spinner-border spinner-border-sm" role="status"></span> Validando correo...
+              </div>
+
               <div *ngIf="registroForm.get('correo')?.hasError('required') && registroForm.get('correo')?.touched"
                    class="invalid-feedback">Correo es requerido.</div>
               <div *ngIf="registroForm.get('correo')?.hasError('pattern') && registroForm.get('correo')?.touched"
                    class="invalid-feedback">Formato de correo inválido.</div>
+              <div *ngIf="registroForm.get('correo')?.hasError('emailTomado')"
+                   class="invalid-feedback d-block">Este correo ya está en uso.</div>
             </div>
 
             <div class="col-md-6">
               <label for="usuario" class="form-label form-label-institucional">Nombre de Usuario</label>
               <input type="text" id="usuario" formControlName="usuario" placeholder="usuario123"
                      class="form-control input-institucional"
-                     [class.is-invalid]="registroForm.get('usuario')?.invalid && registroForm.get('usuario')?.touched">
+                     [class.is-invalid]="(registroForm.get('usuario')?.invalid || registroForm.get('usuario')?.hasError('usuarioTomado')) && registroForm.get('usuario')?.touched">
+              
+              <!-- Cargando Validación -->
+              <div *ngIf="registroForm.get('usuario')?.pending" class="text-primary fs-7 mt-1">
+                <span class="spinner-border spinner-border-sm" role="status"></span> Validando disponibilidad...
+              </div>
+
               <div *ngIf="registroForm.get('usuario')?.hasError('required') && registroForm.get('usuario')?.touched"
                    class="invalid-feedback">Usuario es requerido.</div>
               <div *ngIf="registroForm.get('usuario')?.hasError('pattern') && registroForm.get('usuario')?.touched"
-                   class="invalid-feedback">Debe ser alfanumérico (3–20 caracteres, puede incluir _.-).</div>
+                   class="invalid-feedback">Debe ser alfanumérico (3–20 caracteres).</div>
+              <div *ngIf="registroForm.get('usuario')?.hasError('usuarioTomado')"
+                   class="invalid-feedback d-block">Este nombre de usuario no está disponible.</div>
             </div>
 
             <div class="col-md-6">
@@ -109,11 +133,11 @@
                        placeholder="Mínimo 8, máximo 12 caracteres"
                        class="form-control input-institucional"
                        [class.is-invalid]="registroForm.get('contrasena')?.invalid && registroForm.get('contrasena')?.touched">
-                <span class="input-group-text rounded-2" (click)="togglePasswordVisibility('password')">
+                <span class="input-group-text rounded-2" (click)="togglePasswordVisibility('password')" style="cursor: pointer;">
                   <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
                 </span>
               </div>
-              <div *ngIf="registroForm.get('contrasena')?.hasError('pattern') &&
+              <div *ngIf="registroForm.get('contrasena')?.hasError('pattern') && 
                           (registroForm.get('contrasena')?.touched || registroForm.get('contrasena')?.dirty)"
                    class="alert alert-info alert-sm mt-2 p-2 rounded-2 fs-7 text-center">
                 La contraseña debe tener entre 8 y 12 caracteres, incluyendo al menos una mayúscula, una minúscula, un número y un carácter especial.
@@ -127,7 +151,7 @@
                        formControlName="confirmarContrasena" placeholder="Repite la contraseña"
                        class="form-control input-institucional"
                        [class.is-invalid]="registroForm.get('confirmarContrasena')?.invalid && registroForm.get('confirmarContrasena')?.touched">
-                <span class="input-group-text rounded-2" (click)="togglePasswordVisibility('confirm')">
+                <span class="input-group-text rounded-2" (click)="togglePasswordVisibility('confirm')" style="cursor: pointer;">
                   <i class="bi" [ngClass]="showConfirmPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
                 </span>
               </div>
@@ -139,7 +163,7 @@
           </div>
         </div>
 
-                <!-- Sección de Sugerencia de Rol y Ubicación -->
+        <!-- Sección de Sugerencia de Rol y Ubicación -->
         <div class="mb-4 p-3 border rounded-3-subtle">
           <h3 class="mb-3 fs-5 fw-bold text-primary border-bottom pb-2">Sugerencia de Rol y Ubicación</h3>
           <div class="row g-3">
@@ -205,10 +229,10 @@
           </div>
         </div>
 
-                <!-- Botón de Registro -->
+        <!-- Botón de Registro -->
         <div class="d-grid gap-2 mt-4">
           <button type="submit"
-                  [disabled]="registroForm.invalid || isLoading"
+                  [disabled]="registroForm.invalid || registroForm.pending || isLoading"
                   class="btn btn-institucional btn-lg shadow-sm fw-bold">
             <span *ngIf="!isLoading">Registrarme</span>
             <span *ngIf="isLoading" class="d-flex align-items-center justify-content-center">

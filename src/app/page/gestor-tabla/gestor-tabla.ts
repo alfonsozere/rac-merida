@@ -58,7 +58,7 @@ export class GestorTabla implements OnInit {
       }),
       switchMap((params): Observable<GestorData> => { 
         const name = params.get('tableName') || '';
-        console.log(`[GestorTabla] Valor de la URL para 'tableName': ${name}`);
+        //console.log(`[GestorTabla] Valor de la URL para 'tableName': ${name}`);
         
         if (!name) {
           this.isError.set(true);
@@ -68,7 +68,7 @@ export class GestorTabla implements OnInit {
         }
         
         this.tableName.set(name);
-        console.log(`[GestorTablaComponent] Extrayendo datos para la tabla: ${name}`);
+        //console.log(`[GestorTablaComponent] Extrayendo datos para la tabla: ${name}`);
 
         return this.dataService.getMetadata(name).pipe(
           tap(meta => console.log(`[GestorTablaComponent] Metadata cargada para ${name}`)),
@@ -96,7 +96,7 @@ export class GestorTabla implements OnInit {
   }
 
   onEdit(row: DynamicRow): void {
-    console.log('Editar registro:', row);
+    //console.log('Editar registro:', row);
   }
   
   // La función onDelete ahora solo establece la fila a eliminar para mostrar el modal.
@@ -109,7 +109,7 @@ export class GestorTabla implements OnInit {
   // onConfirmDelete(row: DynamicRow): void {
   //   this.rowToDelete.set(row);
   //   // Usar notación de corchetes para acceder a 'id'
-  //   console.log('Iniciando confirmación de borrado para ID:', row['id']);
+  //   //console.log('Iniciando confirmación de borrado para ID:', row['id']);
   // }
 
   cancelDelete(): void {
@@ -125,7 +125,7 @@ export class GestorTabla implements OnInit {
     if (row) {
       this.isActionProcessing.set(true); // Bloquear UI
       // Usar notación de corchetes para acceder a 'id'
-      console.log(`Ejecutando eliminación de ID: ${row['id']} de la tabla ${this.tableName()}`); 
+      //console.log(`Ejecutando eliminación de ID: ${row['id']} de la tabla ${this.tableName()}`); 
       
       // Simulación de API call con timeout
       setTimeout(() => {
@@ -137,7 +137,7 @@ export class GestorTabla implements OnInit {
           this.isActionProcessing.set(false); // Desbloquear UI
           this.rowToDelete.set(null);
           
-          console.log(`Eliminación simulada exitosa para ID: ${row['id']}`);
+          //console.log(`Eliminación simulada exitosa para ID: ${row['id']}`);
       }, 1000);
     }
   }

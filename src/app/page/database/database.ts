@@ -182,7 +182,7 @@ export class Database implements OnInit {
    */
   selectCard(card: TableCard): void {
     this.router.navigate(['/panel/control/gestor/database', card.route]);
-    console.log(`Navegando a tabla: ${card.route}`);
+    //console.log(`Navegando a tabla: ${card.route}`);
   }
 
   /**

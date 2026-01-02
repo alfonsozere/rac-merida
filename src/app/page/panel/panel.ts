@@ -64,7 +64,7 @@ userRole: number = ROLES.PENDING;
     }
 
     this.cards.forEach(card => {
-    console.log('className:', card.className);
+    //console.log('className:', card.className);
   });
 
     this.checkChildRouteActive(); // Inicializar
