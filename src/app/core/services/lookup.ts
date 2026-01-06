@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 
@@ -56,43 +56,189 @@ export class LookupService {
   }
 
   getSexos(): Observable<Sexo[]> {
-    return this.http.get<Sexo[]>(`${this.baseBackendUrl}/sexos`).pipe(
+    // Ahora el GET recibe un objeto genérico o una interfaz de respuesta
+    return this.http.get<any>(`${this.baseBackendUrl}/sexos`).pipe(
+      map(response => {
+        // Extraemos el array 'sexos' del objeto de respuesta
+        // Si por alguna razón no viene, devolvemos un array vacío para evitar el error NG02200
+        return response && response.sexos ? response.sexos : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getUbchs(): Observable<Ubch[]> {
-    return this.http.get<Ubch[]>(`${this.baseBackendUrl}/ubchs`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/ubchs`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'ubchs' definida en el backend
+        return response && response.ubchs ? response.ubchs : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getComunas(): Observable<Comunas[]> {
-    return this.http.get<Comunas[]>(`${this.baseBackendUrl}/comunas`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/comunas`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'comunas' definida en el backend
+        return response && response.comunas ? response.comunas : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getConsejosComunales(): Observable<ConsejoComunales[]> {
-    return this.http.get<ConsejoComunales[]>(`${this.baseBackendUrl}/consejos_comunales`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/consejos_comunales`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'consejos_comunales' definida en el backend
+        return response && response.consejos_comunales ? response.consejos_comunales : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getTiposPersonal(): Observable<TiposPersonal[]> {
-    return this.http.get<TiposPersonal[]>(`${this.baseBackendUrl}/tipos_personal`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/tipos_personal`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'tipos_personal' definida en el backend
+        return response && response.tipos_personal ? response.tipos_personal : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getCargosDocentes(): Observable<CargoDocentes[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/cargos_docentes`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'cargos_docentes' definida en el backend
+        return response && response.cargos_docentes ? response.cargos_docentes : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getTiposDocenteEspecificos(): Observable<DocentesEspecificos[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/tipos_docente_especificos`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'tipos_docente_especificos' definida en el backend
+        return response && response.tipos_docente_especificos ? response.tipos_docente_especificos : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getCodigosSufijoDocente(): Observable<CodigoSufijoDocente[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/codigoSufijoDocente`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'codigos_sufijo' definida en el backend
+        return response && response.codigoSufijoDocente ? response.codigoSufijoDocente : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getCodigosByCargoDocente(idCargo: number): Observable<CodigoSufijoDocente[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/codigoSufijoDocente/cargo/${idCargo}`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'codigos_sufijo' definida en el backend
+        return response && response.codigos_sufijo ? response.codigos_sufijo : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getCargosAdministrativos(): Observable<CargoAdministrativos[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/cargos_administrativos`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'cargos_administrativos' definida en el backend
+        return response && response.cargos_administrativos ? response.cargos_administrativos : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getGradosObreros(): Observable<GradosObreros[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/grados_obreros`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'grados_obreros' definida en el backend
+        return response && response.grados_obreros ? response.grados_obreros : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getCargosObreros(): Observable<CargosObreros[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/cargos_obreros`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'cargos_obreros' definida en el backend
+        return response && response.cargos_obreros ? response.cargos_obreros : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getTurnos(): Observable<Turnos[]> {
-    return this.http.get<Turnos[]>(`${this.baseBackendUrl}/turnos`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/turnos`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'turnos' definida en el backend
+        return response && response.turnos ? response.turnos : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getSituacionesLaborales(): Observable<SituacionLaboral[]> {
-    return this.http.get<SituacionLaboral[]>(`${this.baseBackendUrl}/situaciones_laborales`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/situaciones_laborales`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'situaciones_laborales' definida en el backend
+        return response && response.situaciones_laborales ? response.situaciones_laborales : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getEstados(): Observable<Estado[]> {
+    return this.http.get<any>(`${this.baseBackendUrl}/estados`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'estados' definida en el backend
+        return response && response.estados ? response.estados : [];
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  getMunicipios(): Observable<Municipio[]> {
+    return this.http.get<Municipio[]>(`${this.baseBackendUrl}/municipios`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getMunicipiosByEstado(estadoId: number): Observable<Municipio[]> {
+    return this.http.get<Municipio[]>(`${this.baseBackendUrl}/municipios/estados/${estadoId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getParroquiasByMunicipio(municipioId: number): Observable<Municipio[]> {
+    return this.http.get<Municipio[]>(`${this.baseBackendUrl}/parroquias/by-municipio/${municipioId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getCircuitos(): Observable<Circuito[]> {
+    return this.http.get<Circuito[]>(`${this.baseBackendUrl}/circuitos`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getCircuitosByMunicipio(municipioId: number): Observable<Circuito[]> {
+    return this.http.get<Circuito[]>(`${this.baseBackendUrl}/circuitos/municipio/${municipioId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getCircuitosByEstado(estadoId: number): Observable<Circuito[]> {
+    return this.http.get<Circuito[]>(`${this.baseBackendUrl}/circuitos/estados/${estadoId}`).pipe(
       catchError(this.handleError)
     );
   }
@@ -127,30 +273,6 @@ export class LookupService {
     );
   }
 
-  getCargosDocentes(): Observable<CargoDocentes[]> {
-    return this.http.get<CargoDocentes[]>(`${this.baseBackendUrl}/cargos_docentes`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCargosAdministrativos(): Observable<CargoAdministrativos[]> {
-    return this.http.get<CargoAdministrativos[]>(`${this.baseBackendUrl}/cargos_administrativos`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCargosObreros(): Observable<CargosObreros[]> {
-    return this.http.get<CargosObreros[]>(`${this.baseBackendUrl}/cargos_obreros`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getGradosObreros(): Observable<GradosObreros[]> {
-    return this.http.get<GradosObreros[]>(`${this.baseBackendUrl}/grados_obreros`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
   getDenominacionesPlantel(): Observable<Denominaciones[]> {
     return this.http.get<Denominaciones[]>(`${this.baseBackendUrl}/denominaciones_plantel`).pipe(
       catchError(this.handleError)
@@ -177,66 +299,6 @@ export class LookupService {
 
   getModalidadesPlantel(): Observable<Modalidades[]> {
     return this.http.get<Modalidades[]>(`${this.baseBackendUrl}/modalidades_plantel`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getEstados(): Observable<Estado[]> {
-    return this.http.get<Estado[]>(`${this.baseBackendUrl}/estados`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getMunicipios(): Observable<Municipio[]> {
-    return this.http.get<Municipio[]>(`${this.baseBackendUrl}/municipios`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getMunicipiosByEstado(estadoId: number): Observable<Municipio[]> {
-    return this.http.get<Municipio[]>(`${this.baseBackendUrl}/municipios/estados/${estadoId}`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getParroquiasByMunicipio(municipioId: number): Observable<Municipio[]> {
-    return this.http.get<Municipio[]>(`${this.baseBackendUrl}/parroquias/by-municipio/${municipioId}`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getTiposDocenteEspecificos(): Observable<DocentesEspecificos[]> {
-    return this.http.get<DocentesEspecificos[]>(`${this.baseBackendUrl}/tipos_docente_especificos`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCircuitos(): Observable<Circuito[]> {
-    return this.http.get<Circuito[]>(`${this.baseBackendUrl}/circuitos`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCircuitosByMunicipio(municipioId: number): Observable<Circuito[]> {
-    return this.http.get<Circuito[]>(`${this.baseBackendUrl}/circuitos/municipio/${municipioId}`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCircuitosByEstado(estadoId: number): Observable<Circuito[]> {
-    return this.http.get<Circuito[]>(`${this.baseBackendUrl}/circuitos/estados/${estadoId}`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCodigosSufijoDocente(): Observable<CodigoSufijoDocente[]> {
-    return this.http.get<CodigoSufijoDocente[]>(`${this.baseBackendUrl}/codigoSufijoDocente`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  getCodigosByCargoDocente(idCargo: number): Observable<CodigoSufijoDocente[]> {
-    return this.http.get<CodigoSufijoDocente[]>(`${this.baseBackendUrl}/codigoSufijoDocente/cargo/${idCargo}`).pipe(
       catchError(this.handleError)
     );
   }

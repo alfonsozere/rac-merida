@@ -57,11 +57,17 @@ export class Api {
   }
 
   getEstados(): Observable<Estado[]> {
-    return this.http.get<Estado[]>(`${this.apiUrl}/estados`).pipe(catchError(this.handleError));
+    return this.http.get<any>(`${this.apiUrl}/estados`).pipe(
+      map(response => (response && response.estados ? response.estados : [])),
+      catchError(this.handleError)
+    );
   }
 
   getMunicipios(estadoId: number): Observable<Municipio[]> {
-    return this.http.get<Municipio[]>(`${this.apiUrl}/municipios/estados/${estadoId}`).pipe(catchError(this.handleError));
+    return this.http.get<any>(`${this.apiUrl}/municipios/estados/${estadoId}`).pipe(
+      map(response => (response && response.municipios ? response.municipios : [])),
+      catchError(this.handleError)
+    );
   }
 
   getTodosMunicipios(): Observable<Municipio[]> {
@@ -70,6 +76,20 @@ export class Api {
 
   getTodasParroquias(): Observable<Parroquia[]> {
     return this.http.get<Parroquia[]>(`${this.apiUrl}/parroquias`).pipe(catchError(this.handleError));
+  }
+
+  getAllCircuitos(): Observable<Circuito[]> {
+    return this.http.get<any>(`${this.apiUrl}/circuitos`).pipe(
+      map(response => (response && response.circuitos ? response.circuitos : [])), 
+      catchError(this.handleError)
+    );
+  }
+
+  getCircuitosPorMunicipio(municipioId: number): Observable<Circuito[]> {
+    return this.http.get<any>(`${this.apiUrl}/circuitos/municipio/${municipioId}`).pipe(
+      map(response => (response && response.circuitos ? response.circuitos : [])), 
+      catchError(this.handleError)
+    );
   }
 
   getUbchs(): Observable<Ubch[]> {
@@ -116,21 +136,15 @@ export class Api {
     return this.http.get<Sexo[]>(`${this.apiUrl}/sexos`).pipe(catchError(this.handleError));
   }
 
-  getAllCircuitos(): Observable<Circuito[]> {
-    return this.http.get<Circuito[]>(`${this.apiUrl}/circuitos`).pipe(catchError(this.handleError));
-  }
-
-  getCircuitosPorMunicipio(municipioId: number): Observable<Circuito[]> {
-    return this.http.get<Circuito[]>(`${this.apiUrl}/circuitos/municipio/${municipioId}`).pipe(catchError(this.handleError));
-  }
-
   getPlanteles(municipioId: number): Observable<Plantel[]> {
     return this.http.get<Plantel[]>(`${this.apiUrl}/planteles/municipios/${municipioId}`).pipe(catchError(this.handleError));
   }
 
   // --- NUEVO MÉTODO: Obtener planteles por ID de Circuito ---
   getPlantelesPorCircuito(id_circuito: number): Observable<Plantel[]> {
-    return this.http.get<Plantel[]>(`${this.apiUrl}/planteles/circuito/${id_circuito}`).pipe(catchError(this.handleError));
+    return this.http.get<any>(`${this.apiUrl}/planteles/circuito/${id_circuito}`).pipe(
+      map(response => (response && response.planteles ? response.planteles : [])),
+      catchError(this.handleError));
   }
 
   getAllPlantelesWithDetails(): Observable<Plantel[]> {

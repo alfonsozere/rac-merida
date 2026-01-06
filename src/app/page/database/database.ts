@@ -33,7 +33,7 @@ export class Database implements OnInit {
     // --- GESTIÓN DE SEGURIDAD ---
     {
       title: 'Usuarios', description: 'Gestión de credenciales y perfiles de acceso.', icon: 'people', route: 'users', className: 'card-primary',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
       title: 'Roles del Sistema', description: 'Definición y permisos de los roles del sistema.', icon: 'person-fill-lock', route: 'roles', className: 'card-primary',
@@ -47,37 +47,37 @@ export class Database implements OnInit {
     // --- GESTIÓN DE PERSONAL ---
     {
       title: 'Empleados', description: 'Registro y datos personales de todo el personal.', icon: 'person-workspace', route: 'empleados', className: 'card-danger',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
       title: 'Tipos de Personal', description: 'Catálogo de tipos de personal (docente, administrativo, obrero).', icon: 'person-badge', route: 'tipos_personal', className: 'card-danger',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Situaciones Laborales', description: 'Estatus laborales (activo, reposo, jubilado, etc.).', icon: 'journal-check', route: 'situaciones_laborales', className: 'card-danger',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
 
     // --- CARGOS Y NOMENCLATURA ---
     {
       title: 'Cargos Docentes', description: 'Nomenclatura de cargos del personal docente.', icon: 'book', route: 'cargos_docentes', className: 'card-success',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Cargos Administrativos', description: 'Nomenclatura de cargos de soporte y gestión.', icon: 'briefcase', route: 'cargos_administrativos', className: 'card-success',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Grados Obreros', description: 'Clasificación de grados dentro de los cargos obreros.', icon: 'list-ol', route: 'grados_obreros', className: 'card-success',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Cargos Obreros', description: 'Nomenclatura de cargos para el personal obrero.', icon: 'tools', route: 'cargos_obreros', className: 'card-success',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Tipos Docentes Específicos', description: 'Catálogo de especialidades del personal docente.', icon: 'person-video2', route: 'tipos_docente_especificos', className: 'card-success',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
 
     // --- GESTIÓN GEOGRÁFICA Y JURISDICCIÓN ---
@@ -87,59 +87,59 @@ export class Database implements OnInit {
     },
     {
       title: 'Municipios', description: 'Lista de municipios por estado.', icon: 'pin-map', route: 'municipios', className: 'card-secondary',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Parroquias', description: 'Lista de parroquias por municipio.', icon: 'house-door', route: 'parroquias', className: 'card-secondary',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE, ROLES.ADMIN_MUNICIPAL]
     },
     {
       title: 'Circuitos Educativos', description: 'Organización de circuitos educativos.', icon: 'share', route: 'circuitos', className: 'card-secondary',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_MUNICIPAL]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_MUNICIPAL]
     },
 
     // --- DATOS DE PLANTEL ---
     {
       title: 'Planteles', description: 'Registro central de unidades educativas.', icon: 'buildings', route: 'planteles', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
       title: 'Denominaciones Plantel', description: 'Tipos de denominación (Nacional, Estadal, etc.).', icon: 'tag', route: 'denominaciones_plantel', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
       title: 'Dependencias Plantel', description: 'Dependencia administrativa de los planteles.', icon: 'bezier2', route: 'dependencias_plantel', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Modalidades Plantel', description: 'Modalidades de enseñanza disponibles.', icon: 'layout-text-sidebar-reverse', route: 'modalidades_plantel', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Niveles Plantel', description: 'Niveles educativos impartidos (Inicial, Media, etc.).', icon: 'layers', route: 'niveles_plantel', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Ubicaciones Plantel', description: 'Coordenadas y tipo de ubicación del plantel.', icon: 'map', route: 'ubicaciones_plantel', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
     {
       title: 'Turnos Escolares', description: 'Tipos de turnos de trabajo.', icon: 'clock-history', route: 'turnos', className: 'card-warning',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_STATE]
     },
 
     // --- ORGANIZACIÓN SOCIAL ---
     {
       title: 'Comunas', description: 'Registro de Comunas del territorio.', icon: 'bank2', route: 'comunas', className: 'card-info',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
       title: 'Consejos Comunales', description: 'Registro de Consejos Comunales asociados.', icon: 'house-heart', route: 'consejos_comunales', className: 'card-info',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
     {
       title: 'UBCHs', description: 'Unidades de Batalla Hugo Chávez.', icon: 'flag', route: 'ubchs', className: 'card-info',
-      requiredRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
+      requiredRoles: [ROLES.SUPER_ADMIN] //[ROLES.SUPER_ADMIN, ROLES.ADMIN_SQUAD]
     },
   ];
 

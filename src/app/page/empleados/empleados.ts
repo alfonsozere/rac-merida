@@ -85,107 +85,139 @@ export class Empleados implements OnInit, OnDestroy {
     private lookupService: LookupService
   ) { }
 
-  ngOnInit(): void {
-    this.currentUser = this.authService.getUserData();
-    if (!this.currentUser) {
-      this.error = 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.';
-      this.authService.logout();
-      return;
+ngOnInit(): void {
+  this.currentUser = this.authService.getUserData();
+  if (!this.currentUser) {
+    this.error = 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.';
+    this.authService.logout();
+    return;
+  }
+
+  this.rolUsuarioActual = String(this.currentUser.cod_rol ?? '');
+
+  this.initForm();
+  this.loadLookupData();
+  this.setupConditionalFormLogic();
+
+  // --- CONTROLES DE INTERFAZ ---
+  const tipoPersonalControl = this.formularioEmpleado.get('id_tipo_personal');
+  const codigoAdminControl = this.formularioEmpleado.get('codigo_administrativo');
+  const codigoObreroControl = this.formularioEmpleado.get('codigo_obrero');
+  const cargoAdminControl = this.formularioEmpleado.get('id_cargo_administrativo');
+
+  // 1. Lógica de Grado Obrero -> Filtra Cargos y Autocompleta Código Obrero
+  const subGradoObrero = this.formularioEmpleado.get('id_grado_obrero')?.valueChanges.subscribe(gradoId => {
+    // Filtrar la lista de cargos
+    this.filtrarCargosObrero(gradoId);
+
+    // Autocompletar el código basado en el grado seleccionado
+    if (gradoId) {
+      const gradoSeleccionado = this.gradosObreros.find(g => g.id === gradoId);
+      if (gradoSeleccionado && codigoObreroControl) {
+        // Se asume que el objeto grado tiene 'codigo_grado' o 'codigo'
+        const nuevoCodigo = gradoSeleccionado.grado_codigo || gradoSeleccionado.grado_codigo || '';
+        codigoObreroControl.setValue(nuevoCodigo, { emitEvent: false });
+        codigoObreroControl.disable({ emitEvent: false });
+      }
+    } else {
+      codigoObreroControl?.setValue(null, { emitEvent: false });
+      codigoObreroControl?.enable({ emitEvent: false });
     }
+  });
+  if (subGradoObrero) this.subscriptions.add(subGradoObrero);
 
-    this.rolUsuarioActual = String(this.currentUser.cod_rol ?? '');
+  // Inicialización para Obrero si ya hay datos
+  const tipoPersonalInicial = tipoPersonalControl?.value;
+  if (tipoPersonalInicial === this.TIPO_PERSONAL.OBRERO) {
+    const gradoInicial = this.formularioEmpleado.get('id_grado_obrero')?.value;
+    this.filtrarCargosObrero(gradoInicial);
+  }
 
-    this.initForm();
-    this.loadLookupData();
-    this.setupConditionalFormLogic();
-
-    const subGrado = this.formularioEmpleado.get('id_grado_obrero')?.valueChanges.subscribe(gradoId => {
-      this.filtrarCargosObrero(gradoId);
-    });
-    if (subGrado) this.subscriptions.add(subGrado);
-
-    const tipoPersonalInicial = this.formularioEmpleado.get('id_tipo_personal')?.value;
-    if (tipoPersonalInicial === this.TIPO_PERSONAL.OBRERO) {
-      const gradoInicial = this.formularioEmpleado.get('id_grado_obrero')?.value;
-      this.filtrarCargosObrero(gradoInicial);
-    }
-
-    // Reglas: administrativo -> código automático según cargo
-    const tipoPersonalControl = this.formularioEmpleado.get('id_tipo_personal');
-    const cargoAdminControl = this.formularioEmpleado.get('id_cargo_administrativo');
-    const codigoAdminControl = this.formularioEmpleado.get('codigo_administrativo');
-
-    if (tipoPersonalControl && codigoAdminControl) {
-      const subTipoPersonal = tipoPersonalControl.valueChanges.subscribe(value => {
-        if (value === this.TIPO_PERSONAL.ADMINISTRATIVO) {
-          codigoAdminControl.disable({ emitEvent: false });
-        } else {
-          codigoAdminControl.enable({ emitEvent: false });
-          codigoAdminControl.setValue(null, { emitEvent: false });
-        }
-      });
-      this.subscriptions.add(subTipoPersonal);
-    }
-
-    if (cargoAdminControl && codigoAdminControl) {
-      const subCargoAdmin = cargoAdminControl.valueChanges.subscribe(value => {
-        if (value) {
-          const cargoSeleccionado = this.cargosAdministrativos.find(c => c.id === value);
-          if (cargoSeleccionado) {
-            codigoAdminControl.setValue(cargoSeleccionado.codigo_cargo, { emitEvent: false });
-            codigoAdminControl.disable({ emitEvent: false });
-          }
-        } else {
-          codigoAdminControl.setValue(null, { emitEvent: false });
-          codigoAdminControl.enable({ emitEvent: false });
-        }
-      });
-      this.subscriptions.add(subCargoAdmin);
-    }
-
-    const subCargoDocente = this.formularioEmpleado.get('id_cargo_docente')?.valueChanges.subscribe(idCargo => {
-      if (idCargo) {
-        this.lookupService.getCodigosByCargoDocente(idCargo).subscribe(codigos => {
-          this.codigoSufijoDocente = codigos;
-          this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(null);
-          this.formularioEmpleado.get('codigo_docente_sufijo')?.enable();
-        });
+  // 2. Reglas de habilitación por Tipo de Personal
+  if (tipoPersonalControl) {
+    const subTipoPersonal = tipoPersonalControl.valueChanges.subscribe(value => {
+      // Regla Administrativo
+      if (value === this.TIPO_PERSONAL.ADMINISTRATIVO) {
+        codigoAdminControl?.disable({ emitEvent: false });
       } else {
-        this.codigoSufijoDocente = [];
-        this.formularioEmpleado.get('codigo_docente_sufijo')?.disable();
+        codigoAdminControl?.enable({ emitEvent: false });
+        codigoAdminControl?.setValue(null, { emitEvent: false });
+      }
+
+      // Regla Obrero
+      if (value === this.TIPO_PERSONAL.OBRERO) {
+        codigoObreroControl?.disable({ emitEvent: false });
+      } else {
+        codigoObreroControl?.enable({ emitEvent: false });
+        codigoObreroControl?.setValue(null, { emitEvent: false });
       }
     });
-    if (subCargoDocente) this.subscriptions.add(subCargoDocente);
-
-    const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
-    if (tipoDocenteControl) {
-      const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
-        ['grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo']
-          .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
-
-        if (tipo === 1) {
-          this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
-          this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
-        } else if (tipo === 2) {
-          this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
-          this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
-          this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
-        } else if (tipo === 3) {
-          this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
-          this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
-        }
-      });
-      this.subscriptions.add(subTipoDocente);
-    }
-
-    const subSituacion = this.formularioEmpleado.get('id_situacion_laboral')?.valueChanges.subscribe(idSit => {
-      const situacion = this.situacionesLaborales.find(s => s.id === idSit);
-      this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
-    });
-    if (subSituacion) this.subscriptions.add(subSituacion);
-
-    this.cargarEmpleados();
+    this.subscriptions.add(subTipoPersonal);
   }
+
+  // 3. Reglas: Administrativo -> código según cargo seleccionado
+  if (cargoAdminControl && codigoAdminControl) {
+    const subCargoAdmin = cargoAdminControl.valueChanges.subscribe(value => {
+      if (value) {
+        const cargoSeleccionado = this.cargosAdministrativos.find(c => c.id === value);
+        if (cargoSeleccionado) {
+          codigoAdminControl.setValue(cargoSeleccionado.codigo_cargo, { emitEvent: false });
+          codigoAdminControl.disable({ emitEvent: false });
+        }
+      } else {
+        codigoAdminControl.setValue(null, { emitEvent: false });
+        codigoAdminControl.enable({ emitEvent: false });
+      }
+    });
+    this.subscriptions.add(subCargoAdmin);
+  }
+
+  // 4. Lógica Docente (Sufijos)
+  const subCargoDocente = this.formularioEmpleado.get('id_cargo_docente')?.valueChanges.subscribe(idCargo => {
+    if (idCargo) {
+      this.lookupService.getCodigosByCargoDocente(idCargo).subscribe(codigos => {
+        this.codigoSufijoDocente = codigos;
+        this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(null);
+        this.formularioEmpleado.get('codigo_docente_sufijo')?.enable();
+      });
+    } else {
+      this.codigoSufijoDocente = [];
+      this.formularioEmpleado.get('codigo_docente_sufijo')?.disable();
+    }
+  });
+  if (subCargoDocente) this.subscriptions.add(subCargoDocente);
+
+  // 5. Lógica Tipos Docente Específicos
+  const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
+  if (tipoDocenteControl) {
+    const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
+      ['grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo']
+        .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
+
+      if (tipo === 1) {
+        this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
+        this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
+      } else if (tipo === 2) {
+        this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
+        this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
+        this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
+      } else if (tipo === 3) {
+        this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
+        this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
+      }
+    });
+    this.subscriptions.add(subTipoDocente);
+  }
+
+  // 6. Situación Laboral
+  const subSituacion = this.formularioEmpleado.get('id_situacion_laboral')?.valueChanges.subscribe(idSit => {
+    const situacion = this.situacionesLaborales.find(s => s.id === idSit);
+    this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
+  });
+  if (subSituacion) this.subscriptions.add(subSituacion);
+
+  this.cargarEmpleados();
+}
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
@@ -228,6 +260,7 @@ export class Empleados implements OnInit, OnDestroy {
       codigo_administrativo: [{ value: null, disabled: true }],
       id_cargo_obrero: [null],
       id_grado_obrero: [null],
+      codigo_obrero: [{ value: null, disabled: true }],
 
       horas_academicas: [0],
       horas_administrativas: [0],
@@ -575,6 +608,7 @@ export class Empleados implements OnInit, OnDestroy {
       this.error = 'Acceso denegado. No tienes permisos para editar este empleado.';
       return;
     }
+    this.limpiarFormulario();
 
     this.modoEdicion = true;
     this.empleadoSeleccionadoId = empleado.id_empleado;
@@ -737,22 +771,22 @@ export class Empleados implements OnInit, OnDestroy {
     this.cargosObrerosFiltrados = this.cargosObreros.filter(cargo => cargo.id_grado_obrero === gradoId);
   }
 
-// empleados.component.ts
+  // empleados.component.ts
 
-puedeVerAcciones(): boolean {
+  puedeVerAcciones(): boolean {
     // 1. Convertir el valor a número
-    const rolNumerico = Number(this.rolUsuarioActual); 
+    const rolNumerico = Number(this.rolUsuarioActual);
 
     // 3. La lógica de comparación
     const tienePermiso = rolNumerico === ROLES.ADMIN_SQUAD
-           || 
-                         rolNumerico === ROLES.STANDARD
+      ||
+      rolNumerico === ROLES.STANDARD
     /*                           ||
                          rolNumerico === ROLES.ADMIN_MUNICIPAL  ||
                          rolNumerico === ROLES.ADMIN_CIRCUITAL; */
-                         
-    
-    
+
+
+
     return tienePermiso;
-}
+  }
 }
