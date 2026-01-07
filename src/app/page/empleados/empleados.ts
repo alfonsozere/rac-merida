@@ -30,6 +30,8 @@ import { CodigoSufijoDocente } from '../../core/models/codigo-sufijo-docente.mod
 
 declare var bootstrap: any;
 
+import * as XLSX from 'xlsx';
+
 @Component({
   selector: 'app-empleados',
   standalone: true,
@@ -78,6 +80,7 @@ export class Empleados implements OnInit, OnDestroy {
   motivoSeleccionado = '';
   empleadoSeleccionadoNombre = '';
 
+
   constructor(
     private authService: Auth,
     private servicioEmpleado: ServicioEmpleado,
@@ -85,139 +88,145 @@ export class Empleados implements OnInit, OnDestroy {
     private lookupService: LookupService
   ) { }
 
-ngOnInit(): void {
-  this.currentUser = this.authService.getUserData();
-  if (!this.currentUser) {
-    this.error = 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.';
-    this.authService.logout();
-    return;
-  }
+  filtroCedula: string = '';
+  filtroNombre: string = '';
+  filtroSexo: number | null = null;
+  filtroTipoPersonal: number | null = null;
+  filtroSituacionLaboral: number | null = null;
 
-  this.rolUsuarioActual = String(this.currentUser.cod_rol ?? '');
-
-  this.initForm();
-  this.loadLookupData();
-  this.setupConditionalFormLogic();
-
-  // --- CONTROLES DE INTERFAZ ---
-  const tipoPersonalControl = this.formularioEmpleado.get('id_tipo_personal');
-  const codigoAdminControl = this.formularioEmpleado.get('codigo_administrativo');
-  const codigoObreroControl = this.formularioEmpleado.get('codigo_obrero');
-  const cargoAdminControl = this.formularioEmpleado.get('id_cargo_administrativo');
-
-  // 1. Lógica de Grado Obrero -> Filtra Cargos y Autocompleta Código Obrero
-  const subGradoObrero = this.formularioEmpleado.get('id_grado_obrero')?.valueChanges.subscribe(gradoId => {
-    // Filtrar la lista de cargos
-    this.filtrarCargosObrero(gradoId);
-
-    // Autocompletar el código basado en el grado seleccionado
-    if (gradoId) {
-      const gradoSeleccionado = this.gradosObreros.find(g => g.id === gradoId);
-      if (gradoSeleccionado && codigoObreroControl) {
-        // Se asume que el objeto grado tiene 'codigo_grado' o 'codigo'
-        const nuevoCodigo = gradoSeleccionado.grado_codigo || gradoSeleccionado.grado_codigo || '';
-        codigoObreroControl.setValue(nuevoCodigo, { emitEvent: false });
-        codigoObreroControl.disable({ emitEvent: false });
-      }
-    } else {
-      codigoObreroControl?.setValue(null, { emitEvent: false });
-      codigoObreroControl?.enable({ emitEvent: false });
+  ngOnInit(): void {
+    this.currentUser = this.authService.getUserData();
+    if (!this.currentUser) {
+      this.error = 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.';
+      this.authService.logout();
+      return;
     }
-  });
-  if (subGradoObrero) this.subscriptions.add(subGradoObrero);
 
-  // Inicialización para Obrero si ya hay datos
-  const tipoPersonalInicial = tipoPersonalControl?.value;
-  if (tipoPersonalInicial === this.TIPO_PERSONAL.OBRERO) {
-    const gradoInicial = this.formularioEmpleado.get('id_grado_obrero')?.value;
-    this.filtrarCargosObrero(gradoInicial);
-  }
+    this.rolUsuarioActual = String(this.currentUser.cod_rol ?? '');
 
-  // 2. Reglas de habilitación por Tipo de Personal
-  if (tipoPersonalControl) {
-    const subTipoPersonal = tipoPersonalControl.valueChanges.subscribe(value => {
-      // Regla Administrativo
-      if (value === this.TIPO_PERSONAL.ADMINISTRATIVO) {
-        codigoAdminControl?.disable({ emitEvent: false });
-      } else {
-        codigoAdminControl?.enable({ emitEvent: false });
-        codigoAdminControl?.setValue(null, { emitEvent: false });
-      }
+    this.initForm();
+    this.loadLookupData();
+    this.setupConditionalFormLogic();
 
-      // Regla Obrero
-      if (value === this.TIPO_PERSONAL.OBRERO) {
-        codigoObreroControl?.disable({ emitEvent: false });
-      } else {
-        codigoObreroControl?.enable({ emitEvent: false });
-        codigoObreroControl?.setValue(null, { emitEvent: false });
-      }
-    });
-    this.subscriptions.add(subTipoPersonal);
-  }
+    // --- CONTROLES DE INTERFAZ ---
+    const tipoPersonalControl = this.formularioEmpleado.get('id_tipo_personal');
+    const codigoAdminControl = this.formularioEmpleado.get('codigo_administrativo');
+    const codigoObreroControl = this.formularioEmpleado.get('codigo_obrero');
+    const cargoAdminControl = this.formularioEmpleado.get('id_cargo_administrativo');
 
-  // 3. Reglas: Administrativo -> código según cargo seleccionado
-  if (cargoAdminControl && codigoAdminControl) {
-    const subCargoAdmin = cargoAdminControl.valueChanges.subscribe(value => {
-      if (value) {
-        const cargoSeleccionado = this.cargosAdministrativos.find(c => c.id === value);
-        if (cargoSeleccionado) {
-          codigoAdminControl.setValue(cargoSeleccionado.codigo_cargo, { emitEvent: false });
-          codigoAdminControl.disable({ emitEvent: false });
+    // 1. Lógica de Grado Obrero -> Filtra Cargos y Autocompleta Código Obrero
+    const subGradoObrero = this.formularioEmpleado.get('id_grado_obrero')?.valueChanges.subscribe(gradoId => {
+      // Filtrar la lista de cargos
+      this.filtrarCargosObrero(gradoId);
+
+      // Autocompletar el código basado en el grado seleccionado
+      if (gradoId) {
+        const gradoSeleccionado = this.gradosObreros.find(g => g.id === gradoId);
+        if (gradoSeleccionado && codigoObreroControl) {
+          // Se asume que el objeto grado tiene 'codigo_grado' o 'codigo'
+          const nuevoCodigo = gradoSeleccionado.grado_codigo || gradoSeleccionado.grado_codigo || '';
+          codigoObreroControl.setValue(nuevoCodigo, { emitEvent: false });
+          codigoObreroControl.disable({ emitEvent: false });
         }
       } else {
-        codigoAdminControl.setValue(null, { emitEvent: false });
-        codigoAdminControl.enable({ emitEvent: false });
+        codigoObreroControl?.setValue(null, { emitEvent: false });
+        codigoObreroControl?.enable({ emitEvent: false });
       }
     });
-    this.subscriptions.add(subCargoAdmin);
-  }
+    if (subGradoObrero) this.subscriptions.add(subGradoObrero);
 
-  // 4. Lógica Docente (Sufijos)
-  const subCargoDocente = this.formularioEmpleado.get('id_cargo_docente')?.valueChanges.subscribe(idCargo => {
-    if (idCargo) {
-      this.lookupService.getCodigosByCargoDocente(idCargo).subscribe(codigos => {
-        this.codigoSufijoDocente = codigos;
-        this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(null);
-        this.formularioEmpleado.get('codigo_docente_sufijo')?.enable();
-      });
-    } else {
-      this.codigoSufijoDocente = [];
-      this.formularioEmpleado.get('codigo_docente_sufijo')?.disable();
+    // Inicialización para Obrero si ya hay datos
+    const tipoPersonalInicial = tipoPersonalControl?.value;
+    if (tipoPersonalInicial === this.TIPO_PERSONAL.OBRERO) {
+      const gradoInicial = this.formularioEmpleado.get('id_grado_obrero')?.value;
+      this.filtrarCargosObrero(gradoInicial);
     }
-  });
-  if (subCargoDocente) this.subscriptions.add(subCargoDocente);
 
-  // 5. Lógica Tipos Docente Específicos
-  const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
-  if (tipoDocenteControl) {
-    const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
-      ['grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo']
-        .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
+    // 2. Reglas de habilitación por Tipo de Personal
+    if (tipoPersonalControl) {
+      const subTipoPersonal = tipoPersonalControl.valueChanges.subscribe(value => {
+        // Regla Administrativo
+        if (value === this.TIPO_PERSONAL.ADMINISTRATIVO) {
+          codigoAdminControl?.disable({ emitEvent: false });
+        } else {
+          codigoAdminControl?.enable({ emitEvent: false });
+          codigoAdminControl?.setValue(null, { emitEvent: false });
+        }
 
-      if (tipo === 1) {
-        this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
-      } else if (tipo === 2) {
-        this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
-      } else if (tipo === 3) {
-        this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
-        this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
+        // Regla Obrero
+        if (value === this.TIPO_PERSONAL.OBRERO) {
+          codigoObreroControl?.disable({ emitEvent: false });
+        } else {
+          codigoObreroControl?.enable({ emitEvent: false });
+          codigoObreroControl?.setValue(null, { emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subTipoPersonal);
+    }
+
+    // 3. Reglas: Administrativo -> código según cargo seleccionado
+    if (cargoAdminControl && codigoAdminControl) {
+      const subCargoAdmin = cargoAdminControl.valueChanges.subscribe(value => {
+        if (value) {
+          const cargoSeleccionado = this.cargosAdministrativos.find(c => c.id === value);
+          if (cargoSeleccionado) {
+            codigoAdminControl.setValue(cargoSeleccionado.codigo_cargo, { emitEvent: false });
+            codigoAdminControl.disable({ emitEvent: false });
+          }
+        } else {
+          codigoAdminControl.setValue(null, { emitEvent: false });
+          codigoAdminControl.enable({ emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subCargoAdmin);
+    }
+
+    // 4. Lógica Docente (Sufijos)
+    const subCargoDocente = this.formularioEmpleado.get('id_cargo_docente')?.valueChanges.subscribe(idCargo => {
+      if (idCargo) {
+        this.lookupService.getCodigosByCargoDocente(idCargo).subscribe(codigos => {
+          this.codigoSufijoDocente = codigos;
+          this.formularioEmpleado.get('codigo_docente_sufijo')?.setValue(null);
+          this.formularioEmpleado.get('codigo_docente_sufijo')?.enable();
+        });
+      } else {
+        this.codigoSufijoDocente = [];
+        this.formularioEmpleado.get('codigo_docente_sufijo')?.disable();
       }
     });
-    this.subscriptions.add(subTipoDocente);
+    if (subCargoDocente) this.subscriptions.add(subCargoDocente);
+
+    // 5. Lógica Tipos Docente Específicos
+    const tipoDocenteControl = this.formularioEmpleado.get('id_tipo_docente_especifico');
+    if (tipoDocenteControl) {
+      const subTipoDocente = tipoDocenteControl.valueChanges.subscribe(tipo => {
+        ['grado_imparte', 'seccion_grado', 'area_imparte', 'anio_imparte', 'seccion_anio', 'materia_especialidad', 'periodo_grupo']
+          .forEach(name => this.formularioEmpleado.get(name)?.disable({ emitEvent: false }));
+
+        if (tipo === 1) {
+          this.formularioEmpleado.get('grado_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('seccion_grado')?.enable({ emitEvent: false });
+        } else if (tipo === 2) {
+          this.formularioEmpleado.get('area_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('anio_imparte')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('seccion_anio')?.enable({ emitEvent: false });
+        } else if (tipo === 3) {
+          this.formularioEmpleado.get('materia_especialidad')?.enable({ emitEvent: false });
+          this.formularioEmpleado.get('periodo_grupo')?.enable({ emitEvent: false });
+        }
+      });
+      this.subscriptions.add(subTipoDocente);
+    }
+
+    // 6. Situación Laboral
+    const subSituacion = this.formularioEmpleado.get('id_situacion_laboral')?.valueChanges.subscribe(idSit => {
+      const situacion = this.situacionesLaborales.find(s => s.id === idSit);
+      this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
+    });
+    if (subSituacion) this.subscriptions.add(subSituacion);
+
+    this.cargarEmpleados();
   }
-
-  // 6. Situación Laboral
-  const subSituacion = this.formularioEmpleado.get('id_situacion_laboral')?.valueChanges.subscribe(idSit => {
-    const situacion = this.situacionesLaborales.find(s => s.id === idSit);
-    this.formularioEmpleado.get('descripcion_situacion_laboral')?.setValue(situacion?.descripcion || '');
-  });
-  if (subSituacion) this.subscriptions.add(subSituacion);
-
-  this.cargarEmpleados();
-}
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
@@ -415,19 +424,22 @@ ngOnInit(): void {
       return;
     }
 
+    // Helper para envolver cada llamada con manejo de error local
+    const safeLookup = <T>(obs: Observable<T>): Observable<T | any[]> => obs.pipe(catchError(() => of([])));
+
     const commonLookups$ = forkJoin([
-      this.lookupService.getSexos(),
-      this.lookupService.getUbchs(),
-      this.lookupService.getComunas(),
-      this.lookupService.getConsejosComunales(),
-      this.lookupService.getTiposPersonal(),
-      this.lookupService.getTurnos(),
-      this.lookupService.getSituacionesLaborales(),
-      this.lookupService.getCargosDocentes(),
-      this.lookupService.getCargosAdministrativos(),
-      this.lookupService.getCargosObreros(),
-      this.lookupService.getGradosObreros(),
-      this.lookupService.getTiposDocenteEspecificos()
+      safeLookup(this.lookupService.getSexos()),
+      safeLookup(this.lookupService.getUbchs()),
+      safeLookup(this.lookupService.getComunas()),
+      safeLookup(this.lookupService.getConsejosComunales()),
+      safeLookup(this.lookupService.getTiposPersonal()),
+      safeLookup(this.lookupService.getTurnos()),
+      safeLookup(this.lookupService.getSituacionesLaborales()),
+      safeLookup(this.lookupService.getCargosDocentes()),
+      safeLookup(this.lookupService.getCargosAdministrativos()),
+      safeLookup(this.lookupService.getCargosObreros()),
+      safeLookup(this.lookupService.getGradosObreros()),
+      safeLookup(this.lookupService.getTiposDocenteEspecificos())
     ]);
 
     let estados$: Observable<Estado[]>;
@@ -440,31 +452,32 @@ ngOnInit(): void {
     const idCircuito = this.currentUser.id_circuito_asignado;
     const codPlantel = this.currentUser.codigo_plantel_asignado;
 
-    estados$ = this.lookupService.getEstados().pipe(
-      map(estados => (idEstado) ? estados.filter(e => e.id === idEstado) : estados)
+    // SOLUCIÓN AL ERROR ts(7006): Se añade el tipo 'Estado' al parámetro 'e'
+    estados$ = (safeLookup(this.lookupService.getEstados()) as Observable<Estado[]>).pipe(
+      map((estados: Estado[]) => (idEstado) ? estados.filter((e: Estado) => e.id === idEstado) : estados)
     );
 
     switch (this.currentUser.cod_rol) {
       case ROLES.SUPER_ADMIN:
       case ROLES.ADMIN_STATE:
-        municipios$ = this.lookupService.getMunicipios();
-        circuitos$ = this.lookupService.getCircuitos();
-        planteles$ = this.lookupService.getPlanteles();
+        municipios$ = safeLookup(this.lookupService.getMunicipios());
+        circuitos$ = safeLookup(this.lookupService.getCircuitos());
+        planteles$ = safeLookup(this.lookupService.getPlanteles());
         break;
 
       case ROLES.ADMIN_MUNICIPAL:
-        municipios$ = (idEstado != null) ? this.lookupService.getMunicipiosByEstado(idEstado) : of([]);
-        circuitos$ = (idMunicipio != null) ? this.lookupService.getCircuitosByMunicipio(idMunicipio) : of([]);
-        planteles$ = (idMunicipio != null) ? this.lookupService.getPlantelesByMunicipio(idMunicipio) : of([]);
+        municipios$ = (idEstado != null) ? safeLookup(this.lookupService.getMunicipiosByEstado(idEstado)) : of([]);
+        circuitos$ = (idMunicipio != null) ? safeLookup(this.lookupService.getCircuitosByMunicipio(idMunicipio)) : of([]);
+        planteles$ = (idMunicipio != null) ? safeLookup(this.lookupService.getPlantelesByMunicipio(idMunicipio)) : of([]);
         break;
 
       case ROLES.ADMIN_CIRCUITAL:
-        municipios$ = (idEstado != null) ? this.lookupService.getMunicipiosByEstado(idEstado) : of([]);
-        circuitos$ = (idMunicipio != null) ? this.lookupService.getCircuitosByMunicipio(idMunicipio) : of([]);
+        municipios$ = (idEstado != null) ? safeLookup(this.lookupService.getMunicipiosByEstado(idEstado)) : of([]);
+        circuitos$ = (idMunicipio != null) ? safeLookup(this.lookupService.getCircuitosByMunicipio(idMunicipio)) : of([]);
         if (idCircuito != null) {
-          planteles$ = this.lookupService.getPlantelesByCircuito(idCircuito);
+          planteles$ = safeLookup(this.lookupService.getPlantelesByCircuito(idCircuito));
         } else if (idMunicipio != null) {
-          planteles$ = this.lookupService.getPlantelesByMunicipio(idMunicipio);
+          planteles$ = safeLookup(this.lookupService.getPlantelesByMunicipio(idMunicipio));
         } else {
           planteles$ = of([]);
         }
@@ -472,20 +485,19 @@ ngOnInit(): void {
 
       case ROLES.ADMIN_SQUAD:
       case ROLES.STANDARD:
-        municipios$ = (idEstado != null) ? this.lookupService.getMunicipiosByEstado(idEstado) : of([]);
-        circuitos$ = (idMunicipio != null) ? this.lookupService.getCircuitosByMunicipio(idMunicipio) : of([]);
+        municipios$ = (idEstado != null) ? safeLookup(this.lookupService.getMunicipiosByEstado(idEstado)) : of([]);
+        circuitos$ = (idMunicipio != null) ? safeLookup(this.lookupService.getCircuitosByMunicipio(idMunicipio)) : of([]);
 
         planteles$ = this.lookupService.getPlanteles().pipe(
           catchError((err: HttpErrorResponse) => {
-            console.error('ERROR EN API PLANTEL (Posible 403): Falló la carga inicial de planteles.', err.status, err.message);
-            this.error = 'Error de permisos al cargar planteles asignados. Contacte a soporte.';
+            console.error('FALLO CARGA PLANTELES:', err.status);
             return of([]);
           }),
-          map(planteles => {
+          map((planteles: any[]) => { // Cambiado a any[] temporalmente para evitar errores de interfaz
             if (!codPlantel) return [];
             const safeCodPlantel = codPlantel.trim().toLowerCase();
-            return planteles.filter(p =>
-              p.codigo_plantel && p.codigo_plantel.trim().toLowerCase() === safeCodPlantel
+            return planteles.filter((p: any) =>
+              p.codigo && p.codigo.trim().toLowerCase() === safeCodPlantel
             );
           })
         );
@@ -494,21 +506,33 @@ ngOnInit(): void {
 
     const geoLookups$ = forkJoin([estados$, municipios$, circuitos$, planteles$]);
 
+    // Suscripción final
     forkJoin([commonLookups$, geoLookups$]).subscribe({
       next: ([commonData, geoData]) => {
-        [this.sexos, this.ubchs, this.comunas, this.consejosComunales, this.tiposPersonal, this.turnos, this.situacionesLaborales, this.cargosDocentes, this.cargosAdministrativos, this.cargosObreros, this.gradosObreros, this.tiposDocenteEspecificos] = commonData;
+        [
+          this.sexos, this.ubchs, this.comunas, this.consejosComunales,
+          this.tiposPersonal, this.turnos, this.situacionesLaborales,
+          this.cargosDocentes, this.cargosAdministrativos, this.cargosObreros,
+          this.gradosObreros, this.tiposDocenteEspecificos
+        ] = commonData;
+
         [this.estados, this.municipios, this.circuitos, this.planteles] = geoData;
 
-        if (this.currentUser && (this.currentUser.cod_rol === ROLES.ADMIN_SQUAD || this.currentUser.cod_rol === ROLES.STANDARD) && this.planteles.length === 1) {
-          const plantelId = this.planteles[0].id_plantel;
+        if (this.currentUser &&
+          (this.currentUser.cod_rol === ROLES.ADMIN_SQUAD || this.currentUser.cod_rol === ROLES.STANDARD) &&
+          this.planteles.length === 1) {
+          
+          const plantelId = this.planteles[0].id; // El backend envía 'id'
           this.formularioEmpleado.get('id_plantel')?.setValue(plantelId, { emitEvent: false });
+          this.formularioEmpleado.get('id_plantel')?.disable(); // Aseguramos que quede deshabilitado
         }
+
         this.cargando = false;
       },
-      error: err => {
+      error: (err: any) => {
         this.cargando = false;
-        this.error = 'Error al cargar datos de catálogos o geográficos. Es posible que no tenga permisos para ver algunos datos.';
-        console.error('Error al cargar datos de catálogos y geográficos:', err);
+        this.error = 'Error crítico en el flujo de inicialización.';
+        console.error('Error fatal en loadLookupData:', err);
       }
     });
   }
@@ -534,7 +558,7 @@ ngOnInit(): void {
     this.resetPersonalSpecificFields(true);
 
     if (this.currentUser && (this.currentUser.cod_rol === ROLES.ADMIN_SQUAD || this.currentUser.cod_rol === ROLES.STANDARD) && this.planteles.length === 1) {
-      this.formularioEmpleado.get('id_plantel')?.setValue(this.planteles[0].id_plantel, { emitEvent: false });
+      this.formularioEmpleado.get('id_plantel')?.setValue(this.planteles[0].id, { emitEvent: false });
       this.formularioEmpleado.get('id_plantel')?.disable();
     } else {
       this.formularioEmpleado.get('id_plantel')?.enable();
@@ -771,22 +795,233 @@ ngOnInit(): void {
     this.cargosObrerosFiltrados = this.cargosObreros.filter(cargo => cargo.id_grado_obrero === gradoId);
   }
 
-  // empleados.component.ts
-
   puedeVerAcciones(): boolean {
     // 1. Convertir el valor a número
     const rolNumerico = Number(this.rolUsuarioActual);
-
     // 3. La lógica de comparación
-    const tienePermiso = rolNumerico === ROLES.ADMIN_SQUAD
-      ||
+    const tienePermiso =
+      rolNumerico === ROLES.ADMIN_SQUAD ||
       rolNumerico === ROLES.STANDARD
-    /*                           ||
-                         rolNumerico === ROLES.ADMIN_MUNICIPAL  ||
-                         rolNumerico === ROLES.ADMIN_CIRCUITAL; */
-
-
 
     return tienePermiso;
+  }
+
+  // Este nuevo método es el que usará el *ngFor en tu HTML
+  // Reemplaza tu actual get listaFiltrad por este que incluye todos los campos:
+
+  get listaFiltrada(): Empleado[] {
+    return this.empleados.filter(e => {
+      const cumpleCedula = !this.filtroCedula || e.cedula.toString().includes(this.filtroCedula);
+
+      const nombreCompleto = (e.nombre + ' ' + e.apellido).toLowerCase();
+      const cumpleNombre = !this.filtroNombre || nombreCompleto.includes(this.filtroNombre.toLowerCase());
+
+      const cumpleSexo = !this.filtroSexo || e.id_sexo === this.filtroSexo;
+
+      const cumpleTipo = !this.filtroTipoPersonal || e.id_tipo_personal === this.filtroTipoPersonal;
+
+      const cumpleSituacion = !this.filtroSituacionLaboral || e.id_situacion_laboral === this.filtroSituacionLaboral;
+
+      return cumpleCedula && cumpleNombre && cumpleSexo && cumpleTipo && cumpleSituacion;
+    });
+  }
+
+  limpiarFiltros(): void {
+    // Restablece los campos de texto
+    this.filtroCedula = '';
+    this.filtroNombre = '';
+
+    // Restablece los selectores o menús desplegables
+    this.filtroSexo = null;
+    this.filtroTipoPersonal = null;
+    this.filtroSituacionLaboral = null;
+  }
+
+  /**
+   * Calcula la edad en años completos
+   */
+  private calcularEdad(fechaNacimiento: string | Date): number {
+    const nacimiento = new Date(fechaNacimiento);
+    const hoy = new Date();
+
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mesActual = hoy.getMonth();
+    const diaActual = hoy.getDate();
+    const mesNacimiento = nacimiento.getMonth();
+    const diaNacimiento = nacimiento.getDate();
+
+    // Ajuste si aún no ha cumplido años este año
+    if (mesActual < mesNacimiento || (mesActual === mesNacimiento && diaActual < diaNacimiento)) {
+      edad--;
+    }
+
+    return edad;
+  }
+
+  /**
+   * Calcula la antigüedad en años y meses
+   */
+  private calcularAntiguedad(fechaIngreso: string | Date): string {
+    const ingreso = new Date(fechaIngreso);
+    const hoy = new Date();
+
+    let años = hoy.getFullYear() - ingreso.getFullYear();
+    let meses = hoy.getMonth() - ingreso.getMonth();
+
+    // Ajuste si aún no ha cumplido el mes de ingreso este año
+    if (meses < 0 || (meses === 0 && hoy.getDate() < ingreso.getDate())) {
+      años--;
+      meses += 12;
+    }
+
+    return `${años} años ${meses} meses`;
+  }
+
+  /**
+   * Prepara los datos para exportar a Excel
+   */
+  private prepararDatosParaExcel(datos: Empleado[]): any[] {
+    return datos.map(e => {
+      // Buscamos las descripciones en los arrays de lookup cargados en OnInit
+      const sexo = this.sexos.find(s => s.id === e.id_sexo)?.nombre || 'N/A';
+      const tipoPersonal = this.tiposPersonal.find(t => t.id === e.id_tipo_personal)?.nombre || 'N/A';
+      const situacion = this.situacionesLaborales.find(s => s.id === e.id_situacion_laboral)?.descripcion || 'N/A';
+      const turno = this.turnos.find(t => t.id === e.id_turno)?.nombre || 'N/A';
+
+      // Construcción del objeto mapeado
+      return {
+        'Cédula': e.cedula,
+        'Nombre': e.nombre && e.apellido ? `${e.nombre} ${e.apellido}` : 'N/A',
+        'Sexo': sexo,
+        'Fecha de Nacimiento': e.fecha_nacimiento ? new Date(e.fecha_nacimiento).toLocaleDateString('es-VE') : 'N/A',
+        'Edad': e.fecha_nacimiento ? this.calcularEdad(e.fecha_nacimiento) : 'N/A',
+        'Dirección': e.direccion || 'S/N',
+        'Ubicación UBCH': this.ubchs.find(u => u.id === e.id_ubch)?.nombre || 'N/A',
+        'Teléfono': e.telefono || 'S/N',
+        'Correo': e.correo || 'S/N',
+        'Tipo de Personal': tipoPersonal,
+        'Situación Laboral': situacion,
+        'Turno': turno,
+        'Fecha Ingreso': e.fecha_ingreso_laboral ? new Date(e.fecha_ingreso_laboral).toLocaleDateString('es-VE') : 'N/A',
+        'Antigüedad': e.fecha_ingreso_laboral ? this.calcularAntiguedad(e.fecha_ingreso_laboral) : 'N/A',
+        'Horas Acad.': e.horas_academicas || 0,
+        'Horas Admin.': e.horas_administrativas || 0,
+        'Observaciones': e.observaciones || ''
+      };
+    });
+  }
+
+  /**
+     * Determina el nombre del ámbito con prefijo descriptivo
+     * Se utiliza interpolación de strings para mayor seguridad
+     */
+  private obtenerAmbitoUsuario(): string {
+    if (!this.currentUser) return 'General';
+
+    const rol = this.currentUser.cod_rol;
+    const nombreAsignado = {
+      estado: this.currentUser.nombre_estado_asignado,
+      municipio: this.currentUser.nombre_municipio_asignado,
+      circuito: this.currentUser.nombre_circuito_asignado,
+      plantel: this.currentUser.nombre_plantel_asignado
+    };
+
+    switch (rol) {
+      case ROLES.SUPER_ADMIN:
+        return 'Nivel_Central_Nacional';
+
+      case ROLES.ADMIN_STATE:
+        return nombreAsignado.estado
+          ? `Estado_${nombreAsignado.estado}`
+          : 'Reporte_Estatal';
+
+      case ROLES.ADMIN_MUNICIPAL:
+        return nombreAsignado.municipio
+          ? `Municipio_${nombreAsignado.municipio}`
+          : 'Reporte_Municipal';
+
+      case ROLES.ADMIN_CIRCUITAL:
+        return nombreAsignado.circuito
+          ? `Circuito_${nombreAsignado.circuito}`
+          : 'Reporte_Circuital';
+
+      case ROLES.ADMIN_SQUAD:
+      case ROLES.STANDARD:
+        return nombreAsignado.plantel
+          ? `Plantel_${nombreAsignado.plantel}`
+          : 'Reporte_Plantel';
+
+      default:
+        return 'Reporte_General';
+    }
+  }
+
+  /**
+   * Método principal de exportación con formato de columnas
+   */
+  exportarExcel(): void {
+    if (!this.listaFiltrada || this.listaFiltrada.length === 0) {
+      this.error = "No hay datos para exportar con los filtros actuales.";
+      setTimeout(() => this.error = null, 3000);
+      return;
+    }
+
+    try {
+      this.cargando = true;
+
+      // 1. Mapear datos a formato legible
+      const datosMapeados = this.prepararDatosParaExcel(this.listaFiltrada);
+
+      // 2. Obtener Ámbito dinámico concatenado
+      const ambito = this.obtenerAmbitoUsuario();
+
+      // 3. Limpiar caracteres especiales y normalizar espacios
+      const ambitoLimpio = ambito.replace(/\s+/g, '_').replace(/[/\\?%*:|"<>]/g, '-').trim();
+
+      // 4. Configurar nombre del archivo con Fecha
+      const fecha = new Date();
+      const fechaStr = `${fecha.getDate()}-${fecha.getMonth() + 1}-${fecha.getFullYear()}`;
+      const nombreArchivo = `Reporte_Personal_${ambitoLimpio}_${fechaStr}.xlsx`;
+
+      // 5. Crear el libro y la hoja
+      const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(datosMapeados);
+      const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Personal');
+
+      // 6. Restaurar anchos de columna (Configuración Original)
+      const wscols = [
+        { wch: 12 }, // Cédula
+        { wch: 20 }, // Nombre
+        { wch: 12 }, // Sexo
+        { wch: 18 }, // Nacimiento
+        { wch: 10 }, // Edad
+        { wch: 30 }, // Dirección
+        { wch: 25 }, // Ubicación UBCH
+        { wch: 15 }, // Teléfono
+        { wch: 25 }, // Correo
+        { wch: 18 }, // Tipo Personal
+        { wch: 20 }, // Situación
+        { wch: 12 }, // Turno
+        { wch: 15 }, // Ingreso
+        { wch: 15 }, // Antigüedad
+        { wch: 10 }, // H. Acad
+        { wch: 10 }, // H. Admin
+        { wch: 30 }  // Observaciones
+      ];
+      worksheet['!cols'] = wscols;
+
+      // 7. Descargar archivo
+      XLSX.writeFile(workbook, nombreArchivo);
+
+      this.cargando = false;
+      this.error = "Excel generado correctamente.";
+      setTimeout(() => this.error = null, 3000);
+
+    } catch (err) {
+      console.error('Error al exportar Excel:', err);
+      this.cargando = false;
+      this.error = "Error técnico al generar el archivo.";
+      setTimeout(() => this.error = null, 3000);
+    }
   }
 }

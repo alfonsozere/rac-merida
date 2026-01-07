@@ -41,6 +41,24 @@
   transform: scale(1.03);
 }
 
+/* Evita que el botón cambie de ancho bruscamente al cargar */
+.btn-success {
+  min-width: 180px;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Color verde más cercano al branding de Excel si lo deseas (opcional) */
+.btn-success {
+  background-color: #1d6f42;
+  border-color: #1d6f42;
+}
+
+.btn-success:hover {
+  background-color: #155231;
+  border-color: #103f26;
+}
+
 /* === TABLA DE EMPLEADOS === */
 .empleados-table-wrapper {
   font-size: 0.85rem;
@@ -112,6 +130,7 @@
 }
 
 @media (max-width: 768px) {
+
   .autorizacion-table-compact td,
   .autorizacion-table-compact th {
     padding-top: 0.3rem !important;
@@ -151,6 +170,7 @@
 
 /* Ocultar columnas en pantallas pequeñas para mejorar legibilidad */
 @media (max-width: 836px) {
+
   .empleados-table th:nth-child(5),
   .empleados-table td:nth-child(5) {
     display: none;
@@ -158,6 +178,7 @@
 }
 
 @media (max-width: 746px) {
+
   .empleados-table th:nth-child(3),
   .empleados-table td:nth-child(3) {
     display: none;
@@ -165,6 +186,7 @@
 }
 
 @media (max-width: 581px) {
+
   .empleados-table th:nth-child(4),
   .empleados-table td:nth-child(4) {
     display: none;
@@ -172,6 +194,7 @@
 }
 
 @media (max-width: 480px) {
+
   .empleados-table th:nth-child(1),
   .empleados-table td:nth-child(1) {
     display: none;

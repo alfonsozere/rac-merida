@@ -4,7 +4,7 @@
  * Coincide con la salida del backend getPlanteles.
  */
 export interface Plantel {
-  id_plantel: number; // Mapea a id_plantel del backend
+  id: number; // Mapea a id_plantel del backend
   nombre: string;
   codigo_plantel: string;
   codigo_administrativo?: string | null;

@@ -244,31 +244,38 @@ export class LookupService {
   }
 
   getPlanteles(): Observable<Plantel[]> {
-    return this.http.get<Plantel[]>(`${this.baseBackendUrl}/planteles`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/planteles`).pipe(
+      map(response => {
+        // Extraemos específicamente la propiedad 'planteles' definida en el backend
+        return response && response.planteles ? response.planteles : [];
+      }),
       catchError(this.handleError)
     );
   }
 
   getPlantelesByMunicipio(municipioId: number): Observable<Plantel[]> {
-    return this.http.get<Plantel[]>(`${this.baseBackendUrl}/planteles/municipios/${municipioId}`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/planteles/municipios/${municipioId}`).pipe(
+      map(res => res.planteles || []), // Extraer el array
       catchError(this.handleError)
     );
   }
 
   getPlantelesByEstado(estadoId: number): Observable<Plantel[]> {
-    return this.http.get<Plantel[]>(`${this.baseBackendUrl}/planteles/estados/${estadoId}`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/planteles/estados/${estadoId}`).pipe(
+      map(res => res.planteles || []), // Extraer el array
       catchError(this.handleError)
     );
   }
 
   getPlantelesByCircuito(circuitoId: number): Observable<Plantel[]> {
-    return this.http.get<Plantel[]>(`${this.baseBackendUrl}/planteles/circuito/${circuitoId}`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/planteles/circuito/${circuitoId}`).pipe(
+      map(res => res.planteles || []), // Extraer el array
       catchError(this.handleError)
     );
   }
 
   getPlantelByCodigo(codigoPlantel: string): Observable<Plantel> {
-    return this.http.get<Plantel>(`${this.baseBackendUrl}/planteles/by-codigo/${codigoPlantel}`).pipe(
+    return this.http.get<any>(`${this.baseBackendUrl}/planteles/by-codigo/${codigoPlantel}`).pipe(
       catchError(this.handleError)
     );
   }
